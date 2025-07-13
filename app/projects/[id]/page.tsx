@@ -47,6 +47,12 @@ const projects = [
   }
 ]
 
+export async function generateStaticParams() {
+  return projects.map((project) => ({
+    id: project.id.toString(),
+  }))
+}
+
 type Props = {
   params: { id: string };
   searchParams?: { [key: string]: string | string[] | undefined };
