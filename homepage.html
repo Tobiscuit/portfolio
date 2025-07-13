@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Stitch Design</title>
+    <link href="data:image/x-icon;base64," rel="icon" type="image/x-icon" />
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&amp;family=Source+Serif+Pro:wght@700&amp;display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <style type="text/tailwindcss">
+      :root {
+        --sage-blue-900: #1c2b3a;
+        --parchment-100: #f7f5f2;
+        --arcane-gold-500: #c58940;
+      }
+      body {
+        font-family: 'Inter', sans-serif;
+        background-color: var(--sage-blue-900);
+        color: var(--parchment-100);
+      }
+      .font-source-serif-pro {
+        font-family: 'Source Serif Pro', serif;
+      }
+    </style>
+  </head>
+  <body class="bg-sage-blue-900 text-parchment-100">
+    <div class="relative flex size-full min-h-screen flex-col">
+      <div class="w-full max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
+        <header class="flex items-center justify-between py-6">
+          <div class="flex items-center gap-3">
+            <svg
+              class="h-8 w-8 text-parchment-100"
+              fill="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M12 2L2 7V17L12 22L22 17V7L12 2Z"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+              ></path>
+              <path
+                d="M2 7L12 12M22 7L12 12M12 22V12M17 4.5L7 9.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+              ></path>
+            </svg>
+            <span class="text-xl font-semibold">Designer</span>
+          </div>
+          <nav class="hidden md:flex items-center gap-8">
+            <a
+              class="text-parchment-100 hover:text-arcane-gold-500 transition-colors duration-300 text-sm font-medium"
+              href="#"
+              >About</a
+            >
+            <a
+              class="text-parchment-100 hover:text-arcane-gold-500 transition-colors duration-300 text-sm font-medium"
+              href="#"
+              >Projects</a
+            >
+            <a
+              class="text-parchment-100 hover:text-arcane-gold-500 transition-colors duration-300 text-sm font-medium"
+              href="#"
+              >Contact</a
+            >
+          </nav>
+          <button class="md:hidden">
+            <svg
+              class="w-6 h-6 text-parchment-100"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M4 6h16M4 12h16m-7 6h7"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+              ></path>
+            </svg>
+          </button>
+        </header>
+      </div>
+      <main class="flex-grow flex items-center">
+        <div class="w-full max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
+            <div class="md:col-span-6 text-center md:text-left">
+              <h1
+                class="font-source-serif-pro text-5xl md:text-7xl font-bold leading-tight tracking-tight"
+              >
+                Design That Inspires
+              </h1>
+              <p
+                class="mt-4 text-lg md:text-xl text-parchment-100/80 max-w-lg mx-auto md:mx-0"
+              >
+                A passionate designer creating beautiful, functional, and
+                user-centered digital experiences.
+              </p>
+              <a
+                class="mt-8 inline-block bg-arcane-gold-500 text-sage-blue-900 hover:bg-opacity-90 transition-colors duration-300 font-bold py-3 px-8 rounded-lg text-lg"
+                href="#"
+              >
+                View My Work
+              </a>
+            </div>
+            <div class="md:col-span-6">
+              <div class="aspect-square rounded-lg overflow-hidden shadow-2xl">
+                <img
+                  alt="Abstract design image"
+                  class="w-full h-full object-cover"
+                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuBCQkI_WKIgEMK9rFO6ROyNzPnKoVJRgCbW27r5JA77t3B-XK-9lB32AP0kvxBnN815vdmzKpWxSdtkOdTR4uYMDcl-d9kJZjpfVPqTnjeztInMZrs0Gu8jo3Ps-vXse_rF94n4Hu4E0DZDkJaNb1dAUZkoiCpaaiUEtRzDkX6k1456hH_uzWABprc14ROkUdvzPbufFHNgkjcHiz8LcE7UvZp75F9wWv_xbXi27vL-DMTb5sn069qM4r9beh-uMTDFIwQ8zRIo"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </body>
+</html>

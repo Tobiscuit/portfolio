@@ -1,0 +1,69 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Source+Serif+Pro:wght@700&display=swap');
+
+:root {
+  --sage-blue-900: #0D1B2A;
+  --ink-900: #1B263B;
+  --ink-700: #415A77;
+  --ink-500: #778DA9;
+  --parchment-300: #E0E1DD;
+  --parchment-200: #F0F2F5;
+  --parchment-100: #FFFFFF;
+  --arcane-gold-500: #FFC300;
+  --success-500: #2ECC71;
+  --warning-500: #F39C12;
+  --error-500: #E74C3C;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+  background-color: var(--sage-blue-900);
+  color: var(--parchment-100);
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.font-serif {
+  font-family: 'Source Serif Pro', Georgia, serif;
+}
+
+h1 { font-size: 3.052rem; font-weight: 700; line-height: 1.2; }
+h2 { font-size: 2.441rem; font-weight: 700; line-height: 1.2; }
+h3 { font-size: 1.953rem; font-weight: 600; line-height: 1.3; }
+h4 { font-size: 1.563rem; font-weight: 600; line-height: 1.4; }
+h5 { font-size: 1.25rem; font-weight: 600; line-height: 1.5; }
+
+@layer utilities {
+  .group .ant-trail {
+    position: relative;
+    border: 1px solid transparent; /* Placeholder for border */
+  }
+
+  .group:hover .ant-trail::before {
+    content: "";
+    position: absolute;
+    inset: -2px;
+    border-radius: 0.5rem; /* from rounded-lg */
+    z-index: -1;
+    background: repeating-linear-gradient(
+      45deg,
+      #FFC300,
+      #FFC300 5px,
+      transparent 5px,
+      transparent 10px
+    );
+    animation: ant-trail-flow 0.75s linear infinite;
+  }
+}
+
+@keyframes ant-trail-flow {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 15px 0; /* 10px + 5px */
+  }
+}
