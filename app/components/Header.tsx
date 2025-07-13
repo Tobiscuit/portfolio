@@ -6,10 +6,24 @@ import { useState, useEffect } from 'react'
 import { Menu, X } from 'lucide-react'
 import ResumeModal from './ResumeModal'
 
+const useIsMobile = () => {
+  const [isMobile, setIsMobile] = useState(false)
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
+  return isMobile
+}
+
 export default function Header() {
   const pathname = usePathname()
   const [isResumeModalOpen, setIsResumeModalOpen] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const isMobile = useIsMobile()
 
   const navLinks = [
     { href: '/projects', text: 'Work' },
@@ -75,12 +89,14 @@ export default function Header() {
                 </Link>
               ))}
             </nav>
-            <button
-              onClick={() => setIsResumeModalOpen(true)}
+            <a
+              href={isMobile ? "/resume.pdf" : "#"}
+              onClick={!isMobile ? () => setIsResumeModalOpen(true) : undefined}
+              download={isMobile ? "juan_ramirez_resume.pdf" : undefined}
               className="flex items-center justify-center px-6 py-2 bg-arcane-gold-500 text-sage-blue-900 text-sm font-bold rounded-lg hover:shadow-sm transition-all"
             >
               Resume
-            </button>
+            </a>
           </div>
           
           <button
@@ -116,15 +132,13 @@ export default function Header() {
               </Link>
             ))}
           </nav>
-          <button
-            onClick={() => {
-              setIsMobileMenuOpen(false)
-              setIsResumeModalOpen(true)
-            }}
+          <a
+            href="/resume.pdf"
+            download="juan_ramirez_resume.pdf"
             className="mt-16 w-3/4 flex items-center justify-center px-6 py-3 bg-arcane-gold-500 text-sage-blue-900 font-bold rounded-lg hover:shadow-sm transition-all text-lg"
           >
             Resume
-          </button>
+          </a>
         </div>
       </div>
 

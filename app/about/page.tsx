@@ -3,11 +3,25 @@
 import Image from 'next/image'
 import { ChevronRight } from 'lucide-react'
 import { TitledListItem } from '../components/ui/TitledListItem'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import ResumeModal from '../components/ResumeModal'
+
+const useIsMobile = () => {
+  const [isMobile, setIsMobile] = useState(false)
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
+  return isMobile
+}
 
 export default function About() {
   const [isResumeModalOpen, setIsResumeModalOpen] = useState(false)
+  const isMobile = useIsMobile()
 
   return (
     <>
@@ -93,13 +107,14 @@ export default function About() {
             </div>
             
             <div className="mt-12 text-center lg:text-left">
-              <button
-                type="button"
-                onClick={() => setIsResumeModalOpen(true)}
+              <a
+                href={isMobile ? "/resume.pdf" : "#"}
+                onClick={!isMobile ? () => setIsResumeModalOpen(true) : undefined}
+                download={isMobile ? "juan_ramirez_resume.pdf" : undefined}
                 className="inline-flex items-center justify-center px-8 py-3 bg-arcane-gold-500 text-sage-blue-900 font-bold rounded-lg hover:shadow-sm transition-all duration-300"
               >
                 Download Resume
-              </button>
+              </a>
             </div>
           </div>
         </div>
