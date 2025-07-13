@@ -17,8 +17,8 @@ export default function About() {
             />
           </div>
         </div>
-        <div className="col-span-12 lg:col-span-8 text-center lg:text-left">
-          <h1 className="font-serif text-parchment-100">
+        <div className="col-span-12 lg:col-span-8 lg:text-left">
+          <h1 className="font-serif text-parchment-100 text-center lg:text-left">
             A Foundation Built on First Principles.
           </h1>
           <div className="mt-8 space-y-6 text-ink-500 max-w-3xl mx-auto lg:mx-0">
