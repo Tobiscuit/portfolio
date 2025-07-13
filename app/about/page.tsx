@@ -23,7 +23,7 @@ export default function About() {
           </h1>
           <div className="mt-8 space-y-6 text-ink-500 max-w-3xl mx-auto lg:mx-0">
             <p>
-              My journey into software development began long before my first line of code. It started with a deep-seated curiosity for how things work, which led me to deconstruct and optimize my own computer's performance. Unsatisfied with out-of-the-box speeds, I took it upon myself to understand the system's inner workings. I learned to carefully edit the registry and deploy specialized tools like Revo Uninstaller and CCleaner, all in the pursuit of peak performance.
+              My journey into software development began long before my first line of code. It started with a deep-seated curiosity for how things work, which led me to deconstruct and optimize my own computer&apos;s performance. Unsatisfied with out-of-the-box speeds, I took it upon myself to understand the system&apos;s inner workings. I learned to carefully edit the registry and deploy specialized tools like Revo Uninstaller and CCleaner, all in the pursuit of peak performance.
             </p>
             <p>
               This passion for understanding systems from the inside out naturally led me to programming in high school. What began with C++ and C# has evolved into a career dedicated to building clean, efficient, and scalable web applications. That early drive for performance and precision still informs every project I take on today.
