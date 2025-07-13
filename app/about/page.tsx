@@ -40,6 +40,7 @@ export default function About() {
                   <TitledListItem title="AWS Certified Cloud Practitioner" status="Earned" />
                   <TitledListItem title="AWS Solutions Architect Associate" status="Completed Course" />
                   <TitledListItem title="AWS AI Practitioner" status="Completed Course" />
+                  <TitledListItem title="Azure Fundamentals" status="Completed Course" />
                   <TitledListItem title="CompTIA ITF+" status="Completed Course" />
                   <TitledListItem title="CompTIA A+" status="Completed Course" />
                   <TitledListItem title="CompTIA Network+" status="Completed Course" />
