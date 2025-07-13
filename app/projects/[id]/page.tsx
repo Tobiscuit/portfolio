@@ -47,7 +47,13 @@ const projects = [
   }
 ]
 
-export default function ProjectDetailsPage({ params }: { params: { id: string } }) {
+interface ProjectDetailsPageProps {
+  params: {
+    id: string;
+  };
+}
+
+export default function ProjectDetailsPage({ params }: ProjectDetailsPageProps) {
   const project = projects.find(p => p.id === parseInt(params.id))
 
   if (!project) {
