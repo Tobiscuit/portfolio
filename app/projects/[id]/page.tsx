@@ -47,18 +47,13 @@ const projects = [
   }
 ]
 
-export async function generateStaticParams() {
+export async function generateStaticParams(): Promise<{ id: string }[]> {
   return projects.map((project) => ({
     id: project.id.toString(),
   }))
 }
 
-type Props = {
-  params: { id: string };
-  searchParams?: { [key: string]: string | string[] | undefined };
-};
-
-export default function ProjectDetailsPage({ params }: Props) {
+export default function ProjectDetailsPage({ params }: { params: { id: string } }) {
   const project = projects.find(p => p.id === parseInt(params.id))
 
   if (!project) {
