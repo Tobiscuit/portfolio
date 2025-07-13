@@ -95,7 +95,7 @@ export default function Header() {
       
       {/* Mobile Menu Overlay */}
       <div
-        className={`md:hidden fixed inset-0 bg-sage-blue-900 transition-opacity duration-300 ease-in-out ${
+        className={`md:hidden fixed inset-0 bg-sage-blue-900 z-40 transition-opacity duration-300 ease-in-out ${
           isMobileMenuOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
         }`}
       >
