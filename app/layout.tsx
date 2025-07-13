@@ -4,8 +4,8 @@ import { Inter, Source_Serif_4 } from 'next/font/google'
 import Header from './components/Header'
 
 export const metadata: Metadata = {
-  title: 'SageScale Design - Elena Ramirez',
-  description: 'A passionate designer creating beautiful, functional, and user-centered digital experiences.',
+  title: 'Juan Ramirez | Portfolio',
+  description: 'The portfolio of Juan Ramirez, a software developer specializing in scalable web applications.',
 }
 
 const inter = Inter({
