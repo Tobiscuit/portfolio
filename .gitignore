@@ -19,6 +19,7 @@
 .DS_Store
 *.pem
 metadata-icon.png
+docs/
 
 # Local .env files
 .env.local
