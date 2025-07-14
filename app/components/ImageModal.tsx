@@ -1,6 +1,6 @@
 'use client'
 
-import { Fragment } from 'react'
+import { useEffect } from 'react'
 import Image from 'next/image'
 
 type ImageModalProps = {
@@ -9,6 +9,18 @@ type ImageModalProps = {
 };
 
 export default function ImageModal({ imageUrl, onClose }: ImageModalProps) {
+  useEffect(() => {
+    if (imageUrl) {
+      document.body.classList.add('overflow-hidden');
+    } else {
+      document.body.classList.remove('overflow-hidden');
+    }
+    // Cleanup function to remove the class if the component unmounts
+    return () => {
+      document.body.classList.remove('overflow-hidden');
+    };
+  }, [imageUrl]);
+
   if (!imageUrl) return null
 
   return (

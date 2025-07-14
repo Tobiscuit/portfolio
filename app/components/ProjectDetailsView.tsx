@@ -98,10 +98,10 @@ export default function ProjectDetailsView({ project }: { project: Project }) {
                   <Image src="/images/projects/weatherwise/arch_diagram_3.png" alt="Final Software Architecture Diagram" width={1200} height={800} className="w-full h-auto rounded-lg my-6" />
                 </button>
 
-                <h2 className="font-serif text-3xl text-parchment-100 mt-12 mb-4">Conclusion: More Than Code, A Mindset</h2>
+                <h2 className="font-serif text-3xl text-parchment-100 mt-8 mb-4">Conclusion: More Than Code, A Mindset</h2>
                 <p>This project is a showcase of an engineering mindset that values clarity, simplicity, and robustness over unnecessary complexity. It demonstrates the ability to critically analyze an existing architecture, propose a bold but reasoned alternative, and execute that vision through disciplined, test-driven development and the application of established design patterns.</p>
 
-                <h2 className="font-serif text-3xl text-parchment-100 mt-12 mb-4">Architectural Limitations and Future Work</h2>
+                <h2 className="font-serif text-3xl text-parchment-100 mt-8 mb-4">Architectural Limitations and Future Work</h2>
                 <p>A key principle of senior-level architecture is understanding the trade-offs and limitations of any design. While this application is now robust, tested, and maintainable, it is optimized for clarity and cost-effectiveness as a portfolio piece, not for high-traffic production loads. The following points represent the next logical iteration to make it a truly production-grade system.</p>
                 <ul className="list-disc pl-5 space-y-2">
                   <li><strong>The Scalability Trap of In-Memory Caching:</strong> In a serverless environment like Google Cloud Run, which scales by creating multiple, independent container instances, each instance would have its own isolated cache. This leads to inconsistent performance and low cache-hit ratios under load.<br/><strong>The Solution:</strong> Implement the <strong>Strategy Pattern</strong> for caching. I would define a <code>CacheStrategy</code> interface and create two implementations: an <code>InMemoryCacheStrategy</code> for local development, and a <code>RedisCacheStrategy</code> for production. The production strategy would connect to a managed, distributed cache like <strong>Google Cloud Memorystore for Redis</strong>, ensuring all container instances share a single, consistent cache.</li>
