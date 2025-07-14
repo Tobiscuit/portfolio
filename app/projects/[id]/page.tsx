@@ -1,5 +1,6 @@
 
 import Link from 'next/link'
+import Image from 'next/image'
 
 // This data would typically be fetched from a CMS or database
 const projects = [
@@ -21,7 +22,8 @@ const projects = [
       "Jest", 
       "Open-Meteo API", 
       "Geocode Maps API"
-    ]
+    ],
+    image: "/weatherwise-screenshot.png"
   },
   {
     id: 2,
@@ -94,11 +96,21 @@ export default function ProjectDetailsPage({ params }: { params: { id: string } 
 
         <main className="grid grid-cols-1 lg:grid-cols-3 gap-12">
           <div className="lg:col-span-2">
-            <div className="aspect-w-16 aspect-h-9 rounded-lg bg-ink-900 mb-8" style={{
-              backgroundImage: `radial-gradient(#415A77 1px, transparent 1px)`,
-              backgroundSize: `16px 16px`,
-            }}>
-              {/* Main project image placeholder */}
+            <div className="aspect-w-16 aspect-h-9 rounded-lg bg-ink-900 mb-8 overflow-hidden">
+              {project.image ? (
+                <Image
+                  src={project.image}
+                  alt={`Screenshot of ${project.title}`}
+                  width={1920}
+                  height={1080}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full" style={{
+                  backgroundImage: `radial-gradient(#415A77 1px, transparent 1px)`,
+                  backgroundSize: `16px 16px`,
+                }}></div>
+              )}
             </div>
             
             <div className="prose prose-invert text-parchment-300 max-w-none space-y-6">

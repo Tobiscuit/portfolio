@@ -3,8 +3,9 @@ import ProjectCard from '../components/ProjectCard'
 const projects = [
   {
     id: 1,
-    title: "Project Alpha",
-    description: "A description for Project Alpha, showcasing problem-solving and technical skills.",
+    title: "WeatherWise AI",
+    description: "A case study in architectural refactoring, transforming a complex microservice proof-of-concept into a robust monolithic service.",
+    image: "/weatherwise-screenshot.png",
   },
   {
     id: 2,
