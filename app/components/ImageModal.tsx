@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import Image from 'next/image'
 import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch'
 
@@ -10,6 +10,8 @@ type ImageModalProps = {
 }
 
 export default function ImageModal({ imageUrl, onClose }: ImageModalProps) {
+  const scrollPosition = useRef(0)
+
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
@@ -18,14 +20,25 @@ export default function ImageModal({ imageUrl, onClose }: ImageModalProps) {
     }
 
     if (imageUrl) {
+      scrollPosition.current = window.scrollY
       document.body.classList.add('overflow-hidden')
+      document.body.style.position = 'fixed'
+      document.body.style.top = `-${scrollPosition.current}px`
+      document.body.style.width = '100%'
       window.addEventListener('keydown', handleKeyDown)
     } else {
       document.body.classList.remove('overflow-hidden')
+      document.body.style.position = ''
+      document.body.style.top = ''
+      document.body.style.width = ''
+      window.scrollTo(0, scrollPosition.current)
     }
 
     return () => {
       document.body.classList.remove('overflow-hidden')
+      document.body.style.position = ''
+      document.body.style.top = ''
+      document.body.style.width = ''
       window.removeEventListener('keydown', handleKeyDown)
     }
   }, [imageUrl, onClose])
