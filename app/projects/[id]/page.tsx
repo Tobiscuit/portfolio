@@ -101,10 +101,45 @@ export default function ProjectDetailsPage({ params }: { params: { id: string } 
               {/* Main project image placeholder */}
             </div>
             
-            <h2 className="font-serif text-3xl text-parchment-100 mb-4">About the Project</h2>
-            <div className="prose prose-invert text-parchment-300 max-w-none space-y-4">
-              <p>This is where a more detailed explanation of the project would go. It would cover the challenges, the solutions, and the overall process from conception to deployment. For now, it&apos;s placeholder text.</p>
-              <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+            <div className="prose prose-invert text-parchment-300 max-w-none space-y-6">
+              <h2 className="font-serif text-3xl text-parchment-100 mb-4">The Initial Spark: Questioning the "As-Is" Architecture</h2>
+              <p>My involvement began with a simple request: to understand the WeatherWise application's architecture. The initial diagrams revealed a system composed of two distinct microservices: a main application backend and a separate service for its AI component, "Nimbus," which used Google Gemini to generate summaries.</p>
+              
+              <div className="p-4 border border-dashed border-ink-700 rounded-lg text-center text-ink-500">
+                [Placeholder for Corrected As-Is Architecture Diagram]
+              </div>
+
+              <p>While functional, I immediately questioned the validity of this approach. My architectural intuition suggested that for the scale and scope of this project, the added complexity of a microservice architecture was not providing value. It introduced network latency, operational overhead, and a deployment dependency between two services that were, in reality, tightly coupled. I concluded that the architecture was unnecessarily complicated and that a simpler, more direct approach would yield a better result.</p>
+
+              <h2 className="font-serif text-3xl text-parchment-100 mb-4">The Strategic Pivot: A Case for a Well-Structured Monolith</h2>
+              <p>Based on this analysis, I proposed a significant architectural pivot: we would refactor the application into a single monolithic service. This decision was driven by first-principles of software design: reducing complexity, improving performance, and lowering costs. The goal was to create a "to-be" architecture that was lean, efficient, and easier to reason about.</p>
+
+              <div className="p-4 border border-dashed border-ink-700 rounded-lg text-center text-ink-500">
+                [Placeholder for Proposed Monolith Architecture Diagram]
+              </div>
+
+              <h2 className="font-serif text-3xl text-parchment-100 mb-4">The Execution: A Disciplined, Multi-Stage Refactoring</h2>
+              <p>With a clear architectural goal, I executed a methodical refactoring process, applying senior engineering best practices at each stage.</p>
+              <ol>
+                <li><strong>Service-Oriented Design & The Facade Pattern:</strong> I untangled the business logic from the web server by designing and implementing a dedicated service layer (`LocationService`, `WeatherService`, `GeminiService`), encapsulating all external API interactions.</li>
+                <li><strong>Dependency Injection for Testability:</strong> Crucially, the new services were designed to be testable. Instead of creating their own dependencies, dependencies like the HTTP client were injected into their constructors, unlocking our ability to perform comprehensive unit testing.</li>
+                <li><strong>Test-Driven Cleanup & Verification:</strong> I developed a full suite of unit tests using Jest and axios-mock-adapter. This testing process acted as a quality gate, revealing dead code, unused dependencies, and subtle bugs.</li>
+              </ol>
+
+              <h2 className="font-serif text-3xl text-parchment-100 mb-4">The Final Software Architecture</h2>
+              <p>The result of this process is a codebase with a clear, logical, and maintainable internal structure. It is a monolith, but it is not a "big ball of mud." It is a well-structured system with clear boundaries and responsibilities.</p>
+
+              <div className="p-4 border border-dashed border-ink-700 rounded-lg text-center text-ink-500">
+                [Placeholder for Final Software Architecture Diagram]
+              </div>
+
+              <h2 className="font-serif text-3xl text-parchment-100 mb-4">Architectural Limitations and Future Work</h2>
+              <p>A key principle of senior-level architecture is understanding the trade-offs and limitations of any design. The following points represent the next logical iteration to make it a truly production-grade system.</p>
+              <ul>
+                <li><strong>The Scalability Trap of In-Memory Caching:</strong> In a serverless environment, each container instance would have its own isolated cache. The solution is to implement a Strategy Pattern for caching, allowing a switch to a distributed cache like Redis in production.</li>
+                <li><strong>Brittleness to External Service Failure:</strong> The system lacks explicit handling for downstream service failures. The solution is to implement the Circuit Breaker Pattern to detect when a dependency is failing and "trip the breaker" to fail fast and protect the application.</li>
+                <li><strong>Undefined Production Secret Management:</strong> Production secrets should not be managed manually. The solution is to use a service like Google Secret Manager to securely inject secrets at deployment time, making the process automated and secure.</li>
+              </ul>
             </div>
           </div>
           
