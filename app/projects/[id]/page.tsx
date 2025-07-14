@@ -115,51 +115,49 @@ export default function ProjectDetailsPage({ params }: { params: { id: string } 
             
             <div className="prose prose-invert text-parchment-300 max-w-none space-y-6">
               <h2 className="font-serif text-3xl text-parchment-100 mb-4">The Initial Spark: Questioning the "As-Is" Architecture</h2>
-              <p>My involvement began with a simple request: to understand the WeatherWise application's architecture. The initial diagrams revealed a system composed of two distinct microservices: a main application backend and a separate service for its AI component, "Nimbus," which used Google Gemini to generate summaries.</p>
+              <p>My involvement began with a simple request: to understand the application's architecture. The initial diagrams revealed a system composed of two distinct microservices: a main application backend and a separate Gemini service for generating AI summaries.</p>
               
-              <div className="p-4 my-6 border border-dashed border-ink-700 rounded-lg text-center text-ink-500">
-                [Placeholder for "Corrected As-Is Architecture" Diagram]
-              </div>
+              <Image src="/images/projects/weatherwise/arch_diagram_2.drawio.png" alt="Corrected As-Is Architecture Diagram" width={1200} height={800} className="w-full h-auto rounded-lg my-6" />
 
               <p>While functional, I immediately questioned the validity of this approach. My architectural intuition suggested that for the scale and scope of this project, the added complexity of a microservice architecture was not providing value. It introduced network latency, operational overhead, and a deployment dependency between two services that were, in reality, tightly coupled. I concluded that the architecture was unnecessarily complicated and that a simpler, more direct approach would yield a better result.</p>
 
               <h2 className="font-serif text-3xl text-parchment-100 mt-12 mb-4">The Strategic Pivot: A Case for a Well-Structured Monolith</h2>
               <p>Based on this analysis, I proposed a significant architectural pivot: we would refactor the application into a single monolithic service. This decision was driven by first-principles of software design: reducing complexity, improving performance, and lowering costs. The goal was to create a "to-be" architecture that was lean, efficient, and easier to reason about.</p>
 
-              <div className="p-4 my-6 border border-dashed border-ink-700 rounded-lg text-center text-ink-500">
-                [Placeholder for "Proposed Monolith Architecture" Diagram]
-              </div>
+              <Image src="/images/projects/weatherwise/arch_diagram_3.drawio.png" alt="Proposed Monolith Architecture Diagram" width={1200} height={800} className="w-full h-auto rounded-lg my-6" />
 
               <h2 className="font-serif text-3xl text-parchment-100 mt-12 mb-4">The Execution: A Disciplined, Multi-Stage Refactoring</h2>
               <p>With a clear architectural goal, I executed a methodical refactoring process, applying senior engineering best practices at each stage.</p>
               <ol className="list-decimal pl-5 space-y-2">
-                <li><strong>Service-Oriented Design & The Facade Pattern:</strong> I untangled the business logic from the web server by designing and implementing a dedicated service layer (`LocationService`, `WeatherService`, `GeminiService`), encapsulating all external API interactions.</li>
-                <li><strong>Dependency Injection for Testability:</strong> Crucially, the new services were designed to be testable. Instead of creating their own dependencies, dependencies like the HTTP client were injected into their constructors, unlocking our ability to perform comprehensive unit testing.</li>
-                <li><strong>Test-Driven Cleanup & Verification:</strong> I developed a full suite of unit tests using Jest and axios-mock-adapter. This testing process acted as a quality gate, revealing dead code, unused dependencies, and subtle bugs.</li>
-                <li><strong>Process Automation & Cleanup:</strong> The final touch was to professionalize the deployment process. I analyzed the existing manual PowerShell scripts and the `cloudbuild.yaml` file, identified the automated Cloud Build pipeline as the superior solution, and decisively removed the now-obsolete manual scripts, ensuring a clean path to production.</li>
+                <li><strong>Service-Oriented Design & The Facade Pattern:</strong> I untangled the business logic from the web server by designing and implementing a dedicated service layer, encapsulating all external API interactions (`LocationService`, `WeatherService`, `GeminiService`). These services act as **Facades**, providing a simple, clean interface to the application while hiding the complex machinery of authentication, network requests, and error handling.</li>
+                <li><strong>Dependency Injection for Testability:</strong> Crucially, the new services were designed to be testable. Instead of creating their own dependencies, dependencies like the HTTP client were injected into their constructors. This decoupling was the key that unlocked our ability to perform comprehensive unit testing.</li>
+                <li><strong>Test-Driven Cleanup & Verification:</strong> With a testable architecture in place, I developed a full suite of unit tests using **Jest** and **axios-mock-adapter**. This wasn't just about validation; the testing process itself acted as a quality gate, revealing dead code, unused dependencies, and subtle bugs in the implementation. This iterative cycle of testing and fixing was instrumental in achieving a clean, reliable codebase.</li>
+                <li><strong>Process Automation & Cleanup:</strong> The final touch was to professionalize the deployment process. I analyzed the existing manual PowerShell scripts and the `cloudbuild.yaml` file. I identified the automated Cloud Build pipeline as the superior, repeatable solution. I updated the Cloud Build configuration to match our new monolithic architecture, and decisively removed the now-obsolete manual scripts, ensuring a clean and unambiguous path to production.</li>
               </ol>
 
               <h2 className="font-serif text-3xl text-parchment-100 mt-12 mb-4">The Final Software Architecture</h2>
               <p>The result of this process is a codebase with a clear, logical, and maintainable internal structure. It is a monolith, but it is not a "big ball of mud." It is a well-structured system with clear boundaries and responsibilities.</p>
-
-              <div className="p-4 my-6 border border-dashed border-ink-700 rounded-lg text-center text-ink-500">
-                [Placeholder for "Final Software Architecture" Diagram]
-              </div>
-
-              <h2 className="font-serif text-3xl text-parchment-100 mt-12 mb-4">Architectural Limitations and Future Work</h2>
-              <p>A key principle of senior-level architecture is understanding the trade-offs and limitations of any design. The following points represent the next logical iteration to make it a truly production-grade system.</p>
-              <ul className="list-disc pl-5 space-y-2">
-                <li><strong>The Scalability Trap of In-Memory Caching:</strong> In a serverless environment, each container instance would have its own isolated cache. The solution is to implement a Strategy Pattern for caching, allowing a switch to a distributed cache like Redis in production.</li>
-                <li><strong>Brittleness to External Service Failure:</strong> The system lacks explicit handling for downstream service failures. The solution is to implement the Circuit Breaker Pattern to detect when a dependency is failing and "trip the breaker" to fail fast and protect the application.</li>
-                <li><strong>Undefined Production Secret Management:</strong> Production secrets should not be managed manually. The solution is to use a service like Google Secret Manager to securely inject secrets at deployment time, making the process automated and secure.</li>
-              </ul>
+              
+              <Image src="/images/projects/weatherwise/arch_diagram_4.drawio.png" alt="Final Software Architecture Diagram" width={1200} height={800} className="w-full h-auto rounded-lg my-6" />
 
               <h2 className="font-serif text-3xl text-parchment-100 mt-12 mb-4">Conclusion: More Than Code, A Mindset</h2>
-              <p>The final artifact is not just a working application; it is a clean, well-documented, fully-tested codebase with a professional, automated deployment pipeline—and a clear, forward-looking roadmap for future enhancement. The final cloud architecture we deployed is as follows:</p>
+              <p>This project is a showcase of an engineering mindset that values clarity, simplicity, and robustness over unnecessary complexity. It demonstrates the ability to critically analyze an existing architecture, propose a bold but reasoned alternative, and execute that vision through disciplined, test-driven development and the application of established design patterns.</p>
 
-              <div className="p-4 my-6 border border-dashed border-ink-700 rounded-lg text-center text-ink-500">
-                [Placeholder for "Final Cloud Architecture" Diagram]
-              </div>
+              <h2 className="font-serif text-3xl text-parchment-100 mt-12 mb-4">Architectural Limitations and Future Work</h2>
+              <p>A key principle of senior-level architecture is understanding the trade-offs and limitations of any design. While this application is now robust, tested, and maintainable, it is optimized for clarity and cost-effectiveness as a portfolio piece, not for high-traffic production loads. The following points represent the next logical iteration to make it a truly production-grade system.</p>
+              <ul className="list-disc pl-5 space-y-2">
+                <li><strong>The Scalability Trap of In-Memory Caching:</strong> In a serverless environment like Google Cloud Run, which scales by creating multiple, independent container instances, each instance would have its own isolated cache. This leads to inconsistent performance and low cache-hit ratios under load.
+                - **The Solution:** Implement the **Strategy Pattern** for caching. We would define a `CacheStrategy` interface and create two implementations: an `InMemoryCacheStrategy` for local development, and a `RedisCacheStrategy` for production. The production strategy would connect to a managed, distributed cache like **Google Cloud Memorystore for Redis**, ensuring all container instances share a single, consistent cache.</li>
+                <li><strong>Brittleness to External Service Failure:</strong> The current service layer is optimistic and does not explicitly handle scenarios where a downstream dependency (like the Geocoding or Weather API) becomes slow or unresponsive. This can lead to blocked request threads and cascading failures.
+                - **The Solution:** Implement the **Circuit Breaker Pattern**. By wrapping external API calls in a circuit breaker (e.g., using a library like `opossum`), the application could detect when a downstream service is failing. It would "trip the breaker," failing fast on subsequent requests for a period of time, allowing the dependency to recover and protecting our own application from being dragged down.</li>
+                <li><strong>Undefined Production Secret Management:** While we use `.env` files for local development, the process for injecting production secrets (like the `GEOCODE_API_KEY`) is not codified. This relies on manual configuration in the Cloud Console, which is error-prone and not repeatable.
+                - **The Solution:** Use **Google Secret Manager**. The API key would be stored securely in Secret Manager. The Cloud Run service's identity would be granted the "Secret Manager Secret Accessor" role, and the `cloudbuild.yaml` would be updated to securely mount this secret as an environment variable at deployment time. This makes the entire process automated, secure, and defined as code.</li>
+              </ul>
+
+              <p>The final artifact is not just a working application; it is a clean, well-documented, fully-tested codebase with a professional, automated deployment pipeline—and a clear, forward-looking roadmap for future enhancement.</p>
+              <p>The final cloud architecture we deployed is as follows:</p>
+
+              <Image src="/images/projects/weatherwise/arch_diagram_5.drawio.png" alt="Final Cloud Architecture Diagram" width={1200} height={800} className="w-full h-auto rounded-lg my-6" />
 
             </div>
           </div>

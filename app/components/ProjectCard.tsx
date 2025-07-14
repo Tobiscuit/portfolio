@@ -16,17 +16,17 @@ export default function ProjectCard({ project }: ProjectCardProps) {
   return (
     <Link href={`/projects/${project.id}`} className="group block">
       <div className="flex flex-col gap-4">
-        <div className="aspect-w-16 aspect-h-9 overflow-hidden rounded-lg ant-trail">
+        <div className="overflow-hidden rounded-lg">
           {project.image ? (
             <Image 
               src={project.image}
               alt={project.title}
               width={1920}
               height={1080}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+              className="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-300 aspect-[16/9]"
             />
           ) : (
-            <div className="w-full h-full bg-ink-900" style={{
+            <div className="w-full bg-ink-900 aspect-[16/9]" style={{
               backgroundImage: `radial-gradient(#415A77 1px, transparent 1px)`,
               backgroundSize: `12px 12px`,
             }}>
