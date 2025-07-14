@@ -114,6 +114,17 @@ export default function ProjectDetailsPage({ params }: { params: { id: string } 
                 }}></div>
               )}
             </div>
+
+            <div className="lg:hidden mb-8">
+              <h4 className="font-bold text-parchment-200 mb-2">Technologies Used</h4>
+              <div className="flex flex-wrap gap-2">
+                {project.tech.map(tech => (
+                  <span key={tech} className="bg-ink-700 text-parchment-200 text-sm font-medium px-2.5 py-1 rounded">
+                    {tech}
+                  </span>
+                ))}
+              </div>
+            </div>
             
             <div className="prose prose-lg prose-invert text-parchment-300 max-w-none space-y-6 prose-p:leading-relaxed">
               <h2 className="font-serif text-3xl text-parchment-100 mb-4">The Initial Spark: Questioning the "As-Is" Architecture</h2>
@@ -124,7 +135,7 @@ export default function ProjectDetailsPage({ params }: { params: { id: string } 
               <p>While functional, I immediately questioned the validity of this approach. My architectural intuition suggested that for the scale and scope of this project, the added complexity of a microservice architecture was not providing value. It introduced network latency, operational overhead, and a deployment dependency between two services that were, in reality, tightly coupled. I concluded that the architecture was unnecessarily complicated and that a simpler, more direct approach would yield a better result.</p>
 
               <h2 className="font-serif text-3xl text-parchment-100 mt-12 mb-4">The Strategic Pivot: A Case for a Well-Structured Monolith</h2>
-              <p>Based on this analysis, I proposed a significant architectural pivot: refactor the application into a single monolithic service. This decision was driven by first-principles of software design: reducing complexity, improving performance, and lowering costs. The goal was to create a "to-be" architecture that was lean, efficient, and easier to reason about.</p>
+              <p>Based on this analysis, I charted a new course: a significant architectural pivot to refactor the application into a single monolithic service. This decision was driven by first-principles of software design: reducing complexity, improving performance, and lowering costs. The goal was to create a "to-be" architecture that was lean, efficient, and easier to reason about.</p>
 
               <Image src="/images/projects/weatherwise/arch_diagram_2.drawio.png" alt="Proposed Monolith Architecture Diagram" width={1200} height={800} className="w-full h-auto rounded-lg my-6" />
 
@@ -153,7 +164,7 @@ export default function ProjectDetailsPage({ params }: { params: { id: string } 
                 <li><strong>Undefined Production Secret Management:</strong> While the app uses <code>.env</code> files for local development, the process for injecting production secrets (like the <code>GEOCODE_API_KEY</code>) is not codified. This relies on manual configuration in the Cloud Console, which is error-prone and not repeatable.<br/><strong>The Solution:</strong> Use <strong>Google Secret Manager</strong>. The API key would be stored securely in Secret Manager. The Cloud Run service's identity would be granted the "Secret Manager Secret Accessor" role, and the <code>cloudbuild.yaml</code> would be updated to securely mount this secret as an environment variable at deployment time. This makes the entire process automated, secure, and defined as code.</li>
               </ul>
 
-              <p>The final artifact is not just a working application; it is a clean, well-documented, fully-tested codebase with a professional, automated deployment pipeline—and a clear, forward-looking roadmap for future enhancement.</p>
+              <p>The final artifact is not just a working application; it is a clean, well-documented, fully-tested codebase with a professional, automated deployment pipeline, and a clear, forward-looking roadmap for future enhancement.</p>
               <p>The final cloud architecture I deployed is as follows:</p>
 
               <Image src="/images/projects/weatherwise/arch_diagram_4.drawio.png" alt="Final Cloud Architecture Diagram" width={1200} height={800} className="w-full h-auto rounded-lg my-6" />
@@ -170,13 +181,15 @@ export default function ProjectDetailsPage({ params }: { params: { id: string } 
                 {project.features.map(feature => <li key={feature}>{feature}</li>)}
               </ul>
 
-              <h4 className="font-bold text-parchment-200 mt-6 mb-2">Technologies Used</h4>
-              <div className="flex flex-wrap gap-2">
-                {project.tech.map(tech => (
-                  <span key={tech} className="bg-ink-700 text-parchment-200 text-sm font-medium px-2.5 py-1 rounded">
-                    {tech}
-                  </span>
-                ))}
+              <div className="hidden lg:block">
+                <h4 className="font-bold text-parchment-200 mt-6 mb-2">Technologies Used</h4>
+                <div className="flex flex-wrap gap-2">
+                  {project.tech.map(tech => (
+                    <span key={tech} className="bg-ink-700 text-parchment-200 text-sm font-medium px-2.5 py-1 rounded">
+                      {tech}
+                    </span>
+                  ))}
+                </div>
               </div>
             </div>
           </aside>
