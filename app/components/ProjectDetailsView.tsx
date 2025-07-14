@@ -123,14 +123,16 @@ export default function ProjectDetailsView({ project }: { project: Project }) {
               <div className="sticky top-24 bg-ink-900/50 p-6 rounded-lg">
                 <h3 className="hidden lg:block font-serif text-2xl text-parchment-100 mb-4">Key Information</h3>
                 
-                <h4 className="font-bold text-parchment-200 mt-6 mb-2">Key Features</h4>
-                <ul className="list-disc list-inside text-parchment-300 space-y-1">
-                  {project.features.map(feature => <li key={feature}>{feature}</li>)}
-                </ul>
+                <div className="text-center">
+                  <h4 className="font-bold text-parchment-200 mb-3">Key Features</h4>
+                  <ul className="inline-block list-disc text-left space-y-1">
+                    {project.features.map(feature => <li key={feature}>{feature}</li>)}
+                  </ul>
+                </div>
 
-                <div className="hidden lg:block">
-                  <h4 className="font-bold text-parchment-200 mt-6 mb-2">Technologies Used</h4>
-                  <div className="flex flex-wrap gap-2">
+                <div className="hidden lg:block mt-6">
+                  <h4 className="font-bold text-parchment-200 mb-3 text-center">Technologies Used</h4>
+                  <div className="flex flex-wrap gap-2 justify-center">
                     {project.tech.map(tech => (
                       <span key={tech} className="bg-ink-700 text-parchment-200 text-sm font-medium px-2.5 py-1 rounded">
                         {tech}
