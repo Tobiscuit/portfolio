@@ -1,22 +1,13 @@
-# Case Study: Architectural Refactoring of "WeatherWise"
-
-## Project Overview
-
-| | |
-|---|---|
-| **Project Name** | WeatherWise (featuring Nimbus AI) |
-| **Live URL** | [weatherwise-ai-356687723492.us-central1.run.app](https://weatherwise-ai-356687723492.us-central1.run.app/) |
-| **One-Liner** | An AI-powered weather companion that provides witty, personalized weather summaries for any location worldwide. |
-| **Core Technologies** | Google Cloud Run, Google Gemini, Fastify, TypeScript, Jest, Open-Meteo API, Geocode Maps API |
+# Case Study: Architectural Refactoring of a Cloud-Native Web Application
 
 ## Executive Summary
-This document outlines the strategic refactoring of WeatherWise, a cloud-native web application. The project began as a proof-of-concept with a complex microservice architecture. Through a process of critical analysis, applying established software design patterns, and a rigorous testing discipline, I led the transformation of the application into a robust, maintainable, and performant monolithic service, ready for automated, production-grade deployment.
+This document outlines the strategic refactoring of a cloud-native web application. The project began as a proof-of-concept with a complex microservice architecture. Through a process of critical analysis, applying established software design patterns, and a rigorous testing discipline, I led the transformation of the application into a robust, maintainable, and performant monolithic service, ready for automated, production-grade deployment.
 
 ---
 
 ### The Initial Spark: Questioning the "As-Is" Architecture
 
-My involvement began with a simple request: to understand the WeatherWise application's architecture. The initial diagrams revealed a system composed of two distinct microservices: a main application backend and a separate service for its AI component, "Nimbus," which used Google Gemini to generate summaries.
+My involvement began with a simple request: to understand the application's architecture. The initial diagrams revealed a system composed of two distinct microservices: a main application backend and a separate Gemini service for generating AI summaries.
 
 ```mermaid
 graph TD
