@@ -5,10 +5,23 @@ import Link from 'next/link'
 const projects = [
   {
     id: 1,
-    title: "Project Alpha",
-    description: "A description for Project Alpha, showcasing problem-solving and technical skills.",
-    features: ["Feature A", "Feature B", "Feature C"],
-    tech: ["Next.js", "Tailwind CSS", "TypeScript"]
+    title: "WeatherWise AI: A Case Study in Architectural Refactoring",
+    description: "This project showcases the strategic refactoring of a cloud-native application, transforming a complex microservice proof-of-concept into a robust, maintainable, and performant monolithic service ready for automated deployment.",
+    features: [
+      "AI-Powered Weather Summaries", 
+      "Monolithic Service Refactoring", 
+      "Test-Driven Development", 
+      "Automated CI/CD with Cloud Build"
+    ],
+    tech: [
+      "Google Cloud Run", 
+      "Google Gemini", 
+      "Fastify", 
+      "TypeScript", 
+      "Jest", 
+      "Open-Meteo API", 
+      "Geocode Maps API"
+    ]
   },
   {
     id: 2,
