@@ -5,6 +5,22 @@ import Link from 'next/link'
 import Image from 'next/image'
 import ImageModal from '@/app/components/ImageModal'
 
+type CaseStudySection = {
+  title: string;
+  text: string;
+  image?: string;
+  imageAlt?: string;
+  list?: string[];
+}
+
+type CaseStudy = {
+  intro: CaseStudySection;
+  sections: CaseStudySection[];
+  conclusion: { title: string; text: string; };
+  futureWork: { title:string; intro: string; points: { title: string; text: string }[] };
+  finalArchitecture: { title: string; text: string; image: string; imageAlt: string; };
+}
+
 type Project = {
   id: number;
   title: string;
@@ -12,6 +28,7 @@ type Project = {
   features: string[];
   tech: string[];
   image?: string;
+  caseStudy?: CaseStudy;
 }
 
 export default function ProjectDetailsView({ project }: { project: Project }) {
@@ -66,56 +83,61 @@ export default function ProjectDetailsView({ project }: { project: Project }) {
               </div>
               
               <div className="prose prose-lg prose-invert text-parchment-300 max-w-none space-y-6 prose-p:leading-relaxed">
-                <h2 className="font-serif text-3xl text-parchment-100 mb-4">The Initial Spark: Questioning the "As-Is" Architecture</h2>
-                <p>My involvement began with a simple request: to understand the application's architecture. The initial diagrams revealed a system composed of two distinct microservices: a main application backend and a separate Gemini service for generating AI summaries.</p>
-                
-                <button onClick={() => openModal('/images/projects/weatherwise/arch_diagram_1.png')} className="w-full block">
-                  <Image src="/images/projects/weatherwise/arch_diagram_1.png" alt="Initial As-Is Architecture Diagram" width={1200} height={800} className="w-full h-auto rounded-lg my-6" />
-                </button>
+                {project.caseStudy ? (
+                  <>
+                    {/* Intro */}
+                    <h2 className="font-serif text-3xl text-parchment-100 mb-4">{project.caseStudy.intro.title}</h2>
+                    <p dangerouslySetInnerHTML={{ __html: project.caseStudy.intro.text }} />
+                    {project.caseStudy.intro.image && (
+                      <button onClick={() => openModal(project.caseStudy.intro.image!)} className="w-full block">
+                        <Image src={project.caseStudy.intro.image} alt={project.caseStudy.intro.imageAlt!} width={1200} height={800} className="w-full h-auto rounded-lg my-6" />
+                      </button>
+                    )}
 
-                <p>While functional, I immediately questioned the validity of this approach. My architectural intuition suggested that for the scale and scope of this project, the added complexity of a microservice architecture was not providing value. It introduced network latency, operational overhead, and a deployment dependency between two services that were, in reality, tightly coupled. I concluded that the architecture was unnecessarily complicated and that a simpler, more direct approach would yield a better result.</p>
+                    {/* Sections */}
+                    {project.caseStudy.sections.map((section, index) => (
+                      <div key={index}>
+                        <h2 className="font-serif text-3xl text-parchment-100 mt-12 mb-4">{section.title}</h2>
+                        <p dangerouslySetInnerHTML={{ __html: section.text }} />
+                        {section.list && (
+                          <ol className="list-decimal pl-5 space-y-2">
+                            {section.list.map((item, i) => <li key={i} dangerouslySetInnerHTML={{ __html: item }} />)}
+                          </ol>
+                        )}
+                        {section.image && (
+                          <button onClick={() => openModal(section.image!)} className="w-full block">
+                            <Image src={section.image} alt={section.imageAlt!} width={1200} height={800} className="w-full h-auto rounded-lg my-6" />
+                          </button>
+                        )}
+                      </div>
+                    ))}
 
-                <h2 className="font-serif text-3xl text-parchment-100 mt-12 mb-4">The Strategic Pivot: A Case for a Well-Structured Monolith</h2>
-                <p>Based on this analysis, I charted a new course: a significant architectural pivot to refactor the application into a single monolithic service. This decision was driven by first-principles of software design: reducing complexity, improving performance, and lowering costs. The goal was to create a "to-be" architecture that was lean, efficient, and easier to reason about.</p>
+                    {/* Conclusion */}
+                    <h2 className="font-serif text-3xl text-parchment-100 mt-12 mb-4">{project.caseStudy.conclusion.title}</h2>
+                    <p dangerouslySetInnerHTML={{ __html: project.caseStudy.conclusion.text }} />
 
-                <button onClick={() => openModal('/images/projects/weatherwise/arch_diagram_2.png')} className="w-full block">
-                  <Image src="/images/projects/weatherwise/arch_diagram_2.png" alt="Proposed Monolith Architecture Diagram" width={1200} height={800} className="w-full h-auto rounded-lg my-6" />
-                </button>
-
-                <h2 className="font-serif text-3xl text-parchment-100 mt-12 mb-4">The Execution: A Disciplined, Multi-Stage Refactoring</h2>
-                <p>With a clear architectural goal, I executed a methodical refactoring process, applying senior engineering best practices at each stage.</p>
-                <ol className="list-decimal pl-5 space-y-2">
-                  <li><strong>Service-Oriented Design & The Facade Pattern:</strong> I untangled the business logic from the web server by designing and implementing a dedicated service layer, encapsulating all external API interactions (<code>LocationService</code>, <code>WeatherService</code>, <code>GeminiService</code>). These services act as <strong>Facades</strong>, providing a simple, clean interface to the application while hiding the complex machinery of authentication, network requests, and error handling.</li>
-                  <li><strong>Dependency Injection for Testability:</strong> Crucially, the new services were designed to be testable. Instead of creating their own dependencies, dependencies like the HTTP client were injected into their constructors. This decoupling was the key that unlocked the ability to perform comprehensive unit testing.</li>
-                  <li><strong>Test-Driven Cleanup & Verification:</strong> With a testable architecture in place, I developed a full suite of unit tests using <strong>Jest</strong> and <code>axios-mock-adapter</code>. This wasn't just about validation; the testing process itself acted as a quality gate, revealing dead code, unused dependencies, and subtle bugs in the implementation. This iterative cycle of testing and fixing was instrumental in achieving a clean, reliable codebase.</li>
-                  <li><strong>Process Automation & Cleanup:</strong> The final touch was to professionalize the deployment process. I analyzed the existing manual PowerShell scripts and the <code>cloudbuild.yaml</code> file. I identified the automated Cloud Build pipeline as the superior, repeatable solution. I updated the Cloud Build configuration to match the new monolithic architecture, and decisively removed the now-obsolete manual scripts, ensuring a clean and unambiguous path to production.</li>
-                </ol>
-
-                <h2 className="font-serif text-3xl text-parchment-100 mt-12 mb-4">The Final Software Architecture</h2>
-                <p>The result of this process is a codebase with a clear, logical, and maintainable internal structure. It is a monolith, but it is not a "big ball of mud." It is a well-structured system with clear boundaries and responsibilities.</p>
-                
-                <button onClick={() => openModal('/images/projects/weatherwise/arch_diagram_3.png')} className="w-full block">
-                  <Image src="/images/projects/weatherwise/arch_diagram_3.png" alt="Final Software Architecture Diagram" width={1200} height={800} className="w-full h-auto rounded-lg my-6" />
-                </button>
-
-                <h2 className="font-serif text-3xl text-parchment-100 mt-8 mb-4">Conclusion: More Than Code, A Mindset</h2>
-                <p>This project is a showcase of an engineering mindset that values clarity, simplicity, and robustness over unnecessary complexity. It demonstrates the ability to critically analyze an existing architecture, propose a bold but reasoned alternative, and execute that vision through disciplined, test-driven development and the application of established design patterns.</p>
-
-                <h2 className="font-serif text-3xl text-parchment-100 mt-8 mb-4">Architectural Limitations and Future Work</h2>
-                <p>A key principle of senior-level architecture is understanding the trade-offs and limitations of any design. While this application is now robust, tested, and maintainable, it is optimized for clarity and cost-effectiveness as a portfolio piece, not for high-traffic production loads. The following points represent the next logical iteration to make it a truly production-grade system.</p>
-                <ul className="list-disc pl-5 space-y-2">
-                  <li><strong>The Scalability Trap of In-Memory Caching:</strong> In a serverless environment like Google Cloud Run, which scales by creating multiple, independent container instances, each instance would have its own isolated cache. This leads to inconsistent performance and low cache-hit ratios under load.<br/><strong>The Solution:</strong> Implement the <strong>Strategy Pattern</strong> for caching. I would define a <code>CacheStrategy</code> interface and create two implementations: an <code>InMemoryCacheStrategy</code> for local development, and a <code>RedisCacheStrategy</code> for production. The production strategy would connect to a managed, distributed cache like <strong>Google Cloud Memorystore for Redis</strong>, ensuring all container instances share a single, consistent cache.</li>
-                  <li><strong>Brittleness to External Service Failure:</strong> The current service layer is optimistic and does not explicitly handle scenarios where a downstream dependency (like the Geocoding or Weather API) becomes slow or unresponsive. This can lead to blocked request threads and cascading failures.<br/><strong>The Solution:</strong> Implement the <strong>Circuit Breaker Pattern</strong>. By wrapping external API calls in a circuit breaker (e.g., using a library like <code>opossum</code>), the application could detect when a downstream service is failing. It would "trip the breaker," failing fast on subsequent requests for a period of time, allowing the dependency to recover and protecting my own application from being dragged down.</li>
-                  <li><strong>Undefined Production Secret Management:</strong> While the app uses <code>.env</code> files for local development, the process for injecting production secrets (like the <code>GEOCODE_API_KEY</code>) is not codified. This relies on manual configuration in the Cloud Console, which is error-prone and not repeatable.<br/><strong>The Solution:</strong> Use <strong>Google Secret Manager</strong>. The API key would be stored securely in Secret Manager. The Cloud Run service's identity would be granted the "Secret Manager Secret Accessor" role, and the <code>cloudbuild.yaml</code> would be updated to securely mount this secret as an environment variable at deployment time. This makes the entire process automated, secure, and defined as code.</li>
-                </ul>
-
-                <p>The final artifact is not just a working application; it is a clean, well-documented, fully-tested codebase with a professional, automated deployment pipeline, and a clear, forward-looking roadmap for future enhancement.</p>
-                <p>The final cloud architecture I deployed is as follows:</p>
-
-                <button onClick={() => openModal('/images/projects/weatherwise/arch_diagram_4.png')} className="w-full block">
-                  <Image src="/images/projects/weatherwise/arch_diagram_4.png" alt="Final Cloud Architecture Diagram" width={1200} height={800} className="w-full h-auto rounded-lg my-6" />
-                </button>
-
+                    {/* Future Work */}
+                    <h2 className="font-serif text-3xl text-parchment-100 mt-8 mb-4">{project.caseStudy.futureWork.title}</h2>
+                    <p dangerouslySetInnerHTML={{ __html: project.caseStudy.futureWork.intro }} />
+                    <ul className="list-disc pl-5 space-y-2">
+                      {project.caseStudy.futureWork.points.map((point, i) => (
+                        <li key={i}>
+                          <strong>{point.title}:</strong> <span dangerouslySetInnerHTML={{ __html: point.text }} />
+                        </li>
+                      ))}
+                    </ul>
+                    
+                    {/* Final Architecture */}
+                    <h2 className="font-serif text-3xl text-parchment-100 mt-8 mb-4">{project.caseStudy.finalArchitecture.title}</h2>
+                    <p dangerouslySetInnerHTML={{ __html: project.caseStudy.finalArchitecture.text }} />
+                    <p>The final cloud architecture I deployed is as follows:</p>
+                    <button onClick={() => openModal(project.caseStudy.finalArchitecture.image)} className="w-full block">
+                      <Image src={project.caseStudy.finalArchitecture.image} alt={project.caseStudy.finalArchitecture.imageAlt} width={1200} height={800} className="w-full h-auto rounded-lg my-6" />
+                    </button>
+                  </>
+                ) : (
+                  <p>A detailed case study for this project is coming soon.</p>
+                )}
               </div>
             </div>
             
