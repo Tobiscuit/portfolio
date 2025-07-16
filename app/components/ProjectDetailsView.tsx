@@ -83,62 +83,67 @@ export default function ProjectDetailsView({ project }: { project: Project }) {
               </div>
               
               <div className="prose prose-lg prose-invert text-parchment-300 max-w-none space-y-6 prose-p:leading-relaxed">
-                {!project.caseStudy && (
-                  <p>A detailed case study for this project is coming soon.</p>
-                )}
-                {project.caseStudy && (
-                  <>
-                    {/* Intro */}
-                    <h2 className="font-serif text-3xl text-parchment-100 mb-4">{project.caseStudy.intro.title}</h2>
-                    <p dangerouslySetInnerHTML={{ __html: project.caseStudy.intro.text }} />
-                    {project.caseStudy.intro.image && (
-                      <button onClick={() => openModal(project.caseStudy.intro.image!)} className="w-full block">
-                        <Image src={project.caseStudy.intro.image} alt={project.caseStudy.intro.imageAlt!} width={1200} height={800} className="w-full h-auto rounded-lg my-6" />
-                      </button>
-                    )}
+                {(() => {
+                  if (!project.caseStudy) {
+                    return <p>A detailed case study for this project is coming soon.</p>;
+                  }
+                  
+                  const { caseStudy } = project;
 
-                    {/* Sections */}
-                    {project.caseStudy.sections.map((section, index) => (
-                      <div key={index}>
-                        <h2 className="font-serif text-3xl text-parchment-100 mt-12 mb-4">{section.title}</h2>
-                        <p dangerouslySetInnerHTML={{ __html: section.text }} />
-                        {section.list && (
-                          <ol className="list-decimal pl-5 space-y-2">
-                            {section.list.map((item, i) => <li key={i} dangerouslySetInnerHTML={{ __html: item }} />)}
-                          </ol>
-                        )}
-                        {section.image && (
-                          <button onClick={() => openModal(section.image!)} className="w-full block">
-                            <Image src={section.image} alt={section.imageAlt!} width={1200} height={800} className="w-full h-auto rounded-lg my-6" />
-                          </button>
-                        )}
-                      </div>
-                    ))}
+                  return (
+                    <>
+                      {/* Intro */}
+                      <h2 className="font-serif text-3xl text-parchment-100 mb-4">{caseStudy.intro.title}</h2>
+                      <p dangerouslySetInnerHTML={{ __html: caseStudy.intro.text }} />
+                      {caseStudy.intro.image && (
+                        <button onClick={() => openModal(caseStudy.intro.image!)} className="w-full block">
+                          <Image src={caseStudy.intro.image} alt={caseStudy.intro.imageAlt!} width={1200} height={800} className="w-full h-auto rounded-lg my-6" />
+                        </button>
+                      )}
 
-                    {/* Conclusion */}
-                    <h2 className="font-serif text-3xl text-parchment-100 mt-12 mb-4">{project.caseStudy.conclusion.title}</h2>
-                    <p dangerouslySetInnerHTML={{ __html: project.caseStudy.conclusion.text }} />
-
-                    {/* Future Work */}
-                    <h2 className="font-serif text-3xl text-parchment-100 mt-8 mb-4">{project.caseStudy.futureWork.title}</h2>
-                    <p dangerouslySetInnerHTML={{ __html: project.caseStudy.futureWork.intro }} />
-                    <ul className="list-disc pl-5 space-y-2">
-                      {project.caseStudy.futureWork.points.map((point, i) => (
-                        <li key={i}>
-                          <strong>{point.title}:</strong> <span dangerouslySetInnerHTML={{ __html: point.text }} />
-                        </li>
+                      {/* Sections */}
+                      {caseStudy.sections.map((section, index) => (
+                        <div key={index}>
+                          <h2 className="font-serif text-3xl text-parchment-100 mt-12 mb-4">{section.title}</h2>
+                          <p dangerouslySetInnerHTML={{ __html: section.text }} />
+                          {section.list && (
+                            <ol className="list-decimal pl-5 space-y-2">
+                              {section.list.map((item, i) => <li key={i} dangerouslySetInnerHTML={{ __html: item }} />)}
+                            </ol>
+                          )}
+                          {section.image && (
+                            <button onClick={() => openModal(section.image!)} className="w-full block">
+                              <Image src={section.image} alt={section.imageAlt!} width={1200} height={800} className="w-full h-auto rounded-lg my-6" />
+                            </button>
+                          )}
+                        </div>
                       ))}
-                    </ul>
-                    
-                    {/* Final Architecture */}
-                    <h2 className="font-serif text-3xl text-parchment-100 mt-8 mb-4">{project.caseStudy.finalArchitecture.title}</h2>
-                    <p dangerouslySetInnerHTML={{ __html: project.caseStudy.finalArchitecture.text }} />
-                    <p>The final cloud architecture I deployed is as follows:</p>
-                    <button onClick={() => openModal(project.caseStudy.finalArchitecture.image)} className="w-full block">
-                      <Image src={project.caseStudy.finalArchitecture.image} alt={project.caseStudy.finalArchitecture.imageAlt} width={1200} height={800} className="w-full h-auto rounded-lg my-6" />
-                    </button>
-                  </>
-                )}
+
+                      {/* Conclusion */}
+                      <h2 className="font-serif text-3xl text-parchment-100 mt-12 mb-4">{caseStudy.conclusion.title}</h2>
+                      <p dangerouslySetInnerHTML={{ __html: caseStudy.conclusion.text }} />
+
+                      {/* Future Work */}
+                      <h2 className="font-serif text-3xl text-parchment-100 mt-8 mb-4">{caseStudy.futureWork.title}</h2>
+                      <p dangerouslySetInnerHTML={{ __html: caseStudy.futureWork.intro }} />
+                      <ul className="list-disc pl-5 space-y-2">
+                        {caseStudy.futureWork.points.map((point, i) => (
+                          <li key={i}>
+                            <strong>{point.title}:</strong> <span dangerouslySetInnerHTML={{ __html: point.text }} />
+                          </li>
+                        ))}
+                      </ul>
+                      
+                      {/* Final Architecture */}
+                      <h2 className="font-serif text-3xl text-parchment-100 mt-8 mb-4">{caseStudy.finalArchitecture.title}</h2>
+                      <p dangerouslySetInnerHTML={{ __html: caseStudy.finalArchitecture.text }} />
+                      <p>The final cloud architecture I deployed is as follows:</p>
+                      <button onClick={() => openModal(caseStudy.finalArchitecture.image)} className="w-full block">
+                        <Image src={caseStudy.finalArchitecture.image} alt={caseStudy.finalArchitecture.imageAlt} width={1200} height={800} className="w-full h-auto rounded-lg my-6" />
+                      </button>
+                    </>
+                  );
+                })()}
               </div>
             </div>
             
