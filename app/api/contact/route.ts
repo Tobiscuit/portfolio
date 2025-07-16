@@ -1,4 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { SQSClient, SendMessageCommand } from '@aws-sdk/client-sqs'
+
+// Initialize SQS Client
+const sqsClient = new SQSClient({
+  region: process.env.AWS_REGION,
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
+  },
+});
 
 export async function POST(request: NextRequest) {
   try {
@@ -22,12 +32,14 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Here you would typically:
-    // 1. Save to database
-    // 2. Send email notification
-    // 3. Integrate with email service (SendGrid, Mailgun, etc.)
-    
-    console.log('Contact form submission:', { name, email, message })
+    // Prepare message for SQS
+    const messageParams = {
+      QueueUrl: process.env.SQS_QUEUE_URL!,
+      MessageBody: JSON.stringify({ name, email, message }),
+    };
+
+    // Send message to SQS
+    await sqsClient.send(new SendMessageCommand(messageParams));
 
     return NextResponse.json(
       { message: 'Message sent successfully' },
