@@ -83,7 +83,10 @@ export default function ProjectDetailsView({ project }: { project: Project }) {
               </div>
               
               <div className="prose prose-lg prose-invert text-parchment-300 max-w-none space-y-6 prose-p:leading-relaxed">
-                {project.caseStudy ? (
+                {!project.caseStudy && (
+                  <p>A detailed case study for this project is coming soon.</p>
+                )}
+                {project.caseStudy && (
                   <>
                     {/* Intro */}
                     <h2 className="font-serif text-3xl text-parchment-100 mb-4">{project.caseStudy.intro.title}</h2>
@@ -135,8 +138,6 @@ export default function ProjectDetailsView({ project }: { project: Project }) {
                       <Image src={project.caseStudy.finalArchitecture.image} alt={project.caseStudy.finalArchitecture.imageAlt} width={1200} height={800} className="w-full h-auto rounded-lg my-6" />
                     </button>
                   </>
-                ) : (
-                  <p>A detailed case study for this project is coming soon.</p>
                 )}
               </div>
             </div>
