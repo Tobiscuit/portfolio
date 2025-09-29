@@ -18,8 +18,9 @@ export async function generateStaticParams(): Promise<{ id: string }[]> {
   }))
 }
 
-export default function ProjectDetailsPage({ params }: { params: { id: string } }) {
-  const project = projects.find((p: Project) => p.id === parseInt(params.id))
+export default async function ProjectDetailsPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
+  const project = projects.find((p: Project) => p.id === parseInt(id))
 
   if (!project) {
     return (
