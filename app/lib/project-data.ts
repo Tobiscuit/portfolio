@@ -82,34 +82,57 @@ export const projects = [
   },
   {
     id: 2,
+    title: "WeFix4U: Device Repair Service Platform",
+    description: "A modern, responsive web application for a device repair service business, featuring service booking, repair tracking, and customer management. Built with Next.js and deployed on Vercel for optimal performance and scalability.",
+    features: [
+      "Service Booking & Quote System",
+      "Repair Tracking Dashboard", 
+      "Responsive Mobile-First Design",
+      "Google Places API Integration",
+      "Customer Review System",
+      "Transparent Pricing Display"
+    ],
+    tech: [
+      "Next.js 15",
+      "React",
+      "TypeScript",
+      "Tailwind CSS",
+      "Google Places API (New)",
+      "Vercel",
+      "Responsive Design"
+    ],
+    image: "/wefix4u-screenshot.webp"
+  },
+  {
+    id: 3,
     title: "Project Beta",
     description: "A description for Project Beta, highlighting collaboration and innovation.",
     features: ["Feature D", "Feature E", "Feature F"],
     tech: ["React", "Node.js", "PostgreSQL"]
   },
   {
-    id: 3,
+    id: 4,
     title: "Project Gamma",
     description: "A description for Project Gamma, focusing on performance and user experience.",
     features: ["Feature G", "Feature H", "Feature I"],
     tech: ["Vue.js", "Firebase", "Stripe"]
   },
   {
-    id: 4,
+    id: 5,
     title: "Project Delta",
     description: "A description for Project Delta, demonstrating proficiency in modern frameworks.",
     features: ["Feature J", "Feature K", "Feature L"],
     tech: ["SvelteKit", "GraphQL", "Prisma"]
   },
   {
-    id: 5,
+    id: 6,
     title: "Project Epsilon",
     description: "A description for Project Epsilon, illustrating attention to detail and design.",
     features: ["Feature M", "Feature N", "Feature O"],
     tech: ["Angular", "RxJS", "MongoDB"]
   },
   {
-    id: 6,
+    id: 7,
     title: "Project Zeta",
     description: "A description for Project Zeta, summarizing a complex and challenging build.",
     features: ["Feature P", "Feature Q", "Feature R"],
