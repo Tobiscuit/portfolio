@@ -105,13 +105,6 @@ export const projects = [
   },
   {
     id: 3,
-    title: "Project Beta",
-    description: "A description for Project Beta, highlighting collaboration and innovation.",
-    features: ["Feature D", "Feature E", "Feature F"],
-    tech: ["React", "Node.js", "PostgreSQL"]
-  },
-  {
-    id: 4,
     title: "Project Gamma",
     description: "A description for Project Gamma, focusing on performance and user experience.",
     features: ["Feature G", "Feature H", "Feature I"],
