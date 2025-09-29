@@ -1,38 +1,5 @@
 import ProjectCard from '../components/ProjectCard'
-
-const projects = [
-  {
-    id: 1,
-    title: "WeatherWise AI",
-    description: "A case study in architectural refactoring, transforming a complex microservice proof-of-concept into a robust monolithic service.",
-    image: "/weatherwise-screenshot.png",
-  },
-  {
-    id: 2,
-    title: "Project Beta",
-    description: "A description for Project Beta, highlighting collaboration and innovation.",
-  },
-  {
-    id: 3,
-    title: "Project Gamma",
-    description: "A description for Project Gamma, focusing on performance and user experience.",
-  },
-  {
-    id: 4,
-    title: "Project Delta",
-    description: "A description for Project Delta, demonstrating proficiency in modern frameworks.",
-  },
-  {
-    id: 5,
-    title: "Project Epsilon",
-    description: "A description for Project Epsilon, illustrating attention to detail and design.",
-  },
-  {
-    id: 6,
-    title: "Project Zeta",
-    description: "A description for Project Zeta, summarizing a complex and challenging build.",
-  }
-]
+import { projects } from '../lib/project-data'
 
 export default function Projects() {
   return (
