@@ -19,6 +19,7 @@ export const projects = [
       "Geocode Maps API"
     ],
     image: "/weatherwise-screenshot.png",
+    url: "https://weatherwise-ai-356687723492.us-central1.run.app/",
     caseStudy: {
       intro: {
         title: "The Initial Spark: Questioning the 'As-Is' Architecture",
@@ -101,7 +102,8 @@ export const projects = [
       "Vercel",
       "Responsive Design"
     ],
-    image: "/wefix4u-screenshot.webp"
+    image: "/wefix4u-screenshot.webp",
+    url: "https://wefix4u.vercel.app/"
   },
   {
     id: 3,

@@ -28,6 +28,7 @@ type Project = {
   features: string[];
   tech: string[];
   image?: string;
+  url?: string;
   caseStudy?: CaseStudy;
 }
 
@@ -54,7 +55,17 @@ export default function ProjectDetailsView({ project }: { project: Project }) {
             <div className="lg:col-span-2">
               <div className="aspect-w-16 aspect-h-9 rounded-lg bg-ink-900 mb-8 overflow-hidden">
                 {project.image ? (
-                  <Link href="https://weatherwise-ai-356687723492.us-central1.run.app/" target="_blank" rel="noopener noreferrer">
+                  project.url ? (
+                    <Link href={project.url} target="_blank" rel="noopener noreferrer">
+                      <Image
+                        src={project.image}
+                        alt={`Screenshot of ${project.title}`}
+                        width={1920}
+                        height={1080}
+                        className="w-full h-full object-cover cursor-pointer hover:opacity-90 transition-opacity"
+                      />
+                    </Link>
+                  ) : (
                     <Image
                       src={project.image}
                       alt={`Screenshot of ${project.title}`}
@@ -62,7 +73,7 @@ export default function ProjectDetailsView({ project }: { project: Project }) {
                       height={1080}
                       className="w-full h-full object-cover"
                     />
-                  </Link>
+                  )
                 ) : (
                   <div className="w-full h-full" style={{
                     backgroundImage: `radial-gradient(#415A77 1px, transparent 1px)`,
