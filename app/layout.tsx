@@ -1,9 +1,7 @@
 import type { Metadata } from 'next'
 import './globals.css'
 import { Inter, Source_Serif_4 } from 'next/font/google'
-import { HeaderProvider } from './components/HeaderProvider'
-import DynamicHeader from './components/DynamicHeader'
-import HeaderToggle from './components/HeaderToggle'
+import Header from './components/Header'
 
 const siteUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000'
 
@@ -56,20 +54,13 @@ export default function RootLayout({
       className={`${inter.variable} ${sourceSerif.variable}`}
       suppressHydrationWarning={true}
     >
-      <head>
-        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
-        <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Roboto:wght@400;500&display=swap" rel="stylesheet" />
-      </head>
       <body className="bg-sage-blue-900 text-parchment-100" suppressHydrationWarning={true}>
-        <HeaderProvider>
-          <div className="min-h-screen flex flex-col">
-            <DynamicHeader />
-            <main className="flex-grow">
-              {children}
-            </main>
-          </div>
-          <HeaderToggle />
-        </HeaderProvider>
+        <div className="min-h-screen flex flex-col">
+          <Header />
+          <main className="flex-grow">
+            {children}
+          </main>
+        </div>
       </body>
     </html>
   )
