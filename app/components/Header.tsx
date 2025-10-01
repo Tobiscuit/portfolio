@@ -90,7 +90,7 @@ export default function Header() {
               ))}
             </nav>
             <a
-              href={isMobile ? "/resume.pdf" : "#"}
+              href={isMobile ? "/JuanRamirez-Resume-September-2025.pdf" : "#"}
               onClick={!isMobile ? () => setIsResumeModalOpen(true) : undefined}
               download={isMobile ? "juan_ramirez_resume.pdf" : undefined}
               className="flex items-center justify-center px-6 py-2 bg-arcane-gold-500 text-sage-blue-900 text-sm font-bold rounded-lg hover:shadow-sm transition-all"
@@ -133,8 +133,8 @@ export default function Header() {
             ))}
           </nav>
           <a
-            href="/resume.pdf"
-            download="juan_ramirez_resume.pdf"
+            href="/JuanRamirez-Resume-September-2025.pdf"
+            download="JuanRamirez-Resume-September-2025.pdf"
             className="mt-16 w-3/4 flex items-center justify-center px-6 py-3 bg-arcane-gold-500 text-sage-blue-900 font-bold rounded-lg hover:shadow-sm transition-all text-lg"
           >
             Resume

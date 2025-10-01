@@ -108,9 +108,9 @@ export default function About() {
             
             <div className="mt-12 text-center lg:text-left">
               <a
-                href={isMobile ? "/resume.pdf" : "#"}
+                href={isMobile ? "/JuanRamirez-Resume-September-2025.pdf" : "#"}
                 onClick={!isMobile ? () => setIsResumeModalOpen(true) : undefined}
-                download={isMobile ? "juan_ramirez_resume.pdf" : undefined}
+                download={isMobile ? "JuanRamirez-Resume-September-2025.pdf" : undefined}
                 className="inline-flex items-center justify-center px-8 py-3 bg-arcane-gold-500 text-sage-blue-900 font-bold rounded-lg hover:shadow-sm transition-all duration-300"
               >
                 Download Resume
