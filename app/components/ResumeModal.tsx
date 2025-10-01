@@ -51,7 +51,7 @@ export default function ResumeModal({ isOpen, onClose }: ResumeModalProps) {
           &times;
         </button>
         <iframe
-          src="/resume.pdf"
+          src="/JuanRamirez-Resume-September-2025.pdf"
           className="w-full h-full border-0 rounded-lg"
           title="Resume"
         ></iframe>
