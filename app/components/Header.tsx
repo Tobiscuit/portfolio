@@ -89,14 +89,12 @@ export default function Header() {
                 </Link>
               ))}
             </nav>
-            <a
-              href={isMobile ? "/JuanRamirez-Resume-September-2025.pdf" : "#"}
-              onClick={!isMobile ? () => setIsResumeModalOpen(true) : undefined}
-              download={isMobile ? "juan_ramirez_resume.pdf" : undefined}
+            <button
+              onClick={() => setIsResumeModalOpen(true)}
               className="flex items-center justify-center px-6 py-2 bg-arcane-gold-500 text-sage-blue-900 text-sm font-bold rounded-lg hover:shadow-sm transition-all"
             >
               Resume
-            </a>
+            </button>
           </div>
           
           <button
