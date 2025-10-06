@@ -75,10 +75,19 @@ export default function ProjectDetailsView({ project }: { project: Project }) {
                     />
                   )
                 ) : (
-                  <div className="w-full h-full" style={{
-                    backgroundImage: `radial-gradient(#415A77 1px, transparent 1px)`,
-                    backgroundSize: `16px 16px`,
-                  }}></div>
+                  project.url ? (
+                    <Link href={project.url} target="_blank" rel="noopener noreferrer" className="block w-full h-full">
+                      <div className="w-full h-full cursor-pointer hover:opacity-90 transition-opacity" style={{
+                        backgroundImage: `radial-gradient(#415A77 1px, transparent 1px)`,
+                        backgroundSize: `16px 16px`,
+                      }}></div>
+                    </Link>
+                  ) : (
+                    <div className="w-full h-full" style={{
+                      backgroundImage: `radial-gradient(#415A77 1px, transparent 1px)`,
+                      backgroundSize: `16px 16px`,
+                    }}></div>
+                  )
                 )}
               </div>
 

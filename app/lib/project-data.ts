@@ -107,10 +107,24 @@ export const projects = [
   },
   {
     id: 3,
-    title: "Project Gamma",
-    description: "A description for Project Gamma, focusing on performance and user experience.",
-    features: ["Feature G", "Feature H", "Feature I"],
-    tech: ["Vue.js", "Firebase", "Stripe"]
+    title: "Three Chicks & A Wick: Custom eCommerce Storefront",
+    description: "Full‑stack eCommerce storefront with product catalog, featured collections, and modern UX.",
+    features: [
+      "Responsive custom storefront UI",
+      "Featured products carousel",
+      "Product detail and collection pages",
+      "Fast, globally cached static assets"
+    ],
+    tech: [
+      "Next.js 15",
+      "React",
+      "TypeScript",
+      "Tailwind CSS",
+      "Serverless APIs",
+      "Vercel"
+    ],
+    // No local hero image yet; detail page will still render with a clickable placeholder
+    url: "https://demo.threechicksandawick.com/"
   },
   {
     id: 5,
