@@ -123,7 +123,7 @@ export const projects = [
       "Serverless APIs",
       "Vercel"
     ],
-    // No local hero image yet; detail page will still render with a clickable placeholder
+    image: "/images/projects/threechicksandawick/hero.webp",
     url: "https://demo.threechicksandawick.com/"
   },
   {
