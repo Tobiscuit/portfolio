@@ -105,13 +105,51 @@ export const projects = [
     image: "/wefix4u-screenshot.webp",
     url: "https://wefix4u.vercel.app/"
   },
-{
+  {
     id: 3,
     title: "Three Chicks & A Wick: Production eCommerce with AI Security",
     description: "A production-grade headless Shopify eCommerce platform featuring an AI-powered custom candle creation system with revolutionary security architecture that transforms potential attackers into customers through psychological warfare.",
     features: [
       "AI-Powered Custom Candle Generation",
       "5-Lambda Security Pipeline with Psychological Profiling",
+      "Real-Time Cart Synchronization Across Tabs",
+      "Headless Shopify Integration (Admin + Storefront APIs)",
+      "Customer Authentication with Order History",
+      "Admin Panel with Order Fulfillment Workflow"
+    ],
+    tech: [
+      "Next.js 15",
+      "React",
+      "TypeScript",
+      "Tailwind CSS",
+      "AWS Lambda",
+      "AWS Step Functions",
+      "DynamoDB",
+      "AWS AppSync",
+      "Google Gemini 2.5 Pro",
+      "Shopify Admin API",
+      "Shopify Storefront API",
+      "Customer Account API",
+      "GraphQL",
+      "WebSockets"
+    ],
+    image: "/images/projects/threechicksandawick/hero.webp",
+    url: "https://demo.threechicksandawick.com/",
+    caseStudy: {
+      intro: {
+        title: "The Challenge: Building AI for a World of Attackers",
+        text: "When building an AI-powered custom product feature for eCommerce, every business faces the same dilemma: <strong>how do you protect against malicious users without destroying the user experience?</strong><br/><br/>Users can submit prompt injections to extract system prompts, attempt XSS attacks through generated content, flood the system with requests, or try to manipulate AI into revealing business logic. Most companies choose between two bad options: hide AI features behind authentication walls (losing anonymous engagement), or accept the security risk and hope for the best.<br/><br/>This project took a third path: <strong>turn attackers into customers</strong>. Instead of treating security threats as adversaries to be blocked, we built a system that acknowledges their intelligence, respects their curiosity, and redirects their creative energy toward legitimate product creation. The result is a production eCommerce platform where security threats become marketing opportunities.",
+        image: "/images/projects/threechicksandawick/placeholder_architecture.svg",
+        imageAlt: "System Architecture Overview"
+      },
+      sections: [
+        {
+          title: "Headless Shopify Architecture: Best of Both Worlds",
+          text: "Before diving into the AI security innovation, it's worth understanding the foundation. This is a <strong>headless Shopify eCommerce platform</strong>—we built a custom Next.js 15 storefront that leverages Shopify's powerful backend through three distinct APIs:<br/><br/><strong>Shopify Storefront API</strong> handles product catalog, cart management, and checkout flows for anonymous users. <strong>Shopify Admin API</strong> powers the custom admin panel with order fulfillment, inventory management, and business analytics. <strong>Customer Account API</strong> enables authenticated users to view their order history and saved custom candles.<br/><br/>This headless approach gave us the flexibility to build custom features (like AI candle generation) while retaining Shopify's battle-tested checkout, payment processing, and fulfillment infrastructure. The customer gets a premium, tailored experience. The business gets enterprise-grade eCommerce reliability.",
+          image: "/images/projects/threechicksandawick/placeholder_shopify.png",
+          imageAlt: "Headless Shopify Architecture Diagram"
+        },
+        {
           title: "The Guardian-Sage-Creator Security Pipeline: AI Security with Psychological Warfare",
           text: "At the heart of the platform is the <strong>Magic Request</strong> feature—customers describe their dream candle in natural language, and our AI generates a custom recipe with precise fragrance percentages, materials, and a poetic description. But opening an AI text input to the internet is dangerous.<br/><br/>We implemented the <strong>Guardian-Sage-Creator Security Pipeline</strong>, a 5-Lambda system orchestrated by AWS Step Functions. Instead of binary allow/block decisions, the system analyzes threats through multiple lenses and generates personalized responses using a Guardian-Sage-Creator archetype framework.",
           list: [
