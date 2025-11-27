@@ -59,7 +59,7 @@ export default function About() {
                   <h3 className="text-lg font-semibold text-parchment-100 mb-4">Certifications</h3>
                   <div className="space-y-3">
                     <TitledListItem title="AWS Certified Cloud Practitioner" status="Earned" />
-                    <TitledListItem title="AWS Solutions Architect Associate" status="Earned" />
+                    <TitledListItem title="AWS Solutions Architect Associate" status="Completed Course" />
                     <TitledListItem title="AWS AI Practitioner" status="Completed Course" />
                     <TitledListItem title="Azure Fundamentals" status="Completed Course" />
                     <TitledListItem title="CompTIA ITF+" status="Completed Course" />
