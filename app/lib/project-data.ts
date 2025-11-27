@@ -139,7 +139,7 @@ export const projects = [
       intro: {
         title: "The Challenge: Building AI for a World of Attackers",
         text: "When building an AI-powered custom product feature for eCommerce, every business faces the same dilemma: <strong>how do you protect against malicious users without destroying the user experience?</strong><br/><br/>Users can submit prompt injections to extract system prompts, attempt XSS attacks through generated content, flood the system with requests, or try to manipulate AI into revealing business logic. Most companies choose between two bad options: hide AI features behind authentication walls (losing anonymous engagement), or accept the security risk and hope for the best.<br/><br/>This project took a third path: <strong>turn attackers into customers</strong>. Instead of treating security threats as adversaries to be blocked, we built a system that acknowledges their intelligence, respects their curiosity, and redirects their creative energy toward legitimate product creation. The result is a production eCommerce platform where security threats become marketing opportunities.",
-        image: "/images/projects/threechicksandawick/placeholder_architecture.png",
+        image: "/images/projects/threechicksandawick/placeholder_architecture.svg",
         imageAlt: "System Architecture Overview"
       },
       sections: [
@@ -180,7 +180,7 @@ export const projects = [
         {
           title: "User Experience: Different Strategies for Different Users",
           text: "<strong>Logged-in users</strong> get real-time cart clearing via AppSync GraphQL subscriptions. The moment their order completes, all open browser tabs receive a WebSocket event, clear the cart simultaneously, and update the UI—no refresh needed. <strong>Anonymous users</strong> rely on page-load detection. When they return to the site after checkout, the empty cart check fires, clears <code>localStorage</code>, and resets the UI.<br/><br/>This approach avoids unnecessary complexity. We considered using BroadcastChannel for cross-tab communication with anonymous users, but the added implementation complexity provided marginal benefit since anonymous users typically complete checkout and leave. The page-load detection handles their return perfectly.",
-          image: "/images/projects/threechicksandawick/placeholder_user_flow.png",
+          image: "/images/projects/threechicksandawick/placeholder_user_flow.svg",
           imageAlt: "User Flow Comparison: Logged-in vs Anonymous"
         },
         {
