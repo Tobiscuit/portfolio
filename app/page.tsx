@@ -22,9 +22,9 @@ export default function Home() {
         <div className="md:col-span-6">
           <div className="aspect-square rounded-lg overflow-hidden shadow-2xl">
             <Image
-              alt="Profile picture"
+              alt="Abstract representation of cloud architecture and security"
               className="w-full h-full object-cover"
-              src="/profile.png"
+              src="/abstract-profile.png"
               width={600}
               height={600}
             />
