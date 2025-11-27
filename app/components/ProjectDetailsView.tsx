@@ -17,8 +17,8 @@ type CaseStudy = {
   intro: CaseStudySection;
   sections: CaseStudySection[];
   conclusion: { title: string; text: string; };
-  futureWork: { title:string; intro: string; points: { title: string; text: string }[] };
-  finalArchitecture: { title: string; text: string; image: string; imageAlt: string; };
+  futureWork?: { title:string; intro: string; points: { title: string; text: string }[] };
+  finalArchitecture?: { title: string; text: string; image: string; imageAlt: string; };
 }
 
 type Project = {
@@ -143,24 +143,32 @@ export default function ProjectDetailsView({ project }: { project: Project }) {
                       <h2 className="font-serif text-3xl text-parchment-100 mt-12 mb-4">{caseStudy.conclusion.title}</h2>
                       <p dangerouslySetInnerHTML={{ __html: caseStudy.conclusion.text }} />
 
-                      {/* Future Work */}
-                      <h2 className="font-serif text-3xl text-parchment-100 mt-8 mb-4">{caseStudy.futureWork.title}</h2>
-                      <p dangerouslySetInnerHTML={{ __html: caseStudy.futureWork.intro }} />
-                      <ul className="list-disc pl-5 space-y-2">
-                        {caseStudy.futureWork.points.map((point, i) => (
-                          <li key={i}>
-                            <strong>{point.title}:</strong> <span dangerouslySetInnerHTML={{ __html: point.text }} />
-                          </li>
-                        ))}
-                      </ul>
+                      {/* Future Work - Only render if it exists */}
+                      {caseStudy.futureWork && (
+                        <>
+                          <h2 className="font-serif text-3xl text-parchment-100 mt-8 mb-4">{caseStudy.futureWork.title}</h2>
+                          <p dangerouslySetInnerHTML={{ __html: caseStudy.futureWork.intro }} />
+                          <ul className="list-disc pl-5 space-y-2">
+                            {caseStudy.futureWork.points.map((point, i) => (
+                              <li key={i}>
+                                <strong>{point.title}:</strong> <span dangerouslySetInnerHTML={{ __html: point.text }} />
+                              </li>
+                            ))}
+                          </ul>
+                        </>
+                      )}
                       
-                      {/* Final Architecture */}
-                      <h2 className="font-serif text-3xl text-parchment-100 mt-8 mb-4">{caseStudy.finalArchitecture.title}</h2>
-                      <p dangerouslySetInnerHTML={{ __html: caseStudy.finalArchitecture.text }} />
-                      <p>The final cloud architecture I deployed is as follows:</p>
-                      <button onClick={() => openModal(caseStudy.finalArchitecture.image)} className="w-full block">
-                        <Image src={caseStudy.finalArchitecture.image} alt={caseStudy.finalArchitecture.imageAlt} width={1200} height={800} className="w-full h-auto rounded-lg my-6" />
-                      </button>
+                      {/* Final Architecture - Only render if it exists */}
+                      {caseStudy.finalArchitecture && (
+                        <>
+                          <h2 className="font-serif text-3xl text-parchment-100 mt-8 mb-4">{caseStudy.finalArchitecture.title}</h2>
+                          <p dangerouslySetInnerHTML={{ __html: caseStudy.finalArchitecture.text }} />
+                          <p>The final cloud architecture I deployed is as follows:</p>
+                          <button onClick={() => openModal(caseStudy.finalArchitecture!.image)} className="w-full block">
+                            <Image src={caseStudy.finalArchitecture.image} alt={caseStudy.finalArchitecture.imageAlt} width={1200} height={800} className="w-full h-auto rounded-lg my-6" />
+                          </button>
+                        </>
+                      )}
                     </>
                   );
                 })()}
