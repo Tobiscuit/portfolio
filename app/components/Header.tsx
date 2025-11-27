@@ -70,7 +70,7 @@ export default function Header() {
                 fillRule="evenodd"
               />
             </svg>
-            <span className="text-xl font-bold font-serif tracking-tight">SageScale</span>
+            <span className="text-xl font-bold font-serif tracking-tight">Juan Ramirez</span>
           </Link>
           
           <div className="hidden md:flex items-center gap-8">
