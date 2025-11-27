@@ -131,7 +131,10 @@ export const projects = [
       "Shopify Storefront API",
       "Customer Account API",
       "GraphQL",
-      "WebSockets"
+      "GraphQL",
+      "WebSockets",
+      "CompTIA CySA+ (Course Completed)",
+      "CompTIA PenTest+ (Course Completed)"
     ],
     image: "/images/projects/threechicksandawick/hero.webp",
     url: "https://demo.threechicksandawick.com/",
@@ -150,8 +153,8 @@ export const projects = [
           imageAlt: "Headless Shopify Architecture Diagram"
         },
         {
-          title: "The SageScale Solution: AI Security with Psychological Warfare",
-          text: "At the heart of the platform is the <strong>Magic Request</strong> feature—customers describe their dream candle in natural language, and our AI generates a custom recipe with precise fragrance percentages, materials, and a poetic description. But opening an AI text input to the internet is dangerous.<br/><br/>We implemented <strong>SageScale</strong>, a 5-Lambda security pipeline orchestrated by AWS Step Functions. Instead of binary allow/block decisions, the system analyzes threats through multiple lenses and generates personalized responses using a Guardian-Sage-Creator archetype framework.",
+          title: "The Guardian-Sage-Creator Security Pipeline: AI Security with Psychological Warfare",
+          text: "At the heart of the platform is the <strong>Magic Request</strong> feature—customers describe their dream candle in natural language, and our AI generates a custom recipe with precise fragrance percentages, materials, and a poetic description. But opening an AI text input to the internet is dangerous.<br/><br/>We implemented the <strong>Guardian-Sage-Creator Security Pipeline</strong>, a 5-Lambda system orchestrated by AWS Step Functions. Instead of binary allow/block decisions, the system analyzes threats through multiple lenses and generates personalized responses using a Guardian-Sage-Creator archetype framework.",
           list: [
             "<strong>Lambda 1: input-sanitizer</strong> — Runs regex-based threat detection in under 50ms. Flags patterns like 'ignore previous instructions,' 'show system prompt,' script tags, and SQL injection attempts.",
             "<strong>Lambda 2: ai-security-validator</strong> — Uses Google Gemini 2.5 Pro to perform deep threat analysis with psychological profiling. Determines sophistication level (basic, intermediate, advanced, expert), attack intent (malicious, curious, confused, testing), and recommends actions (ALLOW, MODIFY, CUSTOM_RESPONSE, BLOCK).",
