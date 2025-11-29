@@ -1,0 +1,34 @@
+sequenceDiagram
+    participant User
+    participant UI
+    participant LocalState
+    participant Firestore
+    
+    Note over User,Firestore: User selects time slot
+    
+    User->>UI: Click "Book Appointment"
+    
+    rect rgb(144, 238, 144)
+        Note over UI,LocalState: Optimistic Update
+        UI->>LocalState: Add booking immediately
+        UI->>User: Show success state
+        Note over User: Instant feedback ⚡
+    end
+    
+    UI->>Firestore: Start async write
+    
+    alt Success Path
+        Firestore-->>UI: Write confirmed
+        UI->>LocalState: Confirm booking
+        Note over User: Booking persisted ✓
+    else Failure Path (Network/Conflict)
+        Firestore-->>UI: Error returned
+        rect rgb(255, 182, 193)
+            Note over UI,LocalState: Rollback
+            UI->>LocalState: Remove booking
+            UI->>User: Show error + revert UI
+            Note over User: Graceful degradation
+        end
+    end
+    
+    Note over Firestore: Offline: Changes queued<br/>Online: Auto-sync

@@ -1,0 +1,31 @@
+sequenceDiagram
+    participant Customer
+    participant Frontend
+    participant API
+    participant Firestore
+    participant Stripe
+    participant Webhook
+    
+    Customer->>Frontend: Complete booking form
+    Frontend->>API: Create checkout session
+    API->>Firestore: Create pending booking<br/>(status: pending_payment)
+    
+    API->>Stripe: Create Checkout Session<br/>(metadata: bookingId)
+    Stripe-->>API: Return session URL
+    API-->>Frontend: Redirect URL
+    
+    Frontend->>Customer: Redirect to Stripe
+    Customer->>Stripe: Enter payment details
+    Stripe->>Stripe: Process payment
+    
+    alt Payment Successful
+        Stripe->>Webhook: checkout.session.completed
+        Webhook->>Firestore: Update booking<br/>(status: confirmed)
+        Webhook->>Firestore: Update customer<br/>(stripeCustomerId)
+        Webhook->>Frontend: Send FCM notification
+        Frontend->>Customer: Show confirmation
+    else Payment Failed
+        Stripe->>Webhook: checkout.session.expired
+        Webhook->>Firestore: Update booking<br/>(status: cancelled)
+        Frontend->>Customer: Show error
+    end

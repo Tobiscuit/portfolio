@@ -224,8 +224,8 @@ export const projects = [
       "Admin Dashboard with Real-Time Booking List"
     ],
     tech: [
-      "Next.js 14",
-      "React",
+      "Next.js 16",
+      "React 19",
       "TypeScript",
       "Tailwind CSS",
       "Firebase",
@@ -280,13 +280,13 @@ export const projects = [
       }
     }
   },
-  {
-    id: 5,
-    title: "Project Delta",
-    description: "A description for Project Delta, demonstrating proficiency in modern frameworks.",
-    features: ["Feature J", "Feature K", "Feature L"],
-    tech: ["SvelteKit", "GraphQL", "Prisma"]
-  },
+  // {
+  //   id: 5,
+  //   title: "Project Delta",
+  //   description: "A description for Project Delta, demonstrating proficiency in modern frameworks.",
+  //   features: ["Feature J", "Feature K", "Feature L"],
+  //   tech: ["SvelteKit", "GraphQL", "Prisma"]
+  // },
   {
     id: 6,
     title: "Project Epsilon",

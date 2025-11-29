@@ -1,0 +1,38 @@
+graph TB
+    subgraph "Client Layer"
+        Browser["Customer Browser"]
+        Admin["Admin Dashboard"]
+    end
+    
+    subgraph "Next.js 14 Application"
+        Frontend["Frontend Pages<br/>Booking, Services, Gallery"]
+        API["API Routes<br/>Server Actions"]
+    end
+    
+    subgraph "Firebase Services"
+        Firestore["Cloud Firestore<br/>Bookings, Services, Settings"]
+        FCM["Firebase Cloud Messaging<br/>Push Notifications"]
+        Storage["Firebase Storage<br/>Gallery Images"]
+    end
+    
+    subgraph "Third-Party Services"
+        Stripe["Stripe Payments<br/>Checkout Sessions"]
+        CloudFunc["Google Cloud Functions<br/>Webhook Handlers"]
+    end
+    
+    Browser --> Frontend
+    Admin --> Frontend
+    Frontend --> API
+    API --> Firestore
+    API --> FCM
+    API --> Storage
+    API --> Stripe
+    Stripe --> CloudFunc
+    CloudFunc --> Firestore
+    CloudFunc --> FCM
+    
+    style Firestore fill:#FFA726
+    style FCM fill:#FFA726
+    style Storage fill:#FFA726
+    style Stripe fill:#635BFF
+    style CloudFunc fill:#4285F4

@@ -1,0 +1,42 @@
+graph TB
+    subgraph "Notification Triggers"
+        BookingCreated["Booking Created"]
+        BookingUpdated["Booking Updated"]
+        BookingCancelled["Booking Cancelled"]
+        Reminder["24h Reminder"]
+    end
+    
+    subgraph "Cloud Function"
+        Webhook["Stripe Webhook Handler"]
+        Scheduler["Cloud Scheduler<br/>(Daily Check)"]
+    end
+    
+    subgraph "FCM Logic"
+        BuildPayload["Build Data-Only Payload<br/>(no notification key)"]
+        SendFCM["Send FCM Message<br/>(to user's token)"]
+    end
+    
+    subgraph "Client"
+        ServiceWorker["Service Worker<br/>(Background)"]
+        Foreground["App (Foreground)"]
+        Display["Display Local Notification"]
+    end
+    
+    BookingCreated --> Webhook
+    BookingUpdated --> Webhook
+    BookingCancelled --> Webhook
+    Reminder --> Scheduler
+    
+    Webhook --> BuildPayload
+    Scheduler --> BuildPayload
+    BuildPayload --> SendFCM
+    
+    SendFCM --> ServiceWorker
+    SendFCM --> Foreground
+    
+    ServiceWorker --> Display
+    Foreground --> Display
+    
+    style BuildPayload fill:#FFA726
+    style SendFCM fill:#FFA726
+    style Display fill:#4CAF50

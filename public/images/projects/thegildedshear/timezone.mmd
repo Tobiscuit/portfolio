@@ -1,0 +1,30 @@
+sequenceDiagram
+    participant Customer
+    participant Frontend
+    participant API
+    participant Firestore
+    
+    Note over Customer,Firestore: Customer's Local Time: 2:00 PM CST
+    Note over Customer,Firestore: Store Time: 3:00 PM EST
+    
+    Customer->>Frontend: Select service (60 min)
+    Frontend->>Frontend: Convert to store timezone<br/>(2:00 PM CST → 3:00 PM EST)
+    
+    Frontend->>API: Check availability for 3:00 PM EST
+    API->>Firestore: Query bookings 3:00-4:00 PM EST
+    
+    alt Slot Available
+        Firestore-->>API: No conflicts
+        API-->>Frontend: Available ✓
+        Frontend->>Customer: Show available slot
+    else Slot Occupied
+        Firestore-->>API: Existing booking found
+        API-->>Frontend: Unavailable ✗
+        Frontend->>Customer: Show next available
+    end
+    
+    Customer->>Frontend: Confirm booking
+    Frontend->>API: Create booking (3:00 PM EST)
+    API->>Firestore: Store in UTC<br/>(8:00 PM UTC)
+    
+    Note over Firestore: All times stored in UTC<br/>Prevents timezone bugs
