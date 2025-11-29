@@ -67,13 +67,21 @@ export default function ImageModal({ imageUrl, onClose }: ImageModalProps) {
                 contentStyle={{ height: '100%', width: '100%' }}
               >
                 <div className="relative flex h-full w-full items-center justify-center">
-                  <Image
-                    src={imageUrl}
-                    alt="Architectural Diagram"
-                    layout="fill"
-                    objectFit="contain"
-                    className="object-contain"
-                  />
+                  {imageUrl.endsWith('.svg') ? (
+                    <img
+                      src={imageUrl}
+                      alt="Architectural Diagram"
+                      className="h-full w-full object-contain"
+                    />
+                  ) : (
+                    <Image
+                      src={imageUrl}
+                      alt="Architectural Diagram"
+                      layout="fill"
+                      objectFit="contain"
+                      className="object-contain"
+                    />
+                  )}
                 </div>
               </TransformComponent>
               <div className="absolute bottom-4 left-1/2 flex -translate-x-1/2 gap-2">
@@ -109,4 +117,4 @@ export default function ImageModal({ imageUrl, onClose }: ImageModalProps) {
       </button>
     </div>
   )
-} 
+}

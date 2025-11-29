@@ -1,55 +1,80 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { SQSClient, SendMessageCommand } from '@aws-sdk/client-sqs'
+import { SESClient, SendEmailCommand } from "@aws-sdk/client-ses";
 
-// Initialize SQS Client
-const sqsClient = new SQSClient({
-  region: process.env.AWS_REGION,
+// Initialize SES Client
+const sesClient = new SESClient({
+  region: process.env.AWS_REGION || "us-east-2",
   credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID || "",
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || "",
   },
 });
 
-export async function POST(request: NextRequest) {
+export async function POST(request: Request) {
   try {
-    const body = await request.json()
-    const { name, email, message } = body
+    const body = await request.json();
+    const { name, email, message } = body;
 
-    // Basic validation
+    // Validate input
     if (!name || !email || !message) {
       return NextResponse.json(
-        { error: 'All fields are required' },
+        { error: "Missing required fields" },
         { status: 400 }
-      )
+      );
     }
 
-    // Email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    if (!emailRegex.test(email)) {
+    const senderEmail = process.env.SES_SENDER_EMAIL;
+    const recipientEmail = process.env.SES_RECIPIENT_EMAIL;
+
+    if (!senderEmail || !recipientEmail) {
+      console.error("SES environment variables missing");
       return NextResponse.json(
-        { error: 'Invalid email format' },
-        { status: 400 }
-      )
+        { error: "Server configuration error" },
+        { status: 500 }
+      );
     }
 
-    // Prepare message for SQS
-    const messageParams = {
-      QueueUrl: process.env.SQS_QUEUE_URL!,
-      MessageBody: JSON.stringify({ name, email, message }),
-    };
+    const command = new SendEmailCommand({
+      Source: senderEmail,
+      Destination: {
+        ToAddresses: [recipientEmail],
+      },
+      Message: {
+        Subject: {
+          Data: `New Portfolio Contact: ${name}`,
+          Charset: "UTF-8",
+        },
+        Body: {
+          Text: {
+            Data: `Name: ${name}\nEmail: ${email}\nMessage: ${message}`,
+            Charset: "UTF-8",
+          },
+          Html: {
+            Data: `
+              <h2>New Contact Form Submission</h2>
+              <p><strong>Name:</strong> ${name}</p>
+              <p><strong>Email:</strong> ${email}</p>
+              <p><strong>Message:</strong></p>
+              <p>${message.replace(/\n/g, "<br>")}</p>
+            `,
+            Charset: "UTF-8",
+          },
+        },
+      },
+      ReplyToAddresses: [email],
+    });
 
-    // Send message to SQS
-    await sqsClient.send(new SendMessageCommand(messageParams));
+    await sesClient.send(command);
 
     return NextResponse.json(
-      { message: 'Message sent successfully' },
+      { message: "Message sent successfully" },
       { status: 200 }
-    )
+    );
   } catch (error) {
-    console.error('Contact form error:', error)
+    console.error("Error sending email:", error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: "Failed to send message" },
       { status: 500 }
-    )
+    );
   }
 }

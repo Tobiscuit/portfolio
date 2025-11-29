@@ -38,6 +38,28 @@ export default function ProjectDetailsView({ project }: { project: Project }) {
   const openModal = (imageUrl: string) => setModalImageUrl(imageUrl);
   const closeModal = () => setModalImageUrl(null);
 
+  const renderImage = (src: string, alt: string) => {
+    const isSvg = src.endsWith('.svg');
+    if (isSvg) {
+      return (
+        <img
+          src={src}
+          alt={alt}
+          className="w-full h-auto rounded-lg my-6 cursor-pointer hover:opacity-90 transition-opacity"
+        />
+      );
+    }
+    return (
+      <Image
+        src={src}
+        alt={alt}
+        width={1200}
+        height={800}
+        className="w-full h-auto rounded-lg my-6 cursor-pointer hover:opacity-90 transition-opacity"
+      />
+    );
+  };
+
   return (
     <>
       <div className="min-h-screen bg-sage-blue-900">
@@ -117,7 +139,7 @@ export default function ProjectDetailsView({ project }: { project: Project }) {
                       <p dangerouslySetInnerHTML={{ __html: caseStudy.intro.text }} />
                       {caseStudy.intro.image && (
                         <button onClick={() => openModal(caseStudy.intro.image!)} className="w-full block">
-                          <Image src={caseStudy.intro.image} alt={caseStudy.intro.imageAlt!} width={1200} height={800} className="w-full h-auto rounded-lg my-6" />
+                          {renderImage(caseStudy.intro.image, caseStudy.intro.imageAlt || '')}
                         </button>
                       )}
 
@@ -133,7 +155,7 @@ export default function ProjectDetailsView({ project }: { project: Project }) {
                           )}
                           {section.image && (
                             <button onClick={() => openModal(section.image!)} className="w-full block">
-                              <Image src={section.image} alt={section.imageAlt!} width={1200} height={800} className="w-full h-auto rounded-lg my-6" />
+                              {renderImage(section.image, section.imageAlt || '')}
                             </button>
                           )}
                         </div>
@@ -165,7 +187,7 @@ export default function ProjectDetailsView({ project }: { project: Project }) {
                           <p dangerouslySetInnerHTML={{ __html: caseStudy.finalArchitecture.text }} />
                           <p>The final cloud architecture I deployed is as follows:</p>
                           <button onClick={() => openModal(caseStudy.finalArchitecture!.image)} className="w-full block">
-                            <Image src={caseStudy.finalArchitecture.image} alt={caseStudy.finalArchitecture.imageAlt} width={1200} height={800} className="w-full h-auto rounded-lg my-6" />
+                            {renderImage(caseStudy.finalArchitecture.image, caseStudy.finalArchitecture.imageAlt)}
                           </button>
                         </>
                       )}
@@ -204,4 +226,4 @@ export default function ProjectDetailsView({ project }: { project: Project }) {
       </div>
     </>
   )
-} 
+}

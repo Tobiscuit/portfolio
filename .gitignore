@@ -20,7 +20,7 @@
 *.pem
 metadata-icon.png
 **/docs-private/
-docs/
+
 
 # Local .env files
 .env.local
@@ -46,3 +46,4 @@ yarn-error.log*
 *.sw?
 
 /refactoring_summary.md
+docs/*

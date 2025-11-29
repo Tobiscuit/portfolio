@@ -212,6 +212,75 @@ export const projects = [
     }
   },
   {
+    id: 4,
+    title: "The Gilded Shear: Premium Barber Shop Booking Platform",
+    description: "A premium barber shop booking platform built with Next.js, featuring real-time availability tracking, Stripe payment integration, FCM push notifications, and timezone-aware scheduling.",
+    features: [
+      "Real-Time Availability Tracking",
+      "Stripe Payment Integration",
+      "FCM Push Notifications",
+      "Timezone-Aware Scheduling",
+      "Optimistic UI Updates",
+      "Admin Dashboard with Real-Time Booking List"
+    ],
+    tech: [
+      "Next.js 14",
+      "React",
+      "TypeScript",
+      "Tailwind CSS",
+      "Firebase",
+      "Stripe",
+      "Vercel",
+      "Google Cloud Functions"
+    ],
+    image: "/images/projects/thegildedshear/placeholder_hero.png",
+    url: "https://the-gilded-shear.vercel.app/",
+    caseStudy: {
+      intro: {
+        title: "The Challenge: Precision Booking in a Real-Time World",
+        text: "Building a booking system sounds simple until you factor in timezones, payment processing, and real-time concurrency. The Gilded Shear solves these problems with a robust architecture that handles UTC offsets, prevents double-bookings through mathematical slot calculation, and ensures instant UI updates using optimistic caching.",
+        image: "/images/projects/thegildedshear/placeholder_architecture.png",
+        imageAlt: "System Architecture Overview"
+      },
+      sections: [
+        {
+          title: "System Architecture: Serverless & Scalable",
+          text: "The platform leverages a serverless architecture for infinite scalability and zero maintenance. <strong>Next.js 14 (App Router)</strong> handles the frontend, deployed to Vercel's Edge Network. The backend relies on <strong>Firebase Cloud Functions Gen 2</strong> for business logic (payments, notifications) and <strong>Firestore</strong> for real-time data persistence. <strong>Stripe Payment Intents</strong> handle secure transactions, while <strong>Firebase Cloud Messaging (FCM)</strong> keeps admins informed instantly.",
+          image: "/images/projects/thegildedshear/placeholder_system_arch.png",
+          imageAlt: "High-Level System Architecture"
+        },
+        {
+          title: "Timezone-Aware Scheduling: Solving the UTC Offset",
+          text: "One of the hardest challenges was handling timezones correctly. Users select slots in 'America/Chicago', but Firestore stores UTC. Naive conversions led to 6-hour offset errors. We implemented a robust solution using <code>toLocaleString</code> with explicit timezones to dynamically calculate the correct UTC offset, ensuring that a 4:00 PM booking in Chicago is always stored as the correct UTC timestamp, regardless of Daylight Saving Time.",
+          image: "/images/projects/thegildedshear/placeholder_timezone.png",
+          imageAlt: "Timezone Conversion Logic"
+        },
+        {
+          title: "Duration-Aware Overlap Prevention",
+          text: "To prevent double-bookings, we couldn't just check start times. A 60-minute haircut starting at 4:00 PM must block the 4:30 PM slot too. We implemented a mathematical algorithm that calculates every 30-minute interval covered by a service's duration and blocks all intersecting slots. This ensures complete schedule integrity for services ranging from 25 to 80 minutes.",
+          image: "/images/projects/thegildedshear/placeholder_overlap.png",
+          imageAlt: "Overlap Prevention Algorithm"
+        },
+        {
+          title: "Real-Time Performance: Optimistic UI & Offline Persistence",
+          text: "Performance is a feature. We achieved instant load times (~20ms on refresh) by enabling <strong>Firestore Offline Persistence</strong>, which serves data from IndexedDB while syncing in the background. For the calendar, we implemented a <strong>Month Pre-fetching Strategy</strong>, loading all availability for the month in a single request. This eliminated the 1.5s lag between date clicks, making the booking experience feel native and responsive.",
+          image: "/images/projects/thegildedshear/placeholder_performance.png",
+          imageAlt: "Performance Optimization Metrics"
+        },
+        {
+          title: "Notification System: Solving the Double-Notification Bug",
+          text: "We encountered a common issue with PWAs where both the browser and service worker would display notifications, leading to duplicates. The solution was to send <strong>Data-Only FCM Messages</strong>. By omitting the 'notification' payload and sending only 'data', we bypassed the browser's default handler and gave full control to our Service Worker, ensuring a single, consistent, and branded notification experience.",
+          image: "/images/projects/thegildedshear/placeholder_notifications.png",
+          imageAlt: "FCM Notification Flow"
+        }
+      ],
+      conclusion: {
+        title: "Conclusion: A Production-Grade Booking Solution",
+        text: "The Gilded Shear is more than just a form; it's a complex distributed system that handles money, time, and real-time data with precision. By solving hard problems like timezone math, concurrency, and offline persistence, we delivered a tool that not only looks premium but functions with the reliability a business depends on."
+      }
+    }
+  },
+  {
     id: 5,
     title: "Project Delta",
     description: "A description for Project Delta, demonstrating proficiency in modern frameworks.",
@@ -232,4 +301,4 @@ export const projects = [
     features: ["Feature P", "Feature Q", "Feature R"],
     tech: ["Go", "Docker", "Kubernetes"]
   }
-]; 
+];
