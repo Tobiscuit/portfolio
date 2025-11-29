@@ -233,7 +233,7 @@ export const projects = [
       "Vercel",
       "Google Cloud Functions"
     ],
-    image: "/images/projects/thegildedshear/placeholder_hero.png",
+    image: "/images/projects/thegildedshear/hero.webp",
     url: "https://the-gilded-shear.vercel.app/",
     caseStudy: {
       intro: {
