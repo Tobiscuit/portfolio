@@ -301,7 +301,7 @@ export const projects = [
       "AWS EC2"
     ],
     image: "/images/projects/nasa-mission-control/hero.webp",
-    url: "http://54.166.234.199:8000/"
+    url: "http://nasa-mission-control.jrcodex.dev/"
   },
   {
     id: 6,
