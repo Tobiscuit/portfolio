@@ -24,7 +24,7 @@ export default function Home() {
             <Image
               alt="Abstract representation of cloud architecture and security"
               className="w-full h-full object-cover"
-              src="/abstract-profile.png"
+              src="/abstract-profile.webp"
               width={600}
               height={600}
             />
