@@ -27,6 +27,11 @@ export default function Home() {
               src="/abstract-profile.webp"
               width={600}
               height={600}
+              quality={90}
+              priority
+              placeholder="blur"
+              blurDataURL="data:image/webp;base64,UklGRlIAAABXRUJQVlA4IEYAAACwAQCdASoQABAAAgA0JaQAA3AA/v3+gAAA/v8bjMIkH8+d0aPwAAAA"
+              sizes="(max-width: 768px) 100vw, 50vw"
             />
           </div>
         </div>
