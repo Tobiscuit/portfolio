@@ -282,41 +282,34 @@ export const projects = [
   },
   {
     id: 5,
-    title: "Project Delta",
-    description: "A description for Project Delta, demonstrating proficiency in modern frameworks.",
-    features: ["Feature J", "Feature K", "Feature L"],
-    tech: ["SvelteKit", "GraphQL", "Prisma"]
-  },
-  {
-    id: 6,
     title: "Project Epsilon",
     description: "A description for Project Epsilon, illustrating attention to detail and design.",
     features: ["Feature M", "Feature N", "Feature O"],
     tech: ["Angular", "RxJS", "MongoDB"]
   },
   {
-    id: 7,
+    id: 6,
     title: "Project Zeta",
     description: "A description for Project Zeta, summarizing a complex and challenging build.",
     features: ["Feature P", "Feature Q", "Feature R"],
     tech: ["Go", "Docker", "Kubernetes"]
   },
   {
-    id: 8,
+    id: 7,
     title: "Project Eta",
     description: "A description for Project Eta, highlighting advanced algorithms and data structures.",
     features: ["Feature S", "Feature T", "Feature U"],
     tech: ["Rust", "WebAssembly", "Actix"]
   },
   {
-    id: 9,
+    id: 8,
     title: "Project Theta",
     description: "A description for Project Theta, focusing on mobile-first experiences and PWA capabilities.",
     features: ["Feature V", "Feature W", "Feature X"],
     tech: ["Flutter", "Dart", "Firebase"]
   },
   {
-    id: 10,
+    id: 9,
     title: "Project Iota",
     description: "A description for Project Iota, showcasing real-time data processing and analytics.",
     features: ["Feature Y", "Feature Z", "Feature AA"],
