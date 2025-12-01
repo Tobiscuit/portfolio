@@ -18,11 +18,13 @@ export default function ProjectCard({ project }: ProjectCardProps) {
       <div className="flex flex-col gap-4">
         <div className="overflow-hidden rounded-lg">
           {project.image ? (
-            <Image 
+            <Image
               src={project.image}
               alt={project.title}
               width={1920}
               height={1080}
+              quality={90}
+              sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
               className="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-300 aspect-[16/9]"
             />
           ) : (
