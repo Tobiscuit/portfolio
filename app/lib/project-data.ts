@@ -4,18 +4,18 @@ export const projects = [
     title: "WeatherWise AI: A Case Study in Architectural Refactoring",
     description: "This project showcases the strategic refactoring of a cloud-native application, transforming a complex microservice proof-of-concept into a robust, maintainable, and performant monolithic service ready for automated deployment.",
     features: [
-      "AI-Powered Weather Summaries", 
-      "Monolithic Service Refactoring", 
-      "Test-Driven Development", 
+      "AI-Powered Weather Summaries",
+      "Monolithic Service Refactoring",
+      "Test-Driven Development",
       "Automated CI/CD with Cloud Build"
     ],
     tech: [
-      "Google Cloud Run", 
-      "Google Gemini", 
-      "Fastify", 
-      "TypeScript", 
-      "Jest", 
-      "Open-Meteo API", 
+      "Google Cloud Run",
+      "Google Gemini",
+      "Fastify",
+      "TypeScript",
+      "Jest",
+      "Open-Meteo API",
       "Geocode Maps API"
     ],
     image: "/weatherwise-screenshot.png",
@@ -87,7 +87,7 @@ export const projects = [
     description: "A modern, responsive web application for a device repair service business, featuring service booking, repair tracking, and customer management. Built with Next.js and deployed on Vercel for optimal performance and scalability.",
     features: [
       "Service Booking & Quote System",
-      "Repair Tracking Dashboard", 
+      "Repair Tracking Dashboard",
       "Responsive Mobile-First Design",
       "Google Places API Integration",
       "Customer Review System",
@@ -280,13 +280,13 @@ export const projects = [
       }
     }
   },
-  // {
-  //   id: 5,
-  //   title: "Project Delta",
-  //   description: "A description for Project Delta, demonstrating proficiency in modern frameworks.",
-  //   features: ["Feature J", "Feature K", "Feature L"],
-  //   tech: ["SvelteKit", "GraphQL", "Prisma"]
-  // },
+  {
+    id: 5,
+    title: "Project Delta",
+    description: "A description for Project Delta, demonstrating proficiency in modern frameworks.",
+    features: ["Feature J", "Feature K", "Feature L"],
+    tech: ["SvelteKit", "GraphQL", "Prisma"]
+  },
   {
     id: 6,
     title: "Project Epsilon",
@@ -300,5 +300,26 @@ export const projects = [
     description: "A description for Project Zeta, summarizing a complex and challenging build.",
     features: ["Feature P", "Feature Q", "Feature R"],
     tech: ["Go", "Docker", "Kubernetes"]
+  },
+  {
+    id: 8,
+    title: "Project Eta",
+    description: "A description for Project Eta, highlighting advanced algorithms and data structures.",
+    features: ["Feature S", "Feature T", "Feature U"],
+    tech: ["Rust", "WebAssembly", "Actix"]
+  },
+  {
+    id: 9,
+    title: "Project Theta",
+    description: "A description for Project Theta, focusing on mobile-first experiences and PWA capabilities.",
+    features: ["Feature V", "Feature W", "Feature X"],
+    tech: ["Flutter", "Dart", "Firebase"]
+  },
+  {
+    id: 10,
+    title: "Project Iota",
+    description: "A description for Project Iota, showcasing real-time data processing and analytics.",
+    features: ["Feature Y", "Feature Z", "Feature AA"],
+    tech: ["Elixir", "Phoenix", "PostgreSQL"]
   }
 ];
