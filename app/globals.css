@@ -1,8 +1,24 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
+@import "tailwindcss";
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Source+Serif+Pro:wght@700&display=swap');
+
+@theme {
+  /* Custom colors migrated from tailwind.config.ts */
+  --color-sage-blue-900: #0D1B2A;
+  --color-ink-900: #1B263B;
+  --color-ink-700: #415A77;
+  --color-ink-500: #778DA9;
+  --color-parchment-300: #E0E1DD;
+  --color-parchment-200: #F0F2F5;
+  --color-parchment-100: #FFFFFF;
+  --color-arcane-gold-500: #FFC300;
+  --color-success-500: #2ECC71;
+  --color-warning-500: #F39C12;
+  --color-error-500: #E74C3C;
+  
+  /* Custom fonts migrated from tailwind.config.ts */
+  --font-serif: "Source Serif Pro", serif;
+  --font-sans: Inter, sans-serif;
+}
 
 :root {
   --sage-blue-900: #0D1B2A;
