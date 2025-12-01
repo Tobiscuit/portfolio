@@ -282,10 +282,26 @@ export const projects = [
   },
   {
     id: 5,
-    title: "Project Epsilon",
-    description: "A description for Project Epsilon, illustrating attention to detail and design.",
-    features: ["Feature M", "Feature N", "Feature O"],
-    tech: ["Angular", "RxJS", "MongoDB"]
+    title: "NASA Mission Control: Launch Scheduling Dashboard",
+    description: "A mission control dashboard for scheduling and managing SpaceX launches, featuring real-time launch data, mission tracking, and a comprehensive history of past launches.",
+    features: [
+      "Launch Scheduling System",
+      "Mission History Tracking",
+      "Real-Time Launch Data",
+      "SpaceX API Integration",
+      "Responsive Dashboard UI"
+    ],
+    tech: [
+      "React",
+      "Node.js",
+      "Express",
+      "MongoDB",
+      "SpaceX API",
+      "Docker",
+      "AWS EC2"
+    ],
+    image: "/images/projects/nasa-mission-control/hero.webp",
+    url: "http://54.166.234.199:8000/"
   },
   {
     id: 6,
