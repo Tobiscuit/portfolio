@@ -32,9 +32,14 @@ export default function About() {
               <Image
                 alt="Profile picture"
                 className="w-full h-full object-cover"
-                src="/profile.png"
+                src="/profile.webp"
                 width={256}
                 height={256}
+                quality={90}
+                priority
+                placeholder="blur"
+                blurDataURL="data:image/webp;base64,UklGRiQAAABXRUJQVlA4IBgAAAAwAQCdASoQABAAAgA0JaQAA3AA/vuOAA=="
+                sizes="(max-width: 768px) 192px, 256px"
               />
             </div>
           </div>
@@ -50,10 +55,10 @@ export default function About() {
                 This passion for understanding systems from the inside out naturally led me to programming in high school. What began with C++ and C# has evolved into a career dedicated to building clean, efficient, and scalable web applications. That early drive for performance and precision still informs every project I take on today.
               </p>
             </div>
-            
+
             <div className="mt-16">
               <h2 className="font-serif text-parchment-100 mb-8 text-center lg:text-left">Technical Education & Certifications</h2>
-              
+
               <div className="grid md:grid-cols-2 gap-8">
                 <div>
                   <h3 className="text-lg font-semibold text-parchment-100 mb-4">Certifications</h3>
@@ -72,7 +77,7 @@ export default function About() {
                     <TitledListItem title="CompTIA PenTest+" status="Completed Course" />
                   </div>
                 </div>
-                
+
                 <div>
                   <h3 className="text-lg font-semibold text-parchment-100 mb-4">Technical Literature</h3>
                   <details className="group">
@@ -107,7 +112,7 @@ export default function About() {
                 </div>
               </div>
             </div>
-            
+
             <div className="mt-12 text-center lg:text-left">
               <button
                 onClick={() => setIsResumeModalOpen(true)}
