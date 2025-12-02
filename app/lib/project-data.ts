@@ -305,10 +305,11 @@ export const projects = [
   },
   {
     id: 6,
-    title: "Project Zeta",
-    description: "A description for Project Zeta, summarizing a complex and challenging build.",
-    features: ["Feature P", "Feature Q", "Feature R"],
-    tech: ["Go", "Docker", "Kubernetes"]
+    title: "Three Chicks & A Wick: Business Admin Panel",
+    description: "A comprehensive admin dashboard for managing inventory, orders, and business operations for the Three Chicks & A Wick eCommerce platform.",
+    features: ["Inventory Management", "Order Fulfillment", "Business Analytics"],
+    tech: ["Next.js", "React", "Tailwind CSS"],
+    image: "/images/projects/threechicksandawick-admin/hero.webp"
   },
   {
     id: 7,
