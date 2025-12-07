@@ -90,9 +90,7 @@ export default function About() {
                       <TitledListItem title="Clean Architecture" subtitle="Robert C. Martin" />
                       <TitledListItem title="The Product Book" subtitle="Josh Anon, Carlos González de Villaumbrosia" />
                       <TitledListItem title="Executive's Guide to Cloud Computing" subtitle="Eric A. Marks, Bob Lozano" />
-                      <TitledListItem title="Networking for Dummies" subtitle="Doug Lowe" />
                       <TitledListItem title="SQL QuickStart Guide" subtitle="Walter Shields" />
-                      <TitledListItem title="Design Thinking for Dummies" subtitle="Christian Muller-Roterberg" />
                       <TitledListItem title="Terraform in Action" subtitle="Scott Winkler" />
                       <TitledListItem title="AWS Cloud Architecture Patterns" subtitle="SK Singh" />
                       <TitledListItem title="AWS Cloud Adoption Framework" subtitle="AWS" />
