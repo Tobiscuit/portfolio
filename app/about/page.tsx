@@ -49,10 +49,10 @@ export default function About() {
             </h1>
             <div className="mt-8 space-y-6 text-ink-500 max-w-3xl mx-auto lg:mx-0">
               <p>
-                My journey into software development began long before my first line of code. It started with a deep-seated curiosity for how things work, which led me to deconstruct and optimize my own computer&apos;s performance. Unsatisfied with out-of-the-box speeds, I took it upon myself to understand the system&apos;s inner workings. I learned to carefully edit the registry and deploy specialized tools like Revo Uninstaller and CCleaner, all in the pursuit of peak performance.
+                My journey into software development began with a deep-seated curiosity for how systems work at the metal level. I didn&apos;t just want to use computers; I wanted to optimize them. I spent years analyzing operating system architecture and kernel-level performance, a pursuit that taught me the importance of efficiency and resource management.
               </p>
               <p>
-                This passion for understanding systems from the inside out naturally led me to programming in high school. What began with C++ and C# has evolved into a career dedicated to building clean, efficient, and scalable web applications. That early drive for performance and precision still informs every project I take on today.
+                This passion for system internals naturally evolved into a career in full-stack engineering. Today, I apply that same &quot;optimization mindset&quot; to web architecture—building applications that are not just functional, but performant, secure, and architecturally sound.
               </p>
             </div>
 
@@ -65,16 +65,9 @@ export default function About() {
                   <div className="space-y-3">
                     <TitledListItem title="AWS Certified Cloud Practitioner" status="Earned" />
                     <TitledListItem title="AWS Solutions Architect Associate" status="Completed Course" />
-                    <TitledListItem title="AWS AI Practitioner" status="Completed Course" />
-                    <TitledListItem title="Azure Fundamentals" status="Completed Course" />
-                    <TitledListItem title="CompTIA ITF+" status="Completed Course" />
-                    <TitledListItem title="CompTIA A+" status="Completed Course" />
-                    <TitledListItem title="CompTIA Network+" status="Completed Course" />
-                    <TitledListItem title="CompTIA Security+" status="Completed Course" />
-                    <TitledListItem title="CompTIA Cloud+" status="Completed Course" />
                     <TitledListItem title="CompTIA Linux+" status="Completed Course" />
+                    <TitledListItem title="CompTIA Security+" status="Completed Course" />
                     <TitledListItem title="CompTIA CySA+" status="Completed Course" />
-                    <TitledListItem title="CompTIA PenTest+" status="Completed Course" />
                   </div>
                 </div>
 
