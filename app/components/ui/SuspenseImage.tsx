@@ -22,7 +22,7 @@ type SuspenseImageProps = {
 export function ImageSkeleton({ aspectRatio = '16/9', className = '' }: { aspectRatio?: string; className?: string }) {
   return (
     <div 
-      className={`w-full bg-ink-800 animate-pulse rounded-lg ${className}`}
+      className={`w-full bg-ink-700 animate-pulse rounded-lg ${className}`}
       style={{ aspectRatio }}
     />
   )
@@ -58,7 +58,7 @@ export function SuspenseImage({
     <div className="relative" style={{ aspectRatio }}>
       {/* Skeleton loader shown while image loads */}
       {isLoading && (
-        <div className="absolute inset-0 bg-ink-800 animate-pulse rounded-lg" />
+        <div className="absolute inset-0 bg-ink-700 animate-pulse rounded-lg" />
       )}
       <Image
         src={src}
@@ -108,7 +108,7 @@ export function SuspenseSvg({
     <div className="relative w-full">
       {/* Skeleton loader shown while SVG loads */}
       {isLoading && (
-        <div className="w-full bg-ink-800 animate-pulse rounded-lg" style={{ aspectRatio: '16/9' }} />
+        <div className="w-full bg-ink-700 animate-pulse rounded-lg" style={{ aspectRatio: '16/9' }} />
       )}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img

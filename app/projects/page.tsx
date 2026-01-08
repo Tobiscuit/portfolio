@@ -10,8 +10,8 @@ export default function Projects() {
           <p className="text-ink-500 mt-4">A selection of applications and systems I&apos;ve built</p>
         </header>
         <main className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {projects.map((project) => (
-            <ProjectCard key={project.id} project={project} />
+          {projects.map((project, index) => (
+            <ProjectCard key={project.id} project={project} priority={index < 2} />
           ))}
         </main>
       </div>
