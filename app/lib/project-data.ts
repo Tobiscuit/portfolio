@@ -307,33 +307,11 @@ export const projects = [
     id: 6,
     title: "Three Chicks & A Wick: Business Admin Panel",
     description: "A comprehensive admin dashboard for managing inventory, orders, and business operations for the Three Chicks & A Wick eCommerce platform.",
-    features: ["Inventory Management", "Order Fulfillment", "Business Analytics"],
     tech: ["Next.js", "React", "Tailwind CSS"],
     image: "/images/projects/threechicksandawick-admin/hero.webp"
   },
   {
     id: 7,
-    title: "Project Eta",
-    description: "A description for Project Eta, highlighting advanced algorithms and data structures.",
-    features: ["Feature S", "Feature T", "Feature U"],
-    tech: ["Rust", "WebAssembly", "Actix"]
-  },
-  {
-    id: 8,
-    title: "Project Theta",
-    description: "A description for Project Theta, focusing on mobile-first experiences and PWA capabilities.",
-    features: ["Feature V", "Feature W", "Feature X"],
-    tech: ["Flutter", "Dart", "Firebase"]
-  },
-  {
-    id: 9,
-    title: "Project Iota",
-    description: "A description for Project Iota, showcasing real-time data processing and analytics.",
-    features: ["Feature Y", "Feature Z", "Feature AA"],
-    tech: ["Elixir", "Phoenix", "PostgreSQL"]
-  },
-  {
-    id: 10,
     title: "The Commons: Wizard101 Community Hub",
     description: "The ultimate community hub for Wizard101 players. Features advanced tools for pet stat calculation, an AI-powered gear scanner that analyzes screenshots, and a marketplace for coordinating pet trades.",
     features: [
@@ -354,7 +332,7 @@ export const projects = [
     url: "https://commons.jrcodex.dev/"
   },
   {
-    id: 11,
+    id: 8,
     title: "Audify: AI Text-to-Speech Platform",
     description: "A professional text-to-speech platform leveraging Amazon Polly's neural engine. Users can generate lifelike audio for content creation with a flexible pay-as-you-go credit system.",
     features: [
