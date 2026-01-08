@@ -11,7 +11,7 @@ export default function Projects() {
         </header>
         <main className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {projects.map((project, index) => (
-            <ProjectCard key={project.id} project={project} priority={index < 2} />
+            <ProjectCard key={project.id} project={project} priority={index < 6} />
           ))}
         </main>
       </div>
