@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import Image from 'next/image'
+import { SuspenseImage, SuspenseSvg } from '@/app/components/ui/SuspenseImage'
 import ImageModal from '@/app/components/ImageModal'
 
 type CaseStudySection = {
@@ -38,24 +38,30 @@ export default function ProjectDetailsView({ project }: { project: Project }) {
   const openModal = (imageUrl: string) => setModalImageUrl(imageUrl);
   const closeModal = () => setModalImageUrl(null);
 
-  const renderImage = (src: string, alt: string) => {
+  // Unified image renderer that handles both SVG and raster images
+  const renderImage = (src: string, alt: string, onClick?: () => void) => {
     const isSvg = src.endsWith('.svg');
+    
     if (isSvg) {
       return (
-        <img
+        <SuspenseSvg
           src={src}
           alt={alt}
-          className="w-full h-auto rounded-lg my-6 cursor-pointer hover:opacity-90 transition-opacity"
+          className="rounded-lg my-6 cursor-pointer hover:opacity-90 transition-opacity"
+          onClick={onClick}
         />
       );
     }
+    
     return (
-      <Image
+      <SuspenseImage
         src={src}
         alt={alt}
         width={1200}
         height={800}
         className="w-full h-auto rounded-lg my-6 cursor-pointer hover:opacity-90 transition-opacity"
+        aspectRatio="3/2"
+        onClick={onClick}
       />
     );
   };
@@ -79,21 +85,23 @@ export default function ProjectDetailsView({ project }: { project: Project }) {
                 {project.image ? (
                   project.url ? (
                     <Link href={project.url} target="_blank" rel="noopener noreferrer">
-                      <Image
+                      <SuspenseImage
                         src={project.image}
                         alt={`Screenshot of ${project.title}`}
                         width={1920}
                         height={1080}
                         className="w-full h-full object-cover cursor-pointer hover:opacity-90 transition-opacity"
+                        aspectRatio="16/9"
                       />
                     </Link>
                   ) : (
-                    <Image
+                    <SuspenseImage
                       src={project.image}
                       alt={`Screenshot of ${project.title}`}
                       width={1920}
                       height={1080}
                       className="w-full h-full object-cover"
+                      aspectRatio="16/9"
                     />
                   )
                 ) : (

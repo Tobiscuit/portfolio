@@ -1,16 +1,18 @@
-import Link from 'next/link';
-import Image from 'next/image';
+'use client'
+
+import Link from 'next/link'
+import { SuspenseImage, ImageSkeleton } from './ui/SuspenseImage'
 
 type Project = {
-  id: number;
-  title: string;
-  description: string;
-  image?: string;
-};
+  id: number
+  title: string
+  description: string
+  image?: string
+}
 
 type ProjectCardProps = {
-  project: Project;
-};
+  project: Project
+}
 
 export default function ProjectCard({ project }: ProjectCardProps) {
   return (
@@ -18,7 +20,7 @@ export default function ProjectCard({ project }: ProjectCardProps) {
       <div className="flex flex-col gap-4">
         <div className="overflow-hidden rounded-lg">
           {project.image ? (
-            <Image
+            <SuspenseImage
               src={project.image}
               alt={project.title}
               width={1920}
@@ -26,6 +28,7 @@ export default function ProjectCard({ project }: ProjectCardProps) {
               quality={90}
               sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
               className="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-300 aspect-[16/9]"
+              aspectRatio="16/9"
             />
           ) : (
             <div className="w-full bg-ink-900 aspect-[16/9]" style={{
@@ -45,5 +48,5 @@ export default function ProjectCard({ project }: ProjectCardProps) {
         </div>
       </div>
     </Link>
-  );
-} 
+  )
+}
