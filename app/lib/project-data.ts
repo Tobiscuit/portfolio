@@ -353,5 +353,12 @@ export const projects = [
     ],
     image: "/images/projects/audify/hero.webp",
     url: "https://audify.jrcodex.dev/"
+  },
+  {
+    id: 9,
+    title: "Project Eta",
+    description: "A description for Project Eta, highlighting advanced algorithms and data structures.",
+    features: ["Feature S", "Feature T", "Feature U"],
+    tech: ["Rust", "WebAssembly", "Actix"]
   }
 ];
