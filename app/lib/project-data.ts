@@ -331,5 +331,48 @@ export const projects = [
     description: "A description for Project Iota, showcasing real-time data processing and analytics.",
     features: ["Feature Y", "Feature Z", "Feature AA"],
     tech: ["Elixir", "Phoenix", "PostgreSQL"]
+  },
+  {
+    id: 10,
+    title: "The Commons: Wizard101 Community Hub",
+    description: "The ultimate community hub for Wizard101 players. Features advanced tools for pet stat calculation, an AI-powered gear scanner that analyzes screenshots, and a marketplace for coordinating pet trades.",
+    features: [
+      "AI-Powered Wizard Scanner",
+      "Pet Talent Calculator",
+      "Guild Directory",
+      "Community Marketplace",
+      "Pet Management Tome"
+    ],
+    tech: [
+      "Next.js",
+      "React",
+      "Tailwind CSS",
+      "Computer Vision / AI",
+      "Authentication"
+    ],
+    image: "/images/projects/commons/hero.webp",
+    url: "https://commons.jrcodex.dev/"
+  },
+  {
+    id: 11,
+    title: "Audify: AI Text-to-Speech Platform",
+    description: "A professional text-to-speech platform leveraging Amazon Polly's neural engine. Users can generate lifelike audio for content creation with a flexible pay-as-you-go credit system.",
+    features: [
+      "Amazon Polly Integration",
+      "100+ Neural/Generative Voices",
+      "Multi-Language Support",
+      "Credit-Based Payment System",
+      "Instant Audio Generation"
+    ],
+    tech: [
+      "Next.js",
+      "React",
+      "Tailwind CSS",
+      "Amazon Polly",
+      "Supabase",
+      "Stripe"
+    ],
+    image: "/images/projects/audify/hero.webp",
+    url: "https://audify.jrcodex.dev/"
   }
 ];
