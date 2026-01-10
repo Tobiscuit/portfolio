@@ -134,7 +134,7 @@ export const projects = [
       "WebSockets"
     ],
     image: "/images/projects/threechicksandawick/hero.webp",
-    url: "https://demo.threechicksandawick.com/",
+    url: "https://threechicksandawick.com/",
     caseStudy: {
       intro: {
         title: "The Challenge: Building AI for a World of Attackers",
