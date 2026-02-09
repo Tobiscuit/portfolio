@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
-import './globals.css'
+import '../globals.css'
 import { Inter, Source_Serif_4 } from 'next/font/google'
-import Header from './components/Header'
+import Header from '@/components/Header'
 
 const siteUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000'
 
