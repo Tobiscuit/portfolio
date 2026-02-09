@@ -2,9 +2,9 @@
 
 import Image from 'next/image'
 import { ChevronRight } from 'lucide-react'
-import { TitledListItem } from '../components/ui/TitledListItem'
+import { TitledListItem } from '@/components/ui/TitledListItem'
 import { useState, useEffect } from 'react'
-import ResumeModal from '../components/ResumeModal'
+import ResumeModal from '@/components/ResumeModal'
 
 const useIsMobile = () => {
   const [isMobile, setIsMobile] = useState(false)
