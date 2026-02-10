@@ -12,7 +12,7 @@ export type CaseStudy = {
   sections: CaseStudySection[];
   conclusion: { title: string; text: string; };
   futureWork?: { title: string; intro: string; points: { title: string; text: string }[] };
-  finalArchitecture?: { title: string; text: string; image: string; imageAlt: string; };
+  finalArchitecture?: { title: string; text: string; image?: string; imageAlt: string; };
 }
 
 export type Project = {

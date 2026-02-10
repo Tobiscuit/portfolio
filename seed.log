@@ -1,0 +1,365 @@
+[dotenv@17.2.4] injecting env (12) from .env.local -- tip: ΓÜÖ∩╕Å  specify custom .env file path with { path: '/custom/path/.env' }
+AWS_REGION: us-east-2
+S3_BUCKET: jrcodex-dev-portfolio
+≡ƒî▒ Starting full seeding process...
+[14:54:20] [33mWARN[39m: [36mNo email adapter provided. Email will be written to console. More info at https://payloadcms.com/docs/email/overview.[39m
+≡ƒùæ∩╕Å  Clearing existing projects and media for a clean start...
+
+Processing: WeatherWise AI: A Case Study in Architectural Refactoring
+[14:54:22] [31mERROR[39m: [36mThere was an error while uploading files corresponding to the collection media with filename arch_diagram_1.png:[39m
+[14:54:22] [31mERROR[39m: [36mThe bucket you are attempting to access must be addressed using the specified endpoint. Please send all future requests to this endpoint.[39m
+    err: {
+      "type": "S3ServiceException",
+      "message": "The bucket you are attempting to access must be addressed using the specified endpoint. Please send all future requests to this endpoint.",
+      "stack":
+          PermanentRedirect: The bucket you are attempting to access must be addressed using the specified endpoint. Please send all future requests to this endpoint.
+              at ProtocolLib.getErrorSchemaOrThrowBaseException (C:\dev\web-dev-portfolio\node_modules\@aws-sdk\client-s3\node_modules\@aws-sdk\core\dist-cjs\submodules\protocols\index.js:69:67)
+              at AwsRestXmlProtocol.handleError (C:\dev\web-dev-portfolio\node_modules\@aws-sdk\client-s3\node_modules\@aws-sdk\core\dist-cjs\submodules\protocols\index.js:1801:65)
+              at AwsRestXmlProtocol.deserializeResponse (C:\dev\web-dev-portfolio\node_modules\@smithy\core\dist-cjs\submodules\protocols\index.js:309:24)
+              at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+              at async C:\dev\web-dev-portfolio\node_modules\@smithy\core\dist-cjs\submodules\schema\index.js:26:24
+              at async C:\dev\web-dev-portfolio\node_modules\@aws-sdk\middleware-sdk-s3\dist-cjs\index.js:386:20
+              at async C:\dev\web-dev-portfolio\node_modules\@smithy\middleware-retry\dist-cjs\index.js:254:46
+              at async C:\dev\web-dev-portfolio\node_modules\@aws-sdk\middleware-flexible-checksums\dist-cjs\index.js:241:24
+              at async C:\dev\web-dev-portfolio\node_modules\@aws-sdk\middleware-sdk-s3\dist-cjs\index.js:63:28
+              at async C:\dev\web-dev-portfolio\node_modules\@aws-sdk\middleware-sdk-s3\dist-cjs\index.js:90:20
+      "$fault": "client",
+      "$metadata": {
+        "httpStatusCode": 301,
+        "requestId": "GYHTVS3FB4947TV4",
+        "extendedRequestId": "9tInyVQKZam7dUnV/UAd+t6Gk7pINxoHKdwCA/4VXkthCcK0kav8GV32dGWXM2m7wHfCg3CPVO5wfB0oaYeZALVH918UscJZK+i9f/yHbck=",
+        "attempts": 1,
+        "totalRetryDelay": 0
+      },
+      "name": "PermanentRedirect",
+      "Code": "PermanentRedirect",
+      "Endpoint": "s3.amazonaws.com",
+      "Bucket": "jrcodex-dev-portfolio",
+      "RequestId": "GYHTVS3FB4947TV4",
+      "HostId": "9tInyVQKZam7dUnV/UAd+t6Gk7pINxoHKdwCA/4VXkthCcK0kav8GV32dGWXM2m7wHfCg3CPVO5wfB0oaYeZALVH918UscJZK+i9f/yHbck="
+    }
+  Γ¥î Upload failed for /images/projects/weatherwise/arch_diagram_1.png: The bucket you are attempting to access must be addressed using the specified endpoint. Please send all future requests to this endpoint.
+[14:54:22] [31mERROR[39m: [36mThere was an error while uploading files corresponding to the collection media with filename arch_diagram_2.png:[39m
+[14:54:22] [31mERROR[39m: [36mThe bucket you are attempting to access must be addressed using the specified endpoint. Please send all future requests to this endpoint.[39m
+    err: {
+      "type": "S3ServiceException",
+      "message": "The bucket you are attempting to access must be addressed using the specified endpoint. Please send all future requests to this endpoint.",
+      "stack":
+          PermanentRedirect: The bucket you are attempting to access must be addressed using the specified endpoint. Please send all future requests to this endpoint.
+              at ProtocolLib.getErrorSchemaOrThrowBaseException (C:\dev\web-dev-portfolio\node_modules\@aws-sdk\client-s3\node_modules\@aws-sdk\core\dist-cjs\submodules\protocols\index.js:69:67)
+              at AwsRestXmlProtocol.handleError (C:\dev\web-dev-portfolio\node_modules\@aws-sdk\client-s3\node_modules\@aws-sdk\core\dist-cjs\submodules\protocols\index.js:1801:65)
+              at AwsRestXmlProtocol.deserializeResponse (C:\dev\web-dev-portfolio\node_modules\@smithy\core\dist-cjs\submodules\protocols\index.js:309:24)
+              at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+              at async C:\dev\web-dev-portfolio\node_modules\@smithy\core\dist-cjs\submodules\schema\index.js:26:24
+              at async C:\dev\web-dev-portfolio\node_modules\@aws-sdk\middleware-sdk-s3\dist-cjs\index.js:386:20
+              at async C:\dev\web-dev-portfolio\node_modules\@smithy\middleware-retry\dist-cjs\index.js:254:46
+              at async C:\dev\web-dev-portfolio\node_modules\@aws-sdk\middleware-flexible-checksums\dist-cjs\index.js:241:24
+              at async C:\dev\web-dev-portfolio\node_modules\@aws-sdk\middleware-sdk-s3\dist-cjs\index.js:63:28
+              at async C:\dev\web-dev-portfolio\node_modules\@aws-sdk\middleware-sdk-s3\dist-cjs\index.js:90:20
+      "$fault": "client",
+      "$metadata": {
+        "httpStatusCode": 301,
+        "requestId": "ECGR9Y8EZBAFKY73",
+        "extendedRequestId": "dPSFv6u4N97Q88ldeUXLzLdQ9kbP97sH+riOuDLRI8IAamtXK7QkMXjLZk6L81Xq9nze1WFDrUUPGDhlMqpUCw==",
+        "attempts": 1,
+        "totalRetryDelay": 0
+      },
+      "name": "PermanentRedirect",
+      "Code": "PermanentRedirect",
+      "Endpoint": "s3.amazonaws.com",
+      "Bucket": "jrcodex-dev-portfolio",
+      "RequestId": "ECGR9Y8EZBAFKY73",
+      "HostId": "dPSFv6u4N97Q88ldeUXLzLdQ9kbP97sH+riOuDLRI8IAamtXK7QkMXjLZk6L81Xq9nze1WFDrUUPGDhlMqpUCw=="
+    }
+  Γ¥î Upload failed for /images/projects/weatherwise/arch_diagram_2.png: The bucket you are attempting to access must be addressed using the specified endpoint. Please send all future requests to this endpoint.
+[14:54:23] [31mERROR[39m: [36mThere was an error while uploading files corresponding to the collection media with filename arch_diagram_3.png:[39m
+[14:54:23] [31mERROR[39m: [36mThe bucket you are attempting to access must be addressed using the specified endpoint. Please send all future requests to this endpoint.[39m
+    err: {
+      "type": "S3ServiceException",
+      "message": "The bucket you are attempting to access must be addressed using the specified endpoint. Please send all future requests to this endpoint.",
+      "stack":
+          PermanentRedirect: The bucket you are attempting to access must be addressed using the specified endpoint. Please send all future requests to this endpoint.
+              at ProtocolLib.getErrorSchemaOrThrowBaseException (C:\dev\web-dev-portfolio\node_modules\@aws-sdk\client-s3\node_modules\@aws-sdk\core\dist-cjs\submodules\protocols\index.js:69:67)
+              at AwsRestXmlProtocol.handleError (C:\dev\web-dev-portfolio\node_modules\@aws-sdk\client-s3\node_modules\@aws-sdk\core\dist-cjs\submodules\protocols\index.js:1801:65)
+              at AwsRestXmlProtocol.deserializeResponse (C:\dev\web-dev-portfolio\node_modules\@smithy\core\dist-cjs\submodules\protocols\index.js:309:24)
+              at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+              at async C:\dev\web-dev-portfolio\node_modules\@smithy\core\dist-cjs\submodules\schema\index.js:26:24
+              at async C:\dev\web-dev-portfolio\node_modules\@aws-sdk\middleware-sdk-s3\dist-cjs\index.js:386:20
+              at async C:\dev\web-dev-portfolio\node_modules\@smithy\middleware-retry\dist-cjs\index.js:254:46
+              at async C:\dev\web-dev-portfolio\node_modules\@aws-sdk\middleware-flexible-checksums\dist-cjs\index.js:241:24
+              at async C:\dev\web-dev-portfolio\node_modules\@aws-sdk\middleware-sdk-s3\dist-cjs\index.js:63:28
+              at async C:\dev\web-dev-portfolio\node_modules\@aws-sdk\middleware-sdk-s3\dist-cjs\index.js:90:20
+      "$fault": "client",
+      "$metadata": {
+        "httpStatusCode": 301,
+        "requestId": "ECGG2VCRVFEK2QJ9",
+        "extendedRequestId": "kRTwelQSt8m04FP4cZXRifNj0Bx0a/mEQcmUVw650KYKUZINHsaluvhlcEa5a/PEQ9pwaVQiNMCRdBglS1ENtzvqei6ete7hnpf08PyxH8U=",
+        "attempts": 1,
+        "totalRetryDelay": 0
+      },
+      "name": "PermanentRedirect",
+      "Code": "PermanentRedirect",
+      "Endpoint": "s3.amazonaws.com",
+      "Bucket": "jrcodex-dev-portfolio",
+      "RequestId": "ECGG2VCRVFEK2QJ9",
+      "HostId": "kRTwelQSt8m04FP4cZXRifNj0Bx0a/mEQcmUVw650KYKUZINHsaluvhlcEa5a/PEQ9pwaVQiNMCRdBglS1ENtzvqei6ete7hnpf08PyxH8U="
+    }
+  Γ¥î Upload failed for /images/projects/weatherwise/arch_diagram_3.png: The bucket you are attempting to access must be addressed using the specified endpoint. Please send all future requests to this endpoint.
+[14:54:23] [31mERROR[39m: [36mThere was an error while uploading files corresponding to the collection media with filename arch_diagram_4.png:[39m
+[14:54:23] [31mERROR[39m: [36mThe bucket you are attempting to access must be addressed using the specified endpoint. Please send all future requests to this endpoint.[39m
+    err: {
+      "type": "S3ServiceException",
+      "message": "The bucket you are attempting to access must be addressed using the specified endpoint. Please send all future requests to this endpoint.",
+      "stack":
+          PermanentRedirect: The bucket you are attempting to access must be addressed using the specified endpoint. Please send all future requests to this endpoint.
+              at ProtocolLib.getErrorSchemaOrThrowBaseException (C:\dev\web-dev-portfolio\node_modules\@aws-sdk\client-s3\node_modules\@aws-sdk\core\dist-cjs\submodules\protocols\index.js:69:67)
+              at AwsRestXmlProtocol.handleError (C:\dev\web-dev-portfolio\node_modules\@aws-sdk\client-s3\node_modules\@aws-sdk\core\dist-cjs\submodules\protocols\index.js:1801:65)
+              at AwsRestXmlProtocol.deserializeResponse (C:\dev\web-dev-portfolio\node_modules\@smithy\core\dist-cjs\submodules\protocols\index.js:309:24)
+              at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+              at async C:\dev\web-dev-portfolio\node_modules\@smithy\core\dist-cjs\submodules\schema\index.js:26:24
+              at async C:\dev\web-dev-portfolio\node_modules\@aws-sdk\middleware-sdk-s3\dist-cjs\index.js:386:20
+              at async C:\dev\web-dev-portfolio\node_modules\@smithy\middleware-retry\dist-cjs\index.js:254:46
+              at async C:\dev\web-dev-portfolio\node_modules\@aws-sdk\middleware-flexible-checksums\dist-cjs\index.js:241:24
+              at async C:\dev\web-dev-portfolio\node_modules\@aws-sdk\middleware-sdk-s3\dist-cjs\index.js:63:28
+              at async C:\dev\web-dev-portfolio\node_modules\@aws-sdk\middleware-sdk-s3\dist-cjs\index.js:90:20
+      "$fault": "client",
+      "$metadata": {
+        "httpStatusCode": 301,
+        "requestId": "ECGWXGZ0MY3B0M3R",
+        "extendedRequestId": "7rrh0gWe9FINmEiKCXMelQj/zLBeTylLhaxYme3GNwHUu2uomsTgkZ/bKS4ZKI2xZSOdnRfRbxGGjZJFaS6zJXpJXnc81jNpxBDIf4pEt6A=",
+        "attempts": 1,
+        "totalRetryDelay": 0
+      },
+      "name": "PermanentRedirect",
+      "Code": "PermanentRedirect",
+      "Endpoint": "s3.amazonaws.com",
+      "Bucket": "jrcodex-dev-portfolio",
+      "RequestId": "ECGWXGZ0MY3B0M3R",
+      "HostId": "7rrh0gWe9FINmEiKCXMelQj/zLBeTylLhaxYme3GNwHUu2uomsTgkZ/bKS4ZKI2xZSOdnRfRbxGGjZJFaS6zJXpJXnc81jNpxBDIf4pEt6A="
+    }
+  Γ¥î Upload failed for /images/projects/weatherwise/arch_diagram_4.png: The bucket you are attempting to access must be addressed using the specified endpoint. Please send all future requests to this endpoint.
+  ≡ƒôª Data prepared for "WeatherWise AI: A Case Study in Architectural Refactoring": {
+  "title": "WeatherWise AI: A Case Study in Architectural Refactoring",
+  "slug": "weatherwise-ai-a-case-study-in-architectural-refactoring",
+  "description": "This project showcases the strategic refactoring of a cloud-native application, transforming a complex microservice proof-of-concept into a robust, maintainable, and performant monolithic service ready for automated deployment.",
+  "features": [
+    {
+      "feature": "AI-Powered Weather Summaries"
+    },
+    {
+      "feature": "Monolithic Service Refactoring"
+    },
+    {
+      "feature": "Test-Driven Development"
+    },
+    {
+      "feature": "Automated CI/CD with Cloud Build"
+    }
+  ],
+  "tech": [
+    {
+      "name": "Google Cloud Run"
+    },
+    {
+      "name": "Google Gemini"
+    },
+    {
+      "name": "Fastify"
+    },
+    {
+      "name": "TypeScript"
+    },
+    {
+      "name": "Jest"
+    },
+    {
+      "name": "Open-Meteo API"
+    },
+    {
+      "name": "Geocode Maps API"
+    }
+  ],
+  "url": "https://weatherwise-ai-356687723492.us-central1.run.app/",
+  "image": "698a77ecc7141f68519bc9fe",
+  "order": 1,
+  "caseStudy": {
+    "intro": {
+      "title": "The Initial Spark: Questioning the 'As-Is' Architecture",
+      "text": "My involvement began with a simple request: to understand the application's architecture. The initial diagrams revealed a system composed of two distinct microservices: a main application backend and a separate Gemini service for generating AI summaries.<br/><br/>While functional, I immediately questioned the validity of this approach. My architectural intuition suggested that for the scale and scope of this project, the added complexity of a microservice architecture was not providing value. It introduced network latency, operational overhead, and a deployment dependency between two services that were, in reality, tightly coupled. I concluded that the architecture was unnecessarily complicated and that a simpler, more direct approach would yield a better result.",
+      "imageAlt": "Initial As-Is Architecture Diagram"
+    },
+    "sections": [
+      {
+        "title": "The Strategic Pivot: A Case for a Well-Structured Monolith",
+        "text": "Based on this analysis, I charted a new course: a significant architectural pivot to refactor the application into a single monolithic service. This decision was driven by first-principles of software design: reducing complexity, improving performance, and lowering costs. The goal was to create a 'to-be' architecture that was lean, efficient, and easier to reason about.",
+        "imageAlt": "Proposed Monolith Architecture Diagram",
+        "list": []
+      },
+      {
+        "title": "The Execution: A Disciplined, Multi-Stage Refactoring",
+        "text": "With a clear architectural goal, I executed a methodical refactoring process, applying senior engineering best practices at each stage.",
+        "list": [
+          {
+            "item": "<strong>Service-Oriented Design & The Facade Pattern:</strong> I untangled the business logic from the web server by designing and implementing a dedicated service layer, encapsulating all external API interactions (<code>LocationService</code>, <code>WeatherService</code>, <code>GeminiService</code>). These services act as <strong>Facades</strong>, providing a simple, clean interface to the application while hiding the complex machinery of authentication, network requests, and error handling."
+          },
+          {
+            "item": "<strong>Dependency Injection for Testability:</strong> Crucially, the new services were designed to be testable. Instead of creating their own dependencies, dependencies like the HTTP client were injected into their constructors. This decoupling was the key that unlocked the ability to perform comprehensive unit testing."
+          },
+          {
+            "item": "<strong>Test-Driven Cleanup & Verification:</strong> With a testable architecture in place, I developed a full suite of unit tests using <strong>Jest</strong> and <code>axios-mock-adapter</code>. This wasn't just about validation; the testing process itself acted as a quality gate, revealing dead code, unused dependencies, and subtle bugs in the implementation. This iterative cycle of testing and fixing was instrumental in achieving a clean, reliable codebase."
+          },
+          {
+            "item": "<strong>Process Automation & Cleanup:</strong> The final touch was to professionalize the deployment process. I analyzed the existing manual PowerShell scripts and the <code>cloudbuild.yaml</code> file. I identified the automated Cloud Build pipeline as the superior, repeatable solution. I updated the Cloud Build configuration to match the new monolithic architecture, and decisively removed the now-obsolete manual scripts, ensuring a clean and unambiguous path to production."
+          }
+        ]
+      },
+      {
+        "title": "The Final Software Architecture",
+        "text": "The result of this process is a codebase with a clear, logical, and maintainable internal structure. It is a monolith, but it is not a 'big ball of mud.' It is a well-structured system with clear boundaries and responsibilities.",
+        "imageAlt": "Final Software Architecture Diagram",
+        "list": []
+      }
+    ],
+    "conclusion": {
+      "title": "Conclusion: More Than Code, A Mindset",
+      "text": "This project is a showcase of an engineering mindset that values clarity, simplicity, and robustness over unnecessary complexity. It demonstrates the ability to critically analyze an existing architecture, propose a bold but reasoned alternative, and execute that vision through disciplined, test-driven development and the application of established design patterns."
+    },
+    "futureWork": {
+      "title": "Architectural Limitations and Future Work",
+      "intro": "A key principle of senior-level architecture is understanding the trade-offs and limitations of any design. While this application is now robust, tested, and maintainable, it is optimized for clarity and cost-effectiveness as a portfolio piece, not for high-traffic production loads. The following points represent the next logical iteration to make it a truly production-grade system.",
+      "points": [
+        {
+          "title": "The Scalability Trap of In-Memory Caching",
+          "text": "In a serverless environment like Google Cloud Run, which scales by creating multiple, independent container instances, each instance would have its own isolated cache. This leads to inconsistent performance and low cache-hit ratios under load.<br/><strong>The Solution:</strong> Implement the <strong>Strategy Pattern</strong> for caching. I would define a <code>CacheStrategy</code> interface and create two implementations: an <code>InMemoryCacheStrategy</code> for local development, and a <code>RedisCacheStrategy</code> for production. The production strategy would connect to a managed, distributed cache like <strong>Google Cloud Memorystore for Redis</strong>, ensuring all container instances share a single, consistent cache."
+        },
+        {
+          "title": "Brittleness to External Service Failure",
+          "text": "The current service layer is optimistic and does not explicitly handle scenarios where a downstream dependency (like the Geocoding or Weather API) becomes slow or unresponsive. This can lead to blocked request threads and cascading failures.<br/><strong>The Solution:</strong> Implement the <strong>Circuit Breaker Pattern</strong>. By wrapping external API calls in a circuit breaker (e.g., using a library like <code>opossum</code>), the application could detect when a downstream service is failing. It would 'trip the breaker,' failing fast on subsequent requests for a period of time, allowing the dependency to recover and protecting my own application from being dragged down."
+        },
+        {
+          "title": "Undefined Production Secret Management",
+          "text": "While the app uses <code>.env</code> files for local development, the process for injecting production secrets (like the <code>GEOCODE_API_KEY</code>) is not codified. This relies on manual configuration in the Cloud Console, which is error-prone and not repeatable.<br/><strong>The Solution:</strong> Use <strong>Google Secret Manager</strong>. The API key would be stored securely in Secret Manager. The Cloud Run service's identity would be granted the 'Secret Manager Secret Accessor' role, and the <code>cloudbuild.yaml</code> would be updated to securely mount this secret as an environment variable at deployment time. This makes the entire process automated, secure, and defined as code."
+        }
+      ]
+    },
+    "finalArchitecture": {
+      "title": "The Final Deployed Cloud Architecture",
+      "text": "The final artifact is not just a working application; it is a clean, well-documented, fully-tested codebase with a professional, automated deployment pipeline, and a clear, forward-looking roadmap for future enhancement.",
+      "imageAlt": "Final Cloud Architecture Diagram"
+    }
+  }
+}
+  Γ£¿ Creating project...
+  Γ£à Project created: WeatherWise AI: A Case Study in Architectural Refactoring
+
+Processing: WeFix4U: Device Repair Service Platform
+  ≡ƒôª Data prepared for "WeFix4U: Device Repair Service Platform": {
+  "title": "WeFix4U: Device Repair Service Platform",
+  "slug": "wefix4u-device-repair-service-platform",
+  "description": "A modern, responsive web application for a device repair service business, featuring service booking, repair tracking, and customer management. Built with Next.js and deployed on Vercel for optimal performance and scalability.",
+  "features": [
+    {
+      "feature": "Service Booking & Quote System"
+    },
+    {
+      "feature": "Repair Tracking Dashboard"
+    },
+    {
+      "feature": "Responsive Mobile-First Design"
+    },
+    {
+      "feature": "Google Places API Integration"
+    },
+    {
+      "feature": "Customer Review System"
+    },
+    {
+      "feature": "Transparent Pricing Display"
+    }
+  ],
+  "tech": [
+    {
+      "name": "Next.js 15"
+    },
+    {
+      "name": "React"
+    },
+    {
+      "name": "TypeScript"
+    },
+    {
+      "name": "Tailwind CSS"
+    },
+    {
+      "name": "Google Places API (New)"
+    },
+    {
+      "name": "Vercel"
+    },
+    {
+      "name": "Responsive Design"
+    }
+  ],
+  "url": "https://wefix4u.vercel.app/",
+  "image": "698a77edc7141f68519bca0d",
+  "order": 2
+}
+  Γ£¿ Creating project...
+  Γ¥î Create failed for WeFix4U: Device Repair Service Platform: The following fields are invalid: Case Study > Intro > Title, Case Study > Intro > Text, Case Study > Conclusion > Title, Case Study > Conclusion > Text
+  Error Data: {
+  "collection": "projects",
+  "errors": [
+    {
+      "label": "Case Study > Intro > Title",
+      "message": "This field is required.",
+      "path": "caseStudy.intro.title"
+    },
+    {
+      "label": "Case Study > Intro > Text",
+      "message": "This field is required.",
+      "path": "caseStudy.intro.text"
+    },
+    {
+      "label": "Case Study > Conclusion > Title",
+      "message": "This field is required.",
+      "path": "caseStudy.conclusion.title"
+    },
+    {
+      "label": "Case Study > Conclusion > Text",
+      "message": "This field is required.",
+      "path": "caseStudy.conclusion.text"
+    }
+  ]
+}
+
+Γ¥î Seeding failed: The following fields are invalid: Case Study > Intro > Title, Case Study > Intro > Text, Case Study > Conclusion > Title, Case Study > Conclusion > Text
+Error Data: {
+  "collection": "projects",
+  "errors": [
+    {
+      "label": "Case Study > Intro > Title",
+      "message": "This field is required.",
+      "path": "caseStudy.intro.title"
+    },
+    {
+      "label": "Case Study > Intro > Text",
+      "message": "This field is required.",
+      "path": "caseStudy.intro.text"
+    },
+    {
+      "label": "Case Study > Conclusion > Title",
+      "message": "This field is required.",
+      "path": "caseStudy.conclusion.title"
+    },
+    {
+      "label": "Case Study > Conclusion > Text",
+      "message": "This field is required.",
+      "path": "caseStudy.conclusion.text"
+    }
+  ]
+}
+Stack Trace: ValidationError: The following fields are invalid: Case Study > Intro > Title, Case Study > Intro > Text, Case Study > Conclusion > Title, Case Study > Conclusion > Text
+    at beforeChange (C:\dev\web-dev-portfolio\node_modules\payload\src\fields\hooks\beforeChange\index.ts:77:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async createOperation (C:\dev\web-dev-portfolio\node_modules\payload\src\collections\operations\create.ts:232:31)
+    at async seed (C:\dev\web-dev-portfolio\scripts\seed.ts:209:13)

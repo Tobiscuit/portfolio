@@ -13,7 +13,8 @@ export default function ProjectDetailsView({ project }: { project: Project }) {
   const closeModal = () => setModalImageUrl(null);
 
   // Unified image renderer that handles both SVG and raster images
-  const renderImage = (src: string, alt: string, onClick?: () => void) => {
+  const renderImage = (src: string | undefined, alt: string, onClick?: () => void) => {
+    if (!src) return null;
     const isSvg = src.endsWith('.svg');
     
     if (isSvg) {
@@ -168,9 +169,11 @@ export default function ProjectDetailsView({ project }: { project: Project }) {
                           <h2 className="font-serif text-3xl text-parchment-100 mt-8 mb-4">{caseStudy.finalArchitecture.title}</h2>
                           <p dangerouslySetInnerHTML={{ __html: caseStudy.finalArchitecture.text }} />
                           <p>The final cloud architecture I deployed is as follows:</p>
-                          <button onClick={() => openModal(caseStudy.finalArchitecture!.image)} className="w-full block">
-                            {renderImage(caseStudy.finalArchitecture.image, caseStudy.finalArchitecture.imageAlt)}
-                          </button>
+                          {caseStudy.finalArchitecture.image && (
+                            <button onClick={() => openModal(caseStudy.finalArchitecture!.image!)} className="w-full block">
+                              {renderImage(caseStudy.finalArchitecture.image, caseStudy.finalArchitecture.imageAlt)}
+                            </button>
+                          )}
                         </>
                       )}
                     </>
