@@ -27,7 +27,15 @@ async function uploadImage(payload: Payload, relativePath: string | undefined): 
 
   try {
     const fileBuffer = fs.readFileSync(imagePath)
-    const fileName = path.basename(imagePath)
+    // Create a unique filename by prepending the parent directory name
+    // e.g. /images/projects/foo/hero.webp -> foo-hero.webp
+    const parentDir = path.basename(path.dirname(imagePath))
+    const originalName = path.basename(imagePath)
+    // prevent double-prefixing if re-running or if logic changes
+    const fileName = parentDir && parentDir !== 'public' && parentDir !== 'images' 
+        ? `${parentDir}-${originalName}` 
+        : originalName
+    
     const mimeType = mime.lookup(imagePath) || 'application/octet-stream'
 
     // Check if media already exists
