@@ -1,7 +1,8 @@
-import ProjectCard from '@/components/ProjectCard'
-import { projects } from '@/lib/project-data'
+import ProjectCard from '@/app/components/ProjectCard'
+import { getProjects } from '@/app/lib/getProjects'
 
-export default function Projects() {
+export default async function Projects() {
+  const projects = await getProjects()
   return (
     <div className="min-h-screen bg-sage-blue-900">
       <div className="container mx-auto px-4 py-12 md:px-8">

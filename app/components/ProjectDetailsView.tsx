@@ -4,33 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { SuspenseImage, SuspenseSvg } from '@/app/components/ui/SuspenseImage'
 import ImageModal from '@/app/components/ImageModal'
-
-type CaseStudySection = {
-  title: string;
-  text: string;
-  image?: string;
-  imageAlt?: string;
-  list?: string[];
-}
-
-type CaseStudy = {
-  intro: CaseStudySection;
-  sections: CaseStudySection[];
-  conclusion: { title: string; text: string; };
-  futureWork?: { title:string; intro: string; points: { title: string; text: string }[] };
-  finalArchitecture?: { title: string; text: string; image: string; imageAlt: string; };
-}
-
-type Project = {
-  id: number;
-  title: string;
-  description: string;
-  features: string[];
-  tech: string[];
-  image?: string;
-  url?: string;
-  caseStudy?: CaseStudy;
-}
+import type { Project } from '@/app/lib/types'
 
 export default function ProjectDetailsView({ project }: { project: Project }) {
   const [modalImageUrl, setModalImageUrl] = useState<string | null>(null);

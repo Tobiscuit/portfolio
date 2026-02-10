@@ -1,26 +1,18 @@
 import Link from 'next/link'
-import { projects } from '@/app/lib/project-data' // Assuming you move the data here
+import { getProjects, getProject } from '@/app/lib/getProjects'
 import ProjectDetailsView from '@/app/components/ProjectDetailsView'
-
-// Define the type for a single project based on the data structure
-type Project = {
-  id: number;
-  title: string;
-  description: string;
-  features: string[];
-  tech: string[];
-  image?: string;
-};
+import type { Project } from '@/app/lib/types'
 
 export async function generateStaticParams(): Promise<{ id: string }[]> {
+  const projects = await getProjects()
   return projects.map((project: Project) => ({
-    id: project.id.toString(),
+    id: String(project.id),
   }))
 }
 
 export default async function ProjectDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
-  const project = projects.find((p: Project) => p.id === parseInt(id))
+  const project = await getProject(id)
 
   if (!project) {
     return (

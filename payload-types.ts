@@ -175,23 +175,59 @@ export interface Project {
         id?: string | null;
       }[]
     | null;
-  image: string | Media;
+  features?:
+    | {
+        feature?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  order: number;
+  image?: (string | null) | Media;
   url?: string | null;
-  content?: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
+  caseStudy?: {
+    intro?: {
+      title?: string | null;
+      text?: string | null;
+      image?: (string | null) | Media;
+      imageAlt?: string | null;
     };
-    [k: string]: unknown;
-  } | null;
+    sections?:
+      | {
+          title?: string | null;
+          text?: string | null;
+          image?: (string | null) | Media;
+          imageAlt?: string | null;
+          list?:
+            | {
+                item?: string | null;
+                id?: string | null;
+              }[]
+            | null;
+          id?: string | null;
+        }[]
+      | null;
+    conclusion?: {
+      title?: string | null;
+      text?: string | null;
+    };
+    futureWork?: {
+      title?: string | null;
+      intro?: string | null;
+      points?:
+        | {
+            title?: string | null;
+            text?: string | null;
+            id?: string | null;
+          }[]
+        | null;
+    };
+    finalArchitecture?: {
+      title?: string | null;
+      text?: string | null;
+      image?: (string | null) | Media;
+      imageAlt?: string | null;
+    };
+  };
   updatedAt: string;
   createdAt: string;
 }
@@ -327,9 +363,69 @@ export interface ProjectsSelect<T extends boolean = true> {
         name?: T;
         id?: T;
       };
+  features?:
+    | T
+    | {
+        feature?: T;
+        id?: T;
+      };
+  order?: T;
   image?: T;
   url?: T;
-  content?: T;
+  caseStudy?:
+    | T
+    | {
+        intro?:
+          | T
+          | {
+              title?: T;
+              text?: T;
+              image?: T;
+              imageAlt?: T;
+            };
+        sections?:
+          | T
+          | {
+              title?: T;
+              text?: T;
+              image?: T;
+              imageAlt?: T;
+              list?:
+                | T
+                | {
+                    item?: T;
+                    id?: T;
+                  };
+              id?: T;
+            };
+        conclusion?:
+          | T
+          | {
+              title?: T;
+              text?: T;
+            };
+        futureWork?:
+          | T
+          | {
+              title?: T;
+              intro?: T;
+              points?:
+                | T
+                | {
+                    title?: T;
+                    text?: T;
+                    id?: T;
+                  };
+            };
+        finalArchitecture?:
+          | T
+          | {
+              title?: T;
+              text?: T;
+              image?: T;
+              imageAlt?: T;
+            };
+      };
   updatedAt?: T;
   createdAt?: T;
 }

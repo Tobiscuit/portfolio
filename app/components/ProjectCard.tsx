@@ -2,13 +2,7 @@
 
 import Link from 'next/link'
 import { SuspenseImage, ImageSkeleton } from './ui/SuspenseImage'
-
-type Project = {
-  id: number
-  title: string
-  description: string
-  image?: string
-}
+import type { Project } from '@/app/lib/types'
 
 type ProjectCardProps = {
   project: Project
