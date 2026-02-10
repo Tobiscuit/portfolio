@@ -25,6 +25,7 @@ export default function ProjectCard({ project, priority = false }: ProjectCardPr
               sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
               className="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-300 aspect-[16/9]"
               aspectRatio="16/9"
+              blurDataURL={project.blurDataURL}
             />
           ) : (
             <div className="w-full bg-ink-900 aspect-[16/9]" style={{

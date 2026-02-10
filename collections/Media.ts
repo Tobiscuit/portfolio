@@ -11,6 +11,10 @@ export const Media: CollectionConfig = {
       type: 'text',
       required: true,
     },
+    {
+      name: 'blurDataURL',
+      type: 'text',
+    },
   ],
   upload: true,
 }

@@ -39,16 +39,18 @@ export function SuspenseImage({
   quality = 90,
   onClick,
   aspectRatio = '16/9',
-  skeletonClassName = ''
-}: SuspenseImageProps) {
-  const [isLoading, setIsLoading] = useState(true)
+  skeletonClassName = '',
+  blurDataURL,
+  priority,
+}: SuspenseImageProps & { blurDataURL?: string }) {
+  const [isLoading, setIsLoading] = useState(!blurDataURL) // If we have blur, we don't need skeleton state
   const [hasError, setHasError] = useState(false)
 
   // Reset loading state when src changes
   useEffect(() => {
-    setIsLoading(true)
+    setIsLoading(!blurDataURL)
     setHasError(false)
-  }, [src])
+  }, [src, blurDataURL])
 
   if (hasError) {
     return <ImageSkeleton aspectRatio={aspectRatio} className={skeletonClassName} />
@@ -56,8 +58,8 @@ export function SuspenseImage({
 
   return (
     <div className="relative" style={{ aspectRatio }}>
-      {/* Skeleton loader shown while image loads */}
-      {isLoading && (
+      {/* Skeleton loader shown while image loads - ONLY if no blurDataURL */}
+      {isLoading && !blurDataURL && (
         <div className="absolute inset-0 bg-ink-700 animate-pulse rounded-lg" />
       )}
       <Image
@@ -66,8 +68,11 @@ export function SuspenseImage({
         width={width}
         height={height}
         quality={quality}
+        priority={priority}
         sizes={sizes}
-        className={`${className} ${isLoading ? 'opacity-0' : 'opacity-100'} transition-opacity duration-300`}
+        placeholder={blurDataURL ? "blur" : "empty"}
+        blurDataURL={blurDataURL}
+        className={`${className} ${isLoading && !blurDataURL ? 'opacity-0' : 'opacity-100'} transition-opacity duration-300`}
         onLoad={() => setIsLoading(false)}
         onError={() => {
           setIsLoading(false)

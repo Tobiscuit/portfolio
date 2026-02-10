@@ -25,19 +25,22 @@ export async function getProjects(): Promise<Project[]> {
       description: doc.description,
       features: (doc.features || []).map((f: any) => f.feature),
       tech: (doc.tech || []).map((t: any) => t.name),
-      image: doc.image && typeof doc.image === 'object' ? (doc.image as any).url : (typeof doc.image === 'string' ? doc.image : undefined),
+      image: doc.image && typeof doc.image === 'object' ? `/media/${(doc.image as any).filename}` : (typeof doc.image === 'string' ? doc.image : undefined),
+      blurDataURL: doc.image && typeof doc.image === 'object' ? (doc.image as any).blurDataURL : undefined,
       url: doc.url || undefined,
       caseStudy: doc.caseStudy ? {
         intro: {
             title: doc.caseStudy.intro.title,
             text: doc.caseStudy.intro.text,
-            image: doc.caseStudy.intro.image && typeof doc.caseStudy.intro.image === 'object' ? (doc.caseStudy.intro.image as any).url : undefined,
+            image: doc.caseStudy.intro.image && typeof doc.caseStudy.intro.image === 'object' ? `/media/${(doc.caseStudy.intro.image as any).filename}` : undefined,
+            blurDataURL: doc.caseStudy.intro.image && typeof doc.caseStudy.intro.image === 'object' ? (doc.caseStudy.intro.image as any).blurDataURL : undefined,
             imageAlt: doc.caseStudy.intro.imageAlt || undefined,
         },
         sections: (doc.caseStudy.sections || []).map((s: any) => ({
             title: s.title,
             text: s.text,
-            image: s.image && typeof s.image === 'object' ? (s.image as any).url : undefined,
+            image: s.image && typeof s.image === 'object' ? `/media/${(s.image as any).filename}` : undefined,
+            blurDataURL: s.image && typeof s.image === 'object' ? (s.image as any).blurDataURL : undefined,
             imageAlt: s.imageAlt || undefined,
             list: (s.list || []).map((l: any) => l.item)
         })),
@@ -56,7 +59,7 @@ export async function getProjects(): Promise<Project[]> {
         finalArchitecture: doc.caseStudy.finalArchitecture ? {
             title: doc.caseStudy.finalArchitecture.title,
             text: doc.caseStudy.finalArchitecture.text,
-            image: doc.caseStudy.finalArchitecture.image && typeof doc.caseStudy.finalArchitecture.image === 'object' ? (doc.caseStudy.finalArchitecture.image as any).url : undefined,
+            image: doc.caseStudy.finalArchitecture.image && typeof doc.caseStudy.finalArchitecture.image === 'object' ? `/media/${(doc.caseStudy.finalArchitecture.image as any).filename}` : undefined,
             imageAlt: doc.caseStudy.finalArchitecture.imageAlt
         } : undefined
       } : undefined

@@ -3,6 +3,7 @@ export type CaseStudySection = {
   title: string;
   text: string;
   image?: string;
+  blurDataURL?: string;
   imageAlt?: string;
   list?: string[];
 }
@@ -12,7 +13,7 @@ export type CaseStudy = {
   sections: CaseStudySection[];
   conclusion: { title: string; text: string; };
   futureWork?: { title: string; intro: string; points: { title: string; text: string }[] };
-  finalArchitecture?: { title: string; text: string; image?: string; imageAlt: string; };
+  finalArchitecture?: { title: string; text: string; image?: string; blurDataURL?: string; imageAlt: string; };
 }
 
 export type Project = {
@@ -22,6 +23,7 @@ export type Project = {
   features: string[];
   tech: string[];
   image?: string;
+  blurDataURL?: string;
   url?: string;
   caseStudy?: CaseStudy;
 }

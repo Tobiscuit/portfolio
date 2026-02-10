@@ -13,7 +13,7 @@ export default function ProjectDetailsView({ project }: { project: Project }) {
   const closeModal = () => setModalImageUrl(null);
 
   // Unified image renderer that handles both SVG and raster images
-  const renderImage = (src: string | undefined, alt: string, onClick?: () => void) => {
+  const renderImage = (src: string | undefined, alt: string, blurDataURL?: string, onClick?: () => void) => {
     if (!src) return null;
     const isSvg = src.endsWith('.svg');
     
@@ -37,9 +37,12 @@ export default function ProjectDetailsView({ project }: { project: Project }) {
         className="w-full h-auto rounded-lg my-6 cursor-pointer hover:opacity-90 transition-opacity"
         aspectRatio="3/2"
         onClick={onClick}
+        blurDataURL={blurDataURL}
       />
     );
   };
+
+  return (
 
   return (
     <>
@@ -59,11 +62,13 @@ export default function ProjectDetailsView({ project }: { project: Project }) {
               <div className="aspect-w-16 aspect-h-9 rounded-lg bg-ink-900 mb-8 overflow-hidden">
                 {project.image ? (
                   project.url ? (
-                    <Link href={project.url} target="_blank" rel="noopener noreferrer">
-                      <SuspenseImage
-                        src={project.image}
-                        alt={`Screenshot of ${project.title}`}
-                        width={1920}
+                      <Link href={project.url} target="_blank" rel="noopener noreferrer">
+                        <SuspenseImage
+                          src={project.image}
+                          alt={`Screenshot of ${project.title}`}
+                          blurDataURL={project.blurDataURL}
+                          priority={true}
+                          width={1920}
                         height={1080}
                         className="w-full h-full object-cover cursor-pointer hover:opacity-90 transition-opacity"
                         aspectRatio="16/9"
@@ -73,6 +78,8 @@ export default function ProjectDetailsView({ project }: { project: Project }) {
                     <SuspenseImage
                       src={project.image}
                       alt={`Screenshot of ${project.title}`}
+                      blurDataURL={project.blurDataURL}
+                      priority={true}
                       width={1920}
                       height={1080}
                       className="w-full h-full object-cover"
@@ -122,7 +129,7 @@ export default function ProjectDetailsView({ project }: { project: Project }) {
                       <p dangerouslySetInnerHTML={{ __html: caseStudy.intro.text }} />
                       {caseStudy.intro.image && (
                         <button onClick={() => openModal(caseStudy.intro.image!)} className="w-full block">
-                          {renderImage(caseStudy.intro.image, caseStudy.intro.imageAlt || '')}
+                          {renderImage(caseStudy.intro.image, caseStudy.intro.imageAlt || '', (caseStudy.intro as any).blurDataURL)}
                         </button>
                       )}
 
@@ -138,7 +145,7 @@ export default function ProjectDetailsView({ project }: { project: Project }) {
                           )}
                           {section.image && (
                             <button onClick={() => openModal(section.image!)} className="w-full block">
-                              {renderImage(section.image, section.imageAlt || '')}
+                              {renderImage(section.image, section.imageAlt || '', (section as any).blurDataURL)}
                             </button>
                           )}
                         </div>
@@ -171,7 +178,7 @@ export default function ProjectDetailsView({ project }: { project: Project }) {
                           <p>The final cloud architecture I deployed is as follows:</p>
                           {caseStudy.finalArchitecture.image && (
                             <button onClick={() => openModal(caseStudy.finalArchitecture!.image!)} className="w-full block">
-                              {renderImage(caseStudy.finalArchitecture.image, caseStudy.finalArchitecture.imageAlt)}
+                              {renderImage(caseStudy.finalArchitecture.image, caseStudy.finalArchitecture.imageAlt, caseStudy.finalArchitecture.blurDataURL)}
                             </button>
                           )}
                         </>

@@ -4,13 +4,12 @@ import fs from 'fs'
 import { fileURLToPath } from 'url'
 import mime from 'mime-types'
 import dotenv from 'dotenv'
+import sharp from 'sharp'
 import type { Payload } from 'payload'
 
-// 1. Load Environment Variables FIRST
-dotenv.config({ path: path.join(process.cwd(), '.env.local'), override: true })
+// ... (keep dotenv config) ...
 
-console.log('AWS_REGION:', process.env.AWS_REGION)
-console.log('S3_BUCKET:', process.env.S3_BUCKET)
+// ... (keep logger) ...
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -28,15 +27,24 @@ async function uploadImage(payload: Payload, relativePath: string | undefined): 
   try {
     const fileBuffer = fs.readFileSync(imagePath)
     // Create a unique filename by prepending the parent directory name
-    // e.g. /images/projects/foo/hero.webp -> foo-hero.webp
     const parentDir = path.basename(path.dirname(imagePath))
     const originalName = path.basename(imagePath)
-    // prevent double-prefixing if re-running or if logic changes
     const fileName = parentDir && parentDir !== 'public' && parentDir !== 'images' 
         ? `${parentDir}-${originalName}` 
         : originalName
     
     const mimeType = mime.lookup(imagePath) || 'application/octet-stream'
+
+    // Generate Blur Placeholder
+    let blurDataURL = ''
+    try {
+        const blurBuffer = await sharp(fileBuffer)
+            .resize(10) // tiny size for blur
+            .toBuffer()
+        blurDataURL = `data:${mimeType};base64,${blurBuffer.toString('base64')}`
+    } catch (err: any) {
+        console.warn(`  ⚠️ Failed to generate blur for ${fileName}:`, err.message)
+    }
 
     // Check if media already exists
     const existingMedia = await payload.find({
@@ -54,6 +62,7 @@ async function uploadImage(payload: Payload, relativePath: string | undefined): 
       collection: 'media',
       data: {
         alt: fileName,
+        blurDataURL, // Save the blur string
       },
       file: {
         data: fileBuffer,

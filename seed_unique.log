@@ -1,0 +1,849 @@
+[dotenv@17.2.4] injecting env (12) from .env.local -- tip: ≡ƒôí add observability to secrets: https://dotenvx.com/ops
+AWS_REGION: us-east-2
+S3_BUCKET: jrcodex-dev-portfolio
+≡ƒî▒ Starting full seeding process...
+[16:49:14] [33mWARN[39m: [36mNo email adapter provided. Email will be written to console. More info at https://payloadcms.com/docs/email/overview.[39m
+≡ƒùæ∩╕Å  Clearing existing projects and media for a clean start...
+Done.
+
+Processing: WeatherWise AI: A Case Study in Architectural Refactoring
+  Γ£à Uploaded: weatherwise-screenshot.png
+  ≡ƒöì Media Doc JSON: {
+  "id": "698bb5ecb85dbae72cfb5f3e",
+  "filename": "weatherwise-screenshot.png",
+  "url": "/api/media/file/weatherwise-screenshot.png"
+}
+  Γ£à Uploaded: weatherwise-arch_diagram_1.png
+  ≡ƒöì Media Doc JSON: {
+  "id": "698bb5edb85dbae72cfb5f46",
+  "filename": "weatherwise-arch_diagram_1.png",
+  "url": "/api/media/file/weatherwise-arch_diagram_1.png"
+}
+  Γ£à Uploaded: weatherwise-arch_diagram_2.png
+  ≡ƒöì Media Doc JSON: {
+  "id": "698bb5edb85dbae72cfb5f4e",
+  "filename": "weatherwise-arch_diagram_2.png",
+  "url": "/api/media/file/weatherwise-arch_diagram_2.png"
+}
+  Γ£à Uploaded: weatherwise-arch_diagram_3.png
+  ≡ƒöì Media Doc JSON: {
+  "id": "698bb5eeb85dbae72cfb5f56",
+  "filename": "weatherwise-arch_diagram_3.png",
+  "url": "/api/media/file/weatherwise-arch_diagram_3.png"
+}
+  Γ£à Uploaded: weatherwise-arch_diagram_4.png
+  ≡ƒöì Media Doc JSON: {
+  "id": "698bb5eeb85dbae72cfb5f5e",
+  "filename": "weatherwise-arch_diagram_4.png",
+  "url": "/api/media/file/weatherwise-arch_diagram_4.png"
+}
+  ≡ƒôª Data prepared for "WeatherWise AI: A Case Study in Architectural Refactoring": {
+  "title": "WeatherWise AI: A Case Study in Architectural Refactoring",
+  "slug": "weatherwise-ai-a-case-study-in-architectural-refactoring",
+  "description": "This project showcases the strategic refactoring of a cloud-native application, transforming a complex microservice proof-of-concept into a robust, maintainable, and performant monolithic service ready for automated deployment.",
+  "features": [
+    {
+      "feature": "AI-Powered Weather Summaries"
+    },
+    {
+      "feature": "Monolithic Service Refactoring"
+    },
+    {
+      "feature": "Test-Driven Development"
+    },
+    {
+      "feature": "Automated CI/CD with Cloud Build"
+    }
+  ],
+  "tech": [
+    {
+      "name": "Google Cloud Run"
+    },
+    {
+      "name": "Google Gemini"
+    },
+    {
+      "name": "Fastify"
+    },
+    {
+      "name": "TypeScript"
+    },
+    {
+      "name": "Jest"
+    },
+    {
+      "name": "Open-Meteo API"
+    },
+    {
+      "name": "Geocode Maps API"
+    }
+  ],
+  "url": "https://weatherwise-ai-356687723492.us-central1.run.app/",
+  "image": "698bb5ecb85dbae72cfb5f3e",
+  "order": 1,
+  "caseStudy": {
+    "intro": {
+      "title": "The Initial Spark: Questioning the 'As-Is' Architecture",
+      "text": "My involvement began with a simple request: to understand the application's architecture. The initial diagrams revealed a system composed of two distinct microservices: a main application backend and a separate Gemini service for generating AI summaries.<br/><br/>While functional, I immediately questioned the validity of this approach. My architectural intuition suggested that for the scale and scope of this project, the added complexity of a microservice architecture was not providing value. It introduced network latency, operational overhead, and a deployment dependency between two services that were, in reality, tightly coupled. I concluded that the architecture was unnecessarily complicated and that a simpler, more direct approach would yield a better result.",
+      "image": "698bb5edb85dbae72cfb5f46",
+      "imageAlt": "Initial As-Is Architecture Diagram"
+    },
+    "sections": [
+      {
+        "title": "The Strategic Pivot: A Case for a Well-Structured Monolith",
+        "text": "Based on this analysis, I charted a new course: a significant architectural pivot to refactor the application into a single monolithic service. This decision was driven by first-principles of software design: reducing complexity, improving performance, and lowering costs. The goal was to create a 'to-be' architecture that was lean, efficient, and easier to reason about.",
+        "image": "698bb5edb85dbae72cfb5f4e",
+        "imageAlt": "Proposed Monolith Architecture Diagram",
+        "list": []
+      },
+      {
+        "title": "The Execution: A Disciplined, Multi-Stage Refactoring",
+        "text": "With a clear architectural goal, I executed a methodical refactoring process, applying senior engineering best practices at each stage.",
+        "list": [
+          {
+            "item": "<strong>Service-Oriented Design & The Facade Pattern:</strong> I untangled the business logic from the web server by designing and implementing a dedicated service layer, encapsulating all external API interactions (<code>LocationService</code>, <code>WeatherService</code>, <code>GeminiService</code>). These services act as <strong>Facades</strong>, providing a simple, clean interface to the application while hiding the complex machinery of authentication, network requests, and error handling."
+          },
+          {
+            "item": "<strong>Dependency Injection for Testability:</strong> Crucially, the new services were designed to be testable. Instead of creating their own dependencies, dependencies like the HTTP client were injected into their constructors. This decoupling was the key that unlocked the ability to perform comprehensive unit testing."
+          },
+          {
+            "item": "<strong>Test-Driven Cleanup & Verification:</strong> With a testable architecture in place, I developed a full suite of unit tests using <strong>Jest</strong> and <code>axios-mock-adapter</code>. This wasn't just about validation; the testing process itself acted as a quality gate, revealing dead code, unused dependencies, and subtle bugs in the implementation. This iterative cycle of testing and fixing was instrumental in achieving a clean, reliable codebase."
+          },
+          {
+            "item": "<strong>Process Automation & Cleanup:</strong> The final touch was to professionalize the deployment process. I analyzed the existing manual PowerShell scripts and the <code>cloudbuild.yaml</code> file. I identified the automated Cloud Build pipeline as the superior, repeatable solution. I updated the Cloud Build configuration to match the new monolithic architecture, and decisively removed the now-obsolete manual scripts, ensuring a clean and unambiguous path to production."
+          }
+        ]
+      },
+      {
+        "title": "The Final Software Architecture",
+        "text": "The result of this process is a codebase with a clear, logical, and maintainable internal structure. It is a monolith, but it is not a 'big ball of mud.' It is a well-structured system with clear boundaries and responsibilities.",
+        "image": "698bb5eeb85dbae72cfb5f56",
+        "imageAlt": "Final Software Architecture Diagram",
+        "list": []
+      }
+    ],
+    "conclusion": {
+      "title": "Conclusion: More Than Code, A Mindset",
+      "text": "This project is a showcase of an engineering mindset that values clarity, simplicity, and robustness over unnecessary complexity. It demonstrates the ability to critically analyze an existing architecture, propose a bold but reasoned alternative, and execute that vision through disciplined, test-driven development and the application of established design patterns."
+    },
+    "futureWork": {
+      "title": "Architectural Limitations and Future Work",
+      "intro": "A key principle of senior-level architecture is understanding the trade-offs and limitations of any design. While this application is now robust, tested, and maintainable, it is optimized for clarity and cost-effectiveness as a portfolio piece, not for high-traffic production loads. The following points represent the next logical iteration to make it a truly production-grade system.",
+      "points": [
+        {
+          "title": "The Scalability Trap of In-Memory Caching",
+          "text": "In a serverless environment like Google Cloud Run, which scales by creating multiple, independent container instances, each instance would have its own isolated cache. This leads to inconsistent performance and low cache-hit ratios under load.<br/><strong>The Solution:</strong> Implement the <strong>Strategy Pattern</strong> for caching. I would define a <code>CacheStrategy</code> interface and create two implementations: an <code>InMemoryCacheStrategy</code> for local development, and a <code>RedisCacheStrategy</code> for production. The production strategy would connect to a managed, distributed cache like <strong>Google Cloud Memorystore for Redis</strong>, ensuring all container instances share a single, consistent cache."
+        },
+        {
+          "title": "Brittleness to External Service Failure",
+          "text": "The current service layer is optimistic and does not explicitly handle scenarios where a downstream dependency (like the Geocoding or Weather API) becomes slow or unresponsive. This can lead to blocked request threads and cascading failures.<br/><strong>The Solution:</strong> Implement the <strong>Circuit Breaker Pattern</strong>. By wrapping external API calls in a circuit breaker (e.g., using a library like <code>opossum</code>), the application could detect when a downstream service is failing. It would 'trip the breaker,' failing fast on subsequent requests for a period of time, allowing the dependency to recover and protecting my own application from being dragged down."
+        },
+        {
+          "title": "Undefined Production Secret Management",
+          "text": "While the app uses <code>.env</code> files for local development, the process for injecting production secrets (like the <code>GEOCODE_API_KEY</code>) is not codified. This relies on manual configuration in the Cloud Console, which is error-prone and not repeatable.<br/><strong>The Solution:</strong> Use <strong>Google Secret Manager</strong>. The API key would be stored securely in Secret Manager. The Cloud Run service's identity would be granted the 'Secret Manager Secret Accessor' role, and the <code>cloudbuild.yaml</code> would be updated to securely mount this secret as an environment variable at deployment time. This makes the entire process automated, secure, and defined as code."
+        }
+      ]
+    },
+    "finalArchitecture": {
+      "title": "The Final Deployed Cloud Architecture",
+      "text": "The final artifact is not just a working application; it is a clean, well-documented, fully-tested codebase with a professional, automated deployment pipeline, and a clear, forward-looking roadmap for future enhancement.",
+      "image": "698bb5eeb85dbae72cfb5f5e",
+      "imageAlt": "Final Cloud Architecture Diagram"
+    }
+  }
+}
+  Γ£¿ Creating project...
+  Γ£à Project created: WeatherWise AI: A Case Study in Architectural Refactoring
+
+Processing: WeFix4U: Device Repair Service Platform
+  Γ£à Uploaded: wefix4u-screenshot.webp
+  ≡ƒöì Media Doc JSON: {
+  "id": "698bb5efb85dbae72cfb5f6b",
+  "filename": "wefix4u-screenshot.webp",
+  "url": "/api/media/file/wefix4u-screenshot.webp"
+}
+  ≡ƒôª Data prepared for "WeFix4U: Device Repair Service Platform": {
+  "title": "WeFix4U: Device Repair Service Platform",
+  "slug": "wefix4u-device-repair-service-platform",
+  "description": "A modern, responsive web application for a device repair service business, featuring service booking, repair tracking, and customer management. Built with Next.js and deployed on Vercel for optimal performance and scalability.",
+  "features": [
+    {
+      "feature": "Service Booking & Quote System"
+    },
+    {
+      "feature": "Repair Tracking Dashboard"
+    },
+    {
+      "feature": "Responsive Mobile-First Design"
+    },
+    {
+      "feature": "Google Places API Integration"
+    },
+    {
+      "feature": "Customer Review System"
+    },
+    {
+      "feature": "Transparent Pricing Display"
+    }
+  ],
+  "tech": [
+    {
+      "name": "Next.js 15"
+    },
+    {
+      "name": "React"
+    },
+    {
+      "name": "TypeScript"
+    },
+    {
+      "name": "Tailwind CSS"
+    },
+    {
+      "name": "Google Places API (New)"
+    },
+    {
+      "name": "Vercel"
+    },
+    {
+      "name": "Responsive Design"
+    }
+  ],
+  "url": "https://wefix4u.vercel.app/",
+  "image": "698bb5efb85dbae72cfb5f6b",
+  "order": 2
+}
+  Γ£¿ Creating project...
+  Γ£à Project created: WeFix4U: Device Repair Service Platform
+
+Processing: Three Chicks & A Wick: Production eCommerce with AI Security
+  Γ£à Uploaded: threechicksandawick-hero.webp
+  ≡ƒöì Media Doc JSON: {
+  "id": "698bb5f0b85dbae72cfb5f78",
+  "filename": "threechicksandawick-hero.webp",
+  "url": "/api/media/file/threechicksandawick-hero.webp"
+}
+[16:49:21] [31mERROR[39m: [36mInvalid SVG[39m
+    err: {
+      "type": "TypeError",
+      "message": "Invalid SVG",
+      "stack":
+          TypeError: Invalid SVG
+              at Object.calculate (file:///C:/dev/web-dev-portfolio/node_modules/image-size/dist/index.mjs:731:11)
+              at imageSize (file:///C:/dev/web-dev-portfolio/node_modules/image-size/dist/index.mjs:972:41)
+              at getImageSize (C:\dev\web-dev-portfolio\node_modules\payload\src\uploads\getImageSize.ts:28:10)
+              at generateFileData (C:\dev\web-dev-portfolio\node_modules\payload\src\uploads\generateFileData.ts:221:26)
+              at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+              at async createOperation (C:\dev\web-dev-portfolio\node_modules\payload\src\collections\operations\create.ts:162:57)
+              at async uploadImage (C:\dev\web-dev-portfolio\scripts\seed.ts:53:22)
+              at async seed (C:\dev\web-dev-portfolio\scripts\seed.ts:102:34)
+    }
+  Γ¥î Upload failed for /images/projects/threechicksandawick/placeholder_architecture.svg: There was a problem while uploading the file.
+  Γ£à Uploaded: threechicksandawick-placeholder_shopify.png
+  ≡ƒöì Media Doc JSON: {
+  "id": "698bb5f1b85dbae72cfb5f82",
+  "filename": "threechicksandawick-placeholder_shopify.png",
+  "url": "/api/media/file/threechicksandawick-placeholder_shopify.png"
+}
+  Γ£à Uploaded: threechicksandawick-placeholder_security_pipeline.png
+  ≡ƒöì Media Doc JSON: {
+  "id": "698bb5f1b85dbae72cfb5f8a",
+  "filename": "threechicksandawick-placeholder_security_pipeline.png",
+  "url": "/api/media/file/threechicksandawick-placeholder_security_pipeline.png"
+}
+  Γ£à Uploaded: threechicksandawick-placeholder_cart_sync.png
+  ≡ƒöì Media Doc JSON: {
+  "id": "698bb5f2b85dbae72cfb5f92",
+  "filename": "threechicksandawick-placeholder_cart_sync.png",
+  "url": "/api/media/file/threechicksandawick-placeholder_cart_sync.png"
+}
+[16:49:22] [31mERROR[39m: [36mInvalid SVG[39m
+    err: {
+      "type": "TypeError",
+      "message": "Invalid SVG",
+      "stack":
+          TypeError: Invalid SVG
+              at Object.calculate (file:///C:/dev/web-dev-portfolio/node_modules/image-size/dist/index.mjs:731:11)
+              at imageSize (file:///C:/dev/web-dev-portfolio/node_modules/image-size/dist/index.mjs:972:41)
+              at getImageSize (C:\dev\web-dev-portfolio\node_modules\payload\src\uploads\getImageSize.ts:28:10)
+              at generateFileData (C:\dev\web-dev-portfolio\node_modules\payload\src\uploads\generateFileData.ts:221:26)
+              at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+              at async createOperation (C:\dev\web-dev-portfolio\node_modules\payload\src\collections\operations\create.ts:162:57)
+              at async uploadImage (C:\dev\web-dev-portfolio\scripts\seed.ts:53:22)
+              at async seed (C:\dev\web-dev-portfolio\scripts\seed.ts:114:44)
+    }
+  Γ¥î Upload failed for /images/projects/threechicksandawick/placeholder_user_flow.svg: There was a problem while uploading the file.
+  Γ£à Uploaded: threechicksandawick-placeholder_magic_request.png
+  ≡ƒöì Media Doc JSON: {
+  "id": "698bb5f2b85dbae72cfb5f9c",
+  "filename": "threechicksandawick-placeholder_magic_request.png",
+  "url": "/api/media/file/threechicksandawick-placeholder_magic_request.png"
+}
+  Γ£à Uploaded: threechicksandawick-placeholder_admin.png
+  ≡ƒöì Media Doc JSON: {
+  "id": "698bb5f3b85dbae72cfb5fa4",
+  "filename": "threechicksandawick-placeholder_admin.png",
+  "url": "/api/media/file/threechicksandawick-placeholder_admin.png"
+}
+  ≡ƒôª Data prepared for "Three Chicks & A Wick: Production eCommerce with AI Security": {
+  "title": "Three Chicks & A Wick: Production eCommerce with AI Security",
+  "slug": "three-chicks-a-wick-production-ecommerce-with-ai-security",
+  "description": "A production-grade headless Shopify eCommerce platform featuring an AI-powered custom candle creation system with revolutionary security architecture that transforms potential attackers into customers through psychological warfare.",
+  "features": [
+    {
+      "feature": "AI-Powered Custom Candle Generation"
+    },
+    {
+      "feature": "5-Lambda Security Pipeline with Psychological Profiling"
+    },
+    {
+      "feature": "Real-Time Cart Synchronization Across Tabs"
+    },
+    {
+      "feature": "Headless Shopify Integration (Admin + Storefront APIs)"
+    },
+    {
+      "feature": "Customer Authentication with Order History"
+    },
+    {
+      "feature": "Admin Panel with Order Fulfillment Workflow"
+    }
+  ],
+  "tech": [
+    {
+      "name": "Next.js 15"
+    },
+    {
+      "name": "React"
+    },
+    {
+      "name": "TypeScript"
+    },
+    {
+      "name": "Tailwind CSS"
+    },
+    {
+      "name": "AWS Lambda"
+    },
+    {
+      "name": "AWS Step Functions"
+    },
+    {
+      "name": "DynamoDB"
+    },
+    {
+      "name": "AWS AppSync"
+    },
+    {
+      "name": "Google Gemini 2.5 Pro"
+    },
+    {
+      "name": "Shopify Admin API"
+    },
+    {
+      "name": "Shopify Storefront API"
+    },
+    {
+      "name": "Customer Account API"
+    },
+    {
+      "name": "GraphQL"
+    },
+    {
+      "name": "WebSockets"
+    }
+  ],
+  "url": "https://threechicksandawick.com/",
+  "image": "698bb5f0b85dbae72cfb5f78",
+  "order": 3,
+  "caseStudy": {
+    "intro": {
+      "title": "The Challenge: Building AI for a World of Attackers",
+      "text": "When building an AI-powered custom product feature for eCommerce, every business faces the same dilemma: <strong>how do you protect against malicious users without destroying the user experience?</strong><br/><br/>Users can submit prompt injections to extract system prompts, attempt XSS attacks through generated content, flood the system with requests, or try to manipulate AI into revealing business logic. Most companies choose between two bad options: hide AI features behind authentication walls (losing anonymous engagement), or accept the security risk and hope for the best.<br/><br/>This project took a third path: <strong>turn attackers into customers</strong>. Instead of treating security threats as adversaries to be blocked, we built a system that acknowledges their intelligence, respects their curiosity, and redirects their creative energy toward legitimate product creation. The result is a production eCommerce platform where security threats become marketing opportunities.",
+      "imageAlt": "System Architecture Overview"
+    },
+    "sections": [
+      {
+        "title": "Headless Shopify Architecture: Best of Both Worlds",
+        "text": "Before diving into the AI security innovation, it's worth understanding the foundation. This is a <strong>headless Shopify eCommerce platform</strong>ΓÇöwe built a custom Next.js 15 storefront that leverages Shopify's powerful backend through three distinct APIs:<br/><br/><strong>Shopify Storefront API</strong> handles product catalog, cart management, and checkout flows for anonymous users. <strong>Shopify Admin API</strong> powers the custom admin panel with order fulfillment, inventory management, and business analytics. <strong>Customer Account API</strong> enables authenticated users to view their order history and saved custom candles.<br/><br/>This headless approach gave us the flexibility to build custom features (like AI candle generation) while retaining Shopify's battle-tested checkout, payment processing, and fulfillment infrastructure. The customer gets a premium, tailored experience. The business gets enterprise-grade eCommerce reliability.",
+        "image": "698bb5f1b85dbae72cfb5f82",
+        "imageAlt": "Headless Shopify Architecture Diagram",
+        "list": []
+      },
+      {
+        "title": "The Guardian-Sage-Creator Security Pipeline: AI Security with Psychological Warfare",
+        "text": "At the heart of the platform is the <strong>Magic Request</strong> featureΓÇöcustomers describe their dream candle in natural language, and our AI generates a custom recipe with precise fragrance percentages, materials, and a poetic description. But opening an AI text input to the internet is dangerous.<br/><br/>We implemented the <strong>Guardian-Sage-Creator Security Pipeline</strong>, a 5-Lambda system orchestrated by AWS Step Functions. Instead of binary allow/block decisions, the system analyzes threats through multiple lenses and generates personalized responses using a Guardian-Sage-Creator archetype framework.",
+        "image": "698bb5f1b85dbae72cfb5f8a",
+        "imageAlt": "Step Functions Security Pipeline",
+        "list": [
+          {
+            "item": "<strong>Lambda 1: input-sanitizer</strong> ΓÇö Runs regex-based threat detection in under 50ms. Flags patterns like 'ignore previous instructions,' 'show system prompt,' script tags, and SQL injection attempts."
+          },
+          {
+            "item": "<strong>Lambda 2: ai-security-validator</strong> ΓÇö Uses Google Gemini 2.5 Pro to perform deep threat analysis with psychological profiling. Determines sophistication level (basic, intermediate, advanced, expert), attack intent (malicious, curious, confused, testing), and recommends actions (ALLOW, MODIFY, CUSTOM_RESPONSE, BLOCK)."
+          },
+          {
+            "item": "<strong>Lambda 3: ai-response-generator</strong> Γ¡É <em>The Innovation Core</em> ΓÇö When threats are detected, instead of generic error messages, Gemini 2.5 Pro generates charming, personalized counter-responses that acknowledge the attacker's skills, redirect their creativity, and invite them to create something instead. Example: <em>'Ah, I see you've mastered the art of linguistic misdirection! Your understanding of AI vulnerabilities is quite sophisticated. That same analytical creativity could craft something extraordinary: imagine a candle that captures the essence of a perfectly executed exploitΓÇª'</em>"
+          },
+          {
+            "item": "<strong>Lambda 4: inventory-fetcher</strong> ΓÇö Runs in parallel with security validation, fetching in-stock fragrance inventory from DynamoDB. Completely isolated from user input to ensure zero attack surface."
+          },
+          {
+            "item": "<strong>Lambda 5: ai-processor</strong> ΓÇö Receives only pre-validated, sanitized input plus inventory context. Generates the candle recipe using Gemini 2.5 Pro with strict output formatting, then applies final HTML sanitization before saving to DynamoDB."
+          }
+        ]
+      },
+      {
+        "title": "Defense in Depth: The Three-Layer Security Strategy",
+        "text": "The architecture embodies defense-in-depth principles. Every user-generated prompt flows through deterministic sanitization (regex), adaptive AI analysis (Gemini security validation), and isolated inventory access (never exposed to user input). If an attacker somehow bypasses the first two layers, the output still goes through HTML sanitization, script tag removal, and safe rendering enforcement.<br/><br/>The psychological warfare approach serves dual purposes: <strong>it protects the business</strong> while <strong>strengthening the brand</strong>. Attackers leave with a memorable experience they want to shareΓÇö'you have to see how this AI responded to me!'ΓÇöturning security incidents into viral marketing opportunities. Zero successful attacks. Potential for customer acquisition from the most technically sophisticated visitors.",
+        "list": []
+      },
+      {
+        "title": "Real-Time Cart Synchronization: Solving the Post-Checkout Problem",
+        "text": "After customers complete checkout, the cart UI was getting stuck in an 'adding' state because the frontend didn't know the order had been placed. This required a <strong>defense-in-depth approach with three independent layers</strong>, each handling different failure scenarios.",
+        "image": "698bb5f2b85dbae72cfb5f92",
+        "imageAlt": "Real-Time Cart Synchronization Flow",
+        "list": [
+          {
+            "item": "<strong>Layer 1 (Primary): Cart Attributes in Shopify Orders</strong> ΓÇö When a cart is created or updated, we set <code>_cartId</code> as a cart attribute using Shopify's <code>cartAttributesUpdate</code> mutation. Shopify automatically includes cart attributes in order data as <code>note_attributes</code>. Our webhook extracts the <code>cartId</code> from the order and publishes a cart clearance event to AWS AppSync. This works for both logged-in and anonymous users with zero race conditions."
+          },
+          {
+            "item": "<strong>Layer 2 (Fallback): DynamoDB Cart Registry</strong> ΓÇö If the <code>cartId</code> isn't found in order attributes (edge cases like legacy carts created before this implementation), the webhook looks up the cart from a DynamoDB registry that maps <code>customerId ΓåÆ cartId</code>. This provides redundancy for authenticated users."
+          },
+          {
+            "item": "<strong>Layer 3 (Safety Net): Empty Cart Detection</strong> ΓÇö The frontend checks if the cart is empty on page load and after successful mutations. If empty, it automatically clears <code>localStorage</code> and resets the UI. This is the primary mechanism for anonymous users who return to the site after completing checkout elsewhere."
+          }
+        ]
+      },
+      {
+        "title": "User Experience: Different Strategies for Different Users",
+        "text": "<strong>Logged-in users</strong> get real-time cart clearing via AppSync GraphQL subscriptions. The moment their order completes, all open browser tabs receive a WebSocket event, clear the cart simultaneously, and update the UIΓÇöno refresh needed. <strong>Anonymous users</strong> rely on page-load detection. When they return to the site after checkout, the empty cart check fires, clears <code>localStorage</code>, and resets the UI.<br/><br/>This approach avoids unnecessary complexity. We considered using BroadcastChannel for cross-tab communication with anonymous users, but the added implementation complexity provided marginal benefit since anonymous users typically complete checkout and leave. The page-load detection handles their return perfectly.",
+        "imageAlt": "User Flow Comparison: Logged-in vs Anonymous",
+        "list": []
+      },
+      {
+        "title": "End-to-End Magic Request Pipeline",
+        "text": "The Magic Request feature processes custom candle creation in under 10 seconds through a choreographed pipeline:",
+        "image": "698bb5f2b85dbae72cfb5f9c",
+        "imageAlt": "Magic Request Pipeline Architecture",
+        "list": [
+          {
+            "item": "<strong>Step 1: User submits prompt</strong> ΓÇö e.g., 'a cozy library with hints of old books, vanilla, and a crackling fireplace'"
+          },
+          {
+            "item": "<strong>Step 2: Security validation</strong> ΓÇö Dual-layer analysis (regex + AI) determines if input is safe"
+          },
+          {
+            "item": "<strong>Step 3: Parallel processing</strong> ΓÇö Security data and fragrance inventory fetched concurrently for performance"
+          },
+          {
+            "item": "<strong>Step 4: AI generation</strong> ΓÇö Gemini 2.5 Pro creates a custom candle with fragrance percentages, burn time, mood, and poetic description"
+          },
+          {
+            "item": "<strong>Step 5: Real-time polling</strong> ΓÇö Frontend polls DynamoDB every 2 seconds for job status"
+          },
+          {
+            "item": "<strong>Step 6: Cross-tab notification</strong> ΓÇö When ready, BroadcastChannel alerts all open tabs with a toast notification"
+          },
+          {
+            "item": "<strong>Step 7: Auto-add to cart</strong> ΓÇö Candle automatically added to Shopify cart with <code>_creation_job_id</code> attribute for recipe lookup during fulfillment"
+          }
+        ]
+      },
+      {
+        "title": "Admin Panel & Order Fulfillment Integration",
+        "text": "The custom admin panel provides complete order management through the Shopify Admin API. When viewing orders, the panel extracts <code>_creation_job_id</code> from line item properties, queries DynamoDB to retrieve the full <code>aiJson</code> recipe, and displays exact fragrance percentages for the fulfillment team.<br/><br/>Admin features include fragrance inventory management (CRUD operations via AppSync GraphQL), manual review queue for community-shared candles, and real-time order status updates. The entire fulfillment workflow happens within the custom panelΓÇöno need to switch to Shopify admin.",
+        "image": "698bb5f3b85dbae72cfb5fa4",
+        "imageAlt": "Admin Panel Order Fulfillment Interface",
+        "list": []
+      }
+    ],
+    "conclusion": {
+      "title": "Business Impact & Technical Excellence",
+      "text": "This project demonstrates that security doesn't have to be invisible or adversarial. By treating potential attackers with respect and intelligence, we created a system that protects the business while simultaneously creating memorable, shareable interactions that strengthen the brand.<br/><br/><strong>Measurable Results:</strong> Zero successful prompt injection attacks in production. Novel psychological security approach generates viral sharing potential. Direct revenue through AI candle sales, cart recovery via order history, and customer acquisition through authentication incentives.<br/><br/><strong>Architecture Philosophy:</strong> Defense-in-depth across every layer. Real-time synchronization for logged-in users, graceful degradation for anonymous users. AWS Step Functions orchestrating complex security logic with sub-10-second latency. GraphQL unifying three Shopify APIs into a cohesive headless architecture.<br/><br/>The result is a production-grade eCommerce platform that showcases how advanced AI, cloud-native architecture, and psychological insight can combine to create novel solutions to hard problems."
+    }
+  }
+}
+  Γ£¿ Creating project...
+  Γ£à Project created: Three Chicks & A Wick: Production eCommerce with AI Security
+
+Processing: The Gilded Shear: Premium Barber Shop Booking Platform
+  Γ£à Uploaded: thegildedshear-hero.webp
+  ≡ƒöì Media Doc JSON: {
+  "id": "698bb5f3b85dbae72cfb5fb1",
+  "filename": "thegildedshear-hero.webp",
+  "url": "/api/media/file/thegildedshear-hero.webp"
+}
+  Γ£à Uploaded: thegildedshear-architecture.png
+  ≡ƒöì Media Doc JSON: {
+  "id": "698bb5f4b85dbae72cfb5fb9",
+  "filename": "thegildedshear-architecture.png",
+  "url": "/api/media/file/thegildedshear-architecture.png"
+}
+  Γ£à Uploaded: thegildedshear-timezone.png
+  ≡ƒöì Media Doc JSON: {
+  "id": "698bb5f4b85dbae72cfb5fc3",
+  "filename": "thegildedshear-timezone.png",
+  "url": "/api/media/file/thegildedshear-timezone.png"
+}
+  Γ£à Uploaded: thegildedshear-stripe_integration.png
+  ≡ƒöì Media Doc JSON: {
+  "id": "698bb5f5b85dbae72cfb5fcb",
+  "filename": "thegildedshear-stripe_integration.png",
+  "url": "/api/media/file/thegildedshear-stripe_integration.png"
+}
+  Γ£à Uploaded: thegildedshear-optimistic_ui.png
+  ≡ƒöì Media Doc JSON: {
+  "id": "698bb5f5b85dbae72cfb5fd3",
+  "filename": "thegildedshear-optimistic_ui.png",
+  "url": "/api/media/file/thegildedshear-optimistic_ui.png"
+}
+  Γ£à Uploaded: thegildedshear-fcm_notification.png
+  ≡ƒöì Media Doc JSON: {
+  "id": "698bb5f5b85dbae72cfb5fdb",
+  "filename": "thegildedshear-fcm_notification.png",
+  "url": "/api/media/file/thegildedshear-fcm_notification.png"
+}
+  ≡ƒôª Data prepared for "The Gilded Shear: Premium Barber Shop Booking Platform": {
+  "title": "The Gilded Shear: Premium Barber Shop Booking Platform",
+  "slug": "the-gilded-shear-premium-barber-shop-booking-platform",
+  "description": "A premium barber shop booking platform built with Next.js, featuring real-time availability tracking, Stripe payment integration, FCM push notifications, and timezone-aware scheduling.",
+  "features": [
+    {
+      "feature": "Real-Time Availability Tracking"
+    },
+    {
+      "feature": "Stripe Payment Integration"
+    },
+    {
+      "feature": "FCM Push Notifications"
+    },
+    {
+      "feature": "Timezone-Aware Scheduling"
+    },
+    {
+      "feature": "Optimistic UI Updates"
+    },
+    {
+      "feature": "Admin Dashboard with Real-Time Booking List"
+    }
+  ],
+  "tech": [
+    {
+      "name": "Next.js 16"
+    },
+    {
+      "name": "React 19"
+    },
+    {
+      "name": "TypeScript"
+    },
+    {
+      "name": "Tailwind CSS"
+    },
+    {
+      "name": "Firebase"
+    },
+    {
+      "name": "Stripe"
+    },
+    {
+      "name": "Vercel"
+    },
+    {
+      "name": "Google Cloud Functions"
+    }
+  ],
+  "url": "https://the-gilded-shear.vercel.app/",
+  "image": "698bb5f3b85dbae72cfb5fb1",
+  "order": 4,
+  "caseStudy": {
+    "intro": {
+      "title": "The Challenge: Precision Booking in a Real-Time World",
+      "text": "Building a booking system sounds simple until you factor in timezones, payment processing, and real-time concurrency. The Gilded Shear solves these problems with a robust architecture that handles UTC offsets, prevents double-bookings through mathematical slot calculation, and ensures instant UI updates using optimistic caching.",
+      "image": "698bb5f4b85dbae72cfb5fb9",
+      "imageAlt": "System Architecture Overview"
+    },
+    "sections": [
+      {
+        "title": "System Architecture: Serverless & Scalable",
+        "text": "The platform leverages a serverless architecture for infinite scalability and zero maintenance. <strong>Next.js 14 (App Router)</strong> handles the frontend, deployed to Vercel's Edge Network. The backend relies on <strong>Firebase Cloud Functions Gen 2</strong> for business logic (payments, notifications) and <strong>Firestore</strong> for real-time data persistence. <strong>Stripe Payment Intents</strong> handle secure transactions, while <strong>Firebase Cloud Messaging (FCM)</strong> keeps admins informed instantly.",
+        "image": "698bb5f4b85dbae72cfb5fb9",
+        "imageAlt": "High-Level System Architecture",
+        "list": []
+      },
+      {
+        "title": "Timezone-Aware Scheduling: Solving the UTC Offset",
+        "text": "One of the hardest challenges was handling timezones correctly. Users select slots in 'America/Chicago', but Firestore stores UTC. Naive conversions led to 6-hour offset errors. We implemented a robust solution using <code>toLocaleString</code> with explicit timezones to dynamically calculate the correct UTC offset, ensuring that a 4:00 PM booking in Chicago is always stored as the correct UTC timestamp, regardless of Daylight Saving Time.",
+        "image": "698bb5f4b85dbae72cfb5fc3",
+        "imageAlt": "Timezone Conversion Logic",
+        "list": []
+      },
+      {
+        "title": "Duration-Aware Overlap Prevention",
+        "text": "To prevent double-bookings, we couldn't just check start times. A 60-minute haircut starting at 4:00 PM must block the 4:30 PM slot too. We implemented a mathematical algorithm that calculates every 30-minute interval covered by a service's duration and blocks all intersecting slots. This ensures complete schedule integrity for services ranging from 25 to 80 minutes.",
+        "image": "698bb5f5b85dbae72cfb5fcb",
+        "imageAlt": "Overlap Prevention Algorithm",
+        "list": []
+      },
+      {
+        "title": "Real-Time Performance: Optimistic UI & Offline Persistence",
+        "text": "Performance is a feature. We achieved instant load times (~20ms on refresh) by enabling <strong>Firestore Offline Persistence</strong>, which serves data from IndexedDB while syncing in the background. For the calendar, we implemented a <strong>Month Pre-fetching Strategy</strong>, loading all availability for the month in a single request. This eliminated the 1.5s lag between date clicks, making the booking experience feel native and responsive.",
+        "image": "698bb5f5b85dbae72cfb5fd3",
+        "imageAlt": "Performance Optimization Metrics",
+        "list": []
+      },
+      {
+        "title": "Notification System: Solving the Double-Notification Bug",
+        "text": "We encountered a common issue with PWAs where both the browser and service worker would display notifications, leading to duplicates. The solution was to send <strong>Data-Only FCM Messages</strong>. By omitting the 'notification' payload and sending only 'data', we bypassed the browser's default handler and gave full control to our Service Worker, ensuring a single, consistent, and branded notification experience.",
+        "image": "698bb5f5b85dbae72cfb5fdb",
+        "imageAlt": "FCM Notification Flow",
+        "list": []
+      }
+    ],
+    "conclusion": {
+      "title": "Conclusion: A Production-Grade Booking Solution",
+      "text": "The Gilded Shear is more than just a form; it's a complex distributed system that handles money, time, and real-time data with precision. By solving hard problems like timezone math, concurrency, and offline persistence, we delivered a tool that not only looks premium but functions with the reliability a business depends on."
+    }
+  }
+}
+  Γ£¿ Creating project...
+  Γ£à Project created: The Gilded Shear: Premium Barber Shop Booking Platform
+
+Processing: NASA Mission Control: Launch Scheduling Dashboard
+  Γ£à Uploaded: nasa-mission-control-hero.webp
+  ≡ƒöì Media Doc JSON: {
+  "id": "698bb5f6b85dbae72cfb5fe8",
+  "filename": "nasa-mission-control-hero.webp",
+  "url": "/api/media/file/nasa-mission-control-hero.webp"
+}
+  ≡ƒôª Data prepared for "NASA Mission Control: Launch Scheduling Dashboard": {
+  "title": "NASA Mission Control: Launch Scheduling Dashboard",
+  "slug": "nasa-mission-control-launch-scheduling-dashboard",
+  "description": "A mission control dashboard for scheduling and managing SpaceX launches, featuring real-time launch data, mission tracking, and a comprehensive history of past launches.",
+  "features": [
+    {
+      "feature": "Launch Scheduling System"
+    },
+    {
+      "feature": "Mission History Tracking"
+    },
+    {
+      "feature": "Real-Time Launch Data"
+    },
+    {
+      "feature": "SpaceX API Integration"
+    },
+    {
+      "feature": "Responsive Dashboard UI"
+    }
+  ],
+  "tech": [
+    {
+      "name": "React"
+    },
+    {
+      "name": "Node.js"
+    },
+    {
+      "name": "Express"
+    },
+    {
+      "name": "MongoDB"
+    },
+    {
+      "name": "SpaceX API"
+    },
+    {
+      "name": "Docker"
+    },
+    {
+      "name": "AWS EC2"
+    }
+  ],
+  "url": "http://nasa-mission-control.jrcodex.dev/",
+  "image": "698bb5f6b85dbae72cfb5fe8",
+  "order": 5
+}
+  Γ£¿ Creating project...
+  Γ£à Project created: NASA Mission Control: Launch Scheduling Dashboard
+
+Processing: Three Chicks & A Wick: Business Admin Panel
+  Γ£à Uploaded: threechicksandawick-admin-hero.webp
+  ≡ƒöì Media Doc JSON: {
+  "id": "698bb5f7b85dbae72cfb5ff5",
+  "filename": "threechicksandawick-admin-hero.webp",
+  "url": "/api/media/file/threechicksandawick-admin-hero.webp"
+}
+  ≡ƒôª Data prepared for "Three Chicks & A Wick: Business Admin Panel": {
+  "title": "Three Chicks & A Wick: Business Admin Panel",
+  "slug": "three-chicks-a-wick-business-admin-panel",
+  "description": "A comprehensive admin dashboard for managing inventory, orders, and business operations for the Three Chicks & A Wick eCommerce platform.",
+  "features": [
+    {
+      "feature": "Inventory Management"
+    },
+    {
+      "feature": "Order Fulfillment"
+    },
+    {
+      "feature": "Business Analytics"
+    }
+  ],
+  "tech": [
+    {
+      "name": "Next.js"
+    },
+    {
+      "name": "React"
+    },
+    {
+      "name": "Tailwind CSS"
+    }
+  ],
+  "image": "698bb5f7b85dbae72cfb5ff5",
+  "order": 6
+}
+  Γ£¿ Creating project...
+  Γ£à Project created: Three Chicks & A Wick: Business Admin Panel
+
+Processing: The Commons: Wizard101 Community Hub
+  Γ£à Uploaded: commons-hero.webp
+  ≡ƒöì Media Doc JSON: {
+  "id": "698bb5f8b85dbae72cfb6002",
+  "filename": "commons-hero.webp",
+  "url": "/api/media/file/commons-hero.webp"
+}
+  ≡ƒôª Data prepared for "The Commons: Wizard101 Community Hub": {
+  "title": "The Commons: Wizard101 Community Hub",
+  "slug": "the-commons-wizard101-community-hub",
+  "description": "The ultimate community hub for Wizard101 players. Features advanced tools for pet stat calculation, an AI-powered gear scanner that analyzes screenshots, and a marketplace for coordinating pet trades.",
+  "features": [
+    {
+      "feature": "AI-Powered Wizard Scanner"
+    },
+    {
+      "feature": "Pet Talent Calculator"
+    },
+    {
+      "feature": "Guild Directory"
+    },
+    {
+      "feature": "Community Marketplace"
+    },
+    {
+      "feature": "Pet Management Tome"
+    }
+  ],
+  "tech": [
+    {
+      "name": "Next.js"
+    },
+    {
+      "name": "React"
+    },
+    {
+      "name": "Tailwind CSS"
+    },
+    {
+      "name": "Computer Vision / AI"
+    },
+    {
+      "name": "Authentication"
+    }
+  ],
+  "url": "https://commons.jrcodex.dev/",
+  "image": "698bb5f8b85dbae72cfb6002",
+  "order": 7
+}
+  Γ£¿ Creating project...
+  Γ£à Project created: The Commons: Wizard101 Community Hub
+
+Processing: Audify: AI Text-to-Speech Platform
+  Γ£à Uploaded: audify-hero.webp
+  ≡ƒöì Media Doc JSON: {
+  "id": "698bb5f9b85dbae72cfb600f",
+  "filename": "audify-hero.webp",
+  "url": "/api/media/file/audify-hero.webp"
+}
+  ≡ƒôª Data prepared for "Audify: AI Text-to-Speech Platform": {
+  "title": "Audify: AI Text-to-Speech Platform",
+  "slug": "audify-ai-text-to-speech-platform",
+  "description": "A professional text-to-speech platform leveraging Amazon Polly's neural engine. Users can generate lifelike audio for content creation with a flexible pay-as-you-go credit system.",
+  "features": [
+    {
+      "feature": "Amazon Polly Integration"
+    },
+    {
+      "feature": "100+ Neural/Generative Voices"
+    },
+    {
+      "feature": "Multi-Language Support"
+    },
+    {
+      "feature": "Credit-Based Payment System"
+    },
+    {
+      "feature": "Instant Audio Generation"
+    }
+  ],
+  "tech": [
+    {
+      "name": "Next.js"
+    },
+    {
+      "name": "React"
+    },
+    {
+      "name": "Tailwind CSS"
+    },
+    {
+      "name": "Amazon Polly"
+    },
+    {
+      "name": "Supabase"
+    },
+    {
+      "name": "Stripe"
+    }
+  ],
+  "url": "https://audify.jrcodex.dev/",
+  "image": "698bb5f9b85dbae72cfb600f",
+  "order": 8
+}
+  Γ£¿ Creating project...
+  Γ£à Project created: Audify: AI Text-to-Speech Platform
+
+Processing: Project Eta
+  ≡ƒôª Data prepared for "Project Eta": {
+  "title": "Project Eta",
+  "slug": "project-eta",
+  "description": "A description for Project Eta, highlighting advanced algorithms and data structures.",
+  "features": [
+    {
+      "feature": "Feature S"
+    },
+    {
+      "feature": "Feature T"
+    },
+    {
+      "feature": "Feature U"
+    }
+  ],
+  "tech": [
+    {
+      "name": "Rust"
+    },
+    {
+      "name": "WebAssembly"
+    },
+    {
+      "name": "Actix"
+    }
+  ],
+  "order": 9
+}
+  Γ£¿ Creating project...
+  Γ£à Project created: Project Eta
+
+Γ£à Seeding complete!
