@@ -56,6 +56,7 @@ async function uploadImage(payload: Payload, relativePath: string | undefined): 
     })
     
     console.log(`  ✅ Uploaded: ${fileName}`)
+    console.log(`  🔍 Media Doc JSON:`, JSON.stringify({ id: mediaDoc.id, filename: mediaDoc.filename, url: mediaDoc.url, s3: (mediaDoc as any).s3 }, null, 2))
     return mediaDoc.id as string
   } catch (error: any) {
     console.error(`  ❌ Upload failed for ${relativePath}: ${error.message}`)
@@ -75,8 +76,8 @@ async function seed() {
 
     console.log('🗑️  Clearing existing projects and media for a clean start...')
     await payload.delete({ collection: 'projects', where: { title: { exists: true } } })
-    // We keep media if we want to save S3 costs, but clearing is safer for testing.
-    // For now, let's just clear the projects.
+    await payload.delete({ collection: 'media', where: { id: { exists: true } } })
+    console.log('Done.')
 
     for (const project of projects) {
         console.log(`\nProcessing: ${project.title}`)

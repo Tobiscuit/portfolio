@@ -33,7 +33,9 @@ export default buildConfig({
   plugins: [
     s3Storage({
       collections: {
-        media: true,
+        media: {
+          disableLocalStorage: true,
+        },
       },
       bucket: process.env.S3_BUCKET?.trim() || '',
       config: {
@@ -41,10 +43,9 @@ export default buildConfig({
           accessKeyId: process.env.AWS_ACCESS_KEY_ID?.trim() || '',
           secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY?.trim() || '',
         },
-        region: process.env.AWS_REGION?.trim() || 'us-east-1',
-        endpoint: `https://s3.${process.env.AWS_REGION?.trim() || 'us-east-1'}.amazonaws.com`,
+        region: 'us-east-1',
+        endpoint: 'https://s3.us-east-1.amazonaws.com',
         forcePathStyle: true, // Often needed for specific regions/S3 compatibility
-        // ... Other S3 configuration
       },
     }),
   ],
