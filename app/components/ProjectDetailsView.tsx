@@ -43,8 +43,6 @@ export default function ProjectDetailsView({ project }: { project: Project }) {
   };
 
   return (
-
-  return (
     <>
       <div className="min-h-screen bg-sage-blue-900">
         <div className="container mx-auto px-4 py-12 md:px-8">
