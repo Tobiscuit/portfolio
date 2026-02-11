@@ -10,24 +10,20 @@ dotenv.config({ path: path.join(process.cwd(), '.env.local') })
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
+import { pipeline } from 'stream/promises'
+import { Readable } from 'stream'
+
 async function downloadFile(url: string, destPath: string): Promise<void> {
-  return new Promise((resolve, reject) => {
-    const file = fs.createWriteStream(destPath)
-    https.get(url, (response) => {
-      if (response.statusCode !== 200) {
-        reject(new Error(`Failed to download ${url}: Status ${response.statusCode}`))
-        return
-      }
-      response.pipe(file)
-      file.on('finish', () => {
-        file.close()
-        resolve()
-      })
-    }).on('error', (err) => {
-      fs.unlink(destPath, () => {}) // Delete partial file
-      reject(err)
-    })
-  })
+  const response = await fetch(url, { redirect: 'follow' })
+  if (!response.ok) {
+    throw new Error(`Failed to download ${url}: ${response.status} ${response.statusText}`)
+  }
+  
+  if (!response.body) throw new Error('No response body')
+
+  const arrayBuffer = await response.arrayBuffer()
+  const buffer = Buffer.from(arrayBuffer)
+  fs.writeFileSync(destPath, buffer)
 }
 
 async function run() {
@@ -58,7 +54,8 @@ async function run() {
         let fileUrl = doc.url
         // Simplistic check for relative URL
         if (!fileUrl.startsWith('http')) {
-           const bucketRegion = process.env.AWS_REGION || 'us-east-2'
+           // FORCE us-east-1 because the bucket is there, ignoring local env which might be us-east-2
+           const bucketRegion = 'us-east-1' 
            const bucketName = process.env.S3_BUCKET
            fileUrl = `https://${bucketName}.s3.${bucketRegion}.amazonaws.com/${doc.filename}`
         }
