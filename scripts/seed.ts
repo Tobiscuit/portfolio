@@ -7,7 +7,7 @@ import dotenv from 'dotenv'
 import sharp from 'sharp'
 import type { Payload } from 'payload'
 
-// ... (keep dotenv config) ...
+dotenv.config({ path: path.join(process.cwd(), '.env.local') })
 
 // ... (keep logger) ...
 

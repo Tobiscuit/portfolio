@@ -54,8 +54,7 @@ async function run() {
         let fileUrl = doc.url
         // Simplistic check for relative URL
         if (!fileUrl.startsWith('http')) {
-           // FORCE us-east-1 because the bucket is there, ignoring local env which might be us-east-2
-           const bucketRegion = 'us-east-1' 
+           const bucketRegion = process.env.AWS_REGION
            const bucketName = process.env.S3_BUCKET
            fileUrl = `https://${bucketName}.s3.${bucketRegion}.amazonaws.com/${doc.filename}`
         }
