@@ -99,6 +99,34 @@ export function createContactHandler(config: ContactConfig) {
   const site = config.siteName ?? "jrcodex.dev";
   const signature = config.signature ?? "Juan";
 
+  /**
+   * Send, and if a configuration set was requested but the send fails, try
+   * once more without it.
+   *
+   * A credential that may send as an identity does not necessarily have
+   * permission to use a named configuration set - those are separate resources
+   * in an IAM policy. Passing one the caller cannot use turns a working send
+   * into AccessDenied, which would mean a visitor's enquiry is lost over a
+   * telemetry setting. Suppression and per-domain reputation are worth having,
+   * but not worth dropping mail for; losing them is logged loudly instead.
+   */
+  async function sendWithFallback(opts: Parameters<typeof ses.send>[0]) {
+    try {
+      return await ses.send(opts);
+    } catch (err) {
+      if (!opts.configurationSet) throw err;
+      console.error(
+        `contact: send failed with configuration set ${opts.configurationSet}; ` +
+          "retrying without it. Suppression and reputation tracking are NOT " +
+          "being applied to this message - check that the sending credential " +
+          "is permitted on that configuration set.",
+        err,
+      );
+      const { configurationSet: _dropped, ...rest } = opts;
+      return await ses.send(rest);
+    }
+  }
+
   return async function handle(body: ContactSubmission): Promise<ContactOutcome> {
     if (str(body._gotcha)) return { ok: true, discarded: true };
 
@@ -109,7 +137,7 @@ export function createContactHandler(config: ContactConfig) {
     // 1. The enquiry. Reply-To is the sender, so hitting reply in my mail
     //    client goes to them and not to my own send-only address.
     try {
-      await ses.send({
+      await sendWithFallback({
         from: config.from,
         to: [config.owner],
         replyTo: [`${name} <${email}>`],
@@ -134,7 +162,7 @@ export function createContactHandler(config: ContactConfig) {
     // 2. The acknowledgement. Best effort: the enquiry is already safe, so a
     //    failure here must not turn a delivered message into a visible error.
     try {
-      await ses.send({
+      await sendWithFallback({
         from: config.from,
         to: [email],
         replyTo: [config.owner],
