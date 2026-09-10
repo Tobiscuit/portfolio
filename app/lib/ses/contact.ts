@@ -66,6 +66,20 @@ function clean(v: string): string {
   return v.replace(/[\u0000-\u001F\u007F]+/g, " ").trim();
 }
 
+/**
+ * Format `Display Name <addr>` safely.
+ *
+ * The display name goes in an RFC 5322 quoted-string, because a name is
+ * arbitrary visitor input and an unquoted `<` or `>` in it produces a malformed
+ * address that SES rejects outright - losing the whole enquiry over a character
+ * in someone's name. Inside a quoted-string only `"` and `\` need escaping,
+ * and control characters are already stripped by clean().
+ */
+function formatAddress(name: string, email: string): string {
+  const quoted = name.replace(/[\\"]/g, (c) => `\\${c}`);
+  return `"${quoted}" <${email}>`;
+}
+
 function escapeHtml(v: string): string {
   return v
     .replace(/&/g, "&amp;")
@@ -140,7 +154,7 @@ export function createContactHandler(config: ContactConfig) {
       await sendWithFallback({
         from: config.from,
         to: [config.owner],
-        replyTo: [`${name} <${email}>`],
+        replyTo: [formatAddress(name, email)],
         subject: `${site}: enquiry from ${name}`,
         text: `From: ${name} <${email}>\n\n${message}\n`,
         html:
