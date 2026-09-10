@@ -48,3 +48,6 @@ yarn-error.log*
 /refactoring_summary.md
 docs/*
 .env*.local
+
+# typescript incremental build cache
+*.tsbuildinfo

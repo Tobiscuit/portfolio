@@ -6,10 +6,14 @@ export default function Contact() {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    message: ''
+    message: '',
+    // Honeypot: hidden from people, filled by naive bots. The server discards
+    // any submission where this is non-empty.
+    _gotcha: ''
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle')
+  const [errorMessage, setErrorMessage] = useState('')
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -26,12 +30,15 @@ export default function Contact() {
       
       if (response.ok) {
         setSubmitStatus('success')
-        setFormData({ name: '', email: '', message: '' })
+        setFormData({ name: '', email: '', message: '', _gotcha: '' })
       } else {
+        const body = await response.json().catch(() => null)
+        setErrorMessage(body?.error ?? 'Failed to send message. Please try again.')
         setSubmitStatus('error')
       }
     } catch (error) {
       console.error(error);
+      setErrorMessage('Could not reach the server. Please try again.')
       setSubmitStatus('error')
     } finally {
       setIsSubmitting(false)
@@ -105,6 +112,16 @@ export default function Contact() {
         </div>
         <div className="md:col-span-7">
           <form onSubmit={handleSubmit} className="space-y-6">
+            <input
+              type="text"
+              name="_gotcha"
+              value={formData._gotcha}
+              onChange={handleChange}
+              tabIndex={-1}
+              autoComplete="off"
+              aria-hidden="true"
+              className="absolute -left-[9999px] h-0 w-0 opacity-0"
+            />
             <div>
               <label
                 className="block text-sm font-medium text-parchment-100"
@@ -180,7 +197,7 @@ export default function Contact() {
               <p className="text-green-400 text-center">Message sent successfully!</p>
             )}
             {submitStatus === 'error' && (
-              <p className="text-red-400 text-center">Failed to send message. Please try again.</p>
+              <p className="text-red-400 text-center">{errorMessage}</p>
             )}
           </form>
         </div>
