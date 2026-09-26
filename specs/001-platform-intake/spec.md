@@ -193,7 +193,7 @@ Payload, anything in Vercel.
   otherwise
 - [x] T5 the Turnstile widget on the page, rendered only when its site key is
   set
-- [ ] T6 `.env.example` documents every variable; the spec's go-live list
+- [x] T6 `.env.example` documents every variable; the spec's go-live list
   stays accurate
 
 **Acceptance tests (written first):**
