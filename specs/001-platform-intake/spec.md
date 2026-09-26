@@ -184,9 +184,9 @@ Payload, anything in Vercel.
 
 - [x] T1 test harness (vitest, Node environment) and a stub engine server
   implementing the kit's `/v1/manifest` and `/v1/inquiries` contract
-- [ ] T2 `app/lib/intake/manifest.ts` and `app/lib/intake/engine.ts`
+- [x] T2 `app/lib/intake/manifest.ts` and `app/lib/intake/engine.ts`
   (transport selection, 10 s timeout)
-- [ ] T3 `app/lib/intake/handle.ts`: honeypot → validate → Turnstile (when
+- [x] T3 `app/lib/intake/handle.ts`: honeypot → validate → Turnstile (when
   configured) → host guard → announceOnce → inquire, returning the outcomes in
   §1, framework-free (`Request` → `Response`)
 - [ ] T4 the route: platform path when configured, the unchanged SES path
