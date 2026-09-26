@@ -65,7 +65,7 @@ export default function Contact() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
-
+    
     try {
       const response = await fetch('/api/contact', {
         method: 'POST',
