@@ -1,6 +1,28 @@
 'use client'
 
-import { useState } from 'react'
+import Script from 'next/script'
+import { useEffect, useRef, useState } from 'react'
+import { TOKEN_FIELD, TURNSTILE_ACTION } from '@/lib/intake/form'
+
+/**
+ * Turnstile's site key, inlined at build time. Set together with the server's
+ * TURNSTILE_SECRET_KEY (specs/001-platform-intake): without it no widget
+ * renders, and the server skips the check only when both are unset.
+ */
+const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY
+
+/** The part of Turnstile's explicit-rendering API this page uses. */
+interface TurnstileApi {
+  render(container: HTMLElement, options: Record<string, unknown>): string | undefined
+  reset(widgetId: string): void
+  remove(widgetId: string): void
+}
+
+declare global {
+  interface Window {
+    turnstile?: TurnstileApi
+  }
+}
 
 export default function Contact() {
   const [formData, setFormData] = useState({
@@ -14,6 +36,31 @@ export default function Contact() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle')
   const [errorMessage, setErrorMessage] = useState('')
+  const [turnstileToken, setTurnstileToken] = useState('')
+  const widgetContainer = useRef<HTMLDivElement>(null)
+  const widgetId = useRef<string | undefined>(undefined)
+
+  // Explicit rendering, so the widget follows this component's lifecycle.
+  // next/script calls onReady after the script loads and on every remount.
+  const renderTurnstile = () => {
+    if (!TURNSTILE_SITE_KEY || !window.turnstile || !widgetContainer.current || widgetId.current) return
+    widgetId.current = window.turnstile.render(widgetContainer.current, {
+      sitekey: TURNSTILE_SITE_KEY,
+      action: TURNSTILE_ACTION,
+      theme: 'dark',
+      callback: (token: string) => setTurnstileToken(token),
+      'expired-callback': () => setTurnstileToken(''),
+      'error-callback': () => setTurnstileToken(''),
+    })
+  }
+
+  useEffect(
+    () => () => {
+      if (widgetId.current) window.turnstile?.remove(widgetId.current)
+      widgetId.current = undefined
+    },
+    [],
+  )
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -25,7 +72,7 @@ export default function Contact() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(TURNSTILE_SITE_KEY ? { ...formData, [TOKEN_FIELD]: turnstileToken } : formData),
       })
       
       if (response.ok) {
@@ -42,6 +89,11 @@ export default function Contact() {
       setSubmitStatus('error')
     } finally {
       setIsSubmitting(false)
+      // A token is single-use: whatever the answer, the next attempt needs a new one.
+      if (widgetId.current) {
+        window.turnstile?.reset(widgetId.current)
+        setTurnstileToken('')
+      }
     }
   }
 
@@ -184,6 +236,16 @@ export default function Contact() {
                 />
               </div>
             </div>
+            {TURNSTILE_SITE_KEY && (
+              <>
+                <Script
+                  src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"
+                  strategy="afterInteractive"
+                  onReady={renderTurnstile}
+                />
+                <div id="turnstile-widget" ref={widgetContainer} className="flex justify-center md:justify-start" />
+              </>
+            )}
             <div>
               <button
                 className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-bold text-sage-blue-950 bg-amber-500 hover:bg-yellow-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 focus:ring-offset-sage-blue-900 transition-colors disabled:opacity-50"
@@ -194,7 +256,9 @@ export default function Contact() {
               </button>
             </div>
             {submitStatus === 'success' && (
-              <p className="text-green-400 text-center">Message sent successfully!</p>
+              <p className="text-green-400 text-center">
+                Message sent. I&apos;ll reply personally, usually within a couple of days.
+              </p>
             )}
             {submitStatus === 'error' && (
               <p className="text-red-400 text-center">{errorMessage}</p>
