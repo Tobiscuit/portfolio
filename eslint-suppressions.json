@@ -1,0 +1,32 @@
+{
+  "app/(payload)/layout.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "app/components/ProjectDetailsView.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "app/components/ui/SuspenseImage.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 2
+    }
+  },
+  "app/lib/getProjects.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 13
+    }
+  },
+  "scripts/mirror-assets.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "scripts/seed.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 9
+    }
+  }
+}

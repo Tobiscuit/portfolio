@@ -1,5 +1,9 @@
-@import "tailwindcss";
+/* URL imports go first. Tailwind inlines itself where `@import "tailwindcss"`
+   stands, so anything imported after it lands behind real rules, where an
+   @import is invalid CSS: `next dev` refuses the file and `next build` drops
+   the import. https://tailwindcss.com/docs/font-family */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Source+Serif+Pro:wght@700&display=swap');
+@import "tailwindcss";
 
 @theme {
   /* Custom colors migrated from tailwind.config.ts */
