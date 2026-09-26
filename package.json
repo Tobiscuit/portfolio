@@ -7,10 +7,12 @@
     "dev": "next dev",
     "build": "tsx scripts/mirror-assets.ts && payload generate:types && payload generate:importmap && next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test": "vitest run"
   },
   "dependencies": {
     "@aws-sdk/client-sqs": "^3.965.0",
+    "@jrcodex/seo-kit": "0.3.1",
     "@payloadcms/db-mongodb": "^3.75.0",
     "@payloadcms/next": "^3.75.0",
     "@payloadcms/richtext-lexical": "^3.75.0",
@@ -36,6 +38,8 @@
   "devDependencies": {
     "@types/node": "^25.2.3",
     "eslint": "9.39.2",
-    "eslint-config-next": "16.1.1"
+    "eslint-config-next": "16.1.1",
+    "vite": "8.3.1",
+    "vitest": "5.0.2"
   }
 }

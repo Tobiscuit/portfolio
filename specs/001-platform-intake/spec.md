@@ -182,7 +182,7 @@ text), `package.json` / `package-lock.json` (the kit, the test runner),
 **Does not touch:** `app/lib/ses/*` (the legacy path keeps working as is),
 Payload, anything in Vercel.
 
-- [ ] T1 test harness (vitest, Node environment) and a stub engine server
+- [x] T1 test harness (vitest, Node environment) and a stub engine server
   implementing the kit's `/v1/manifest` and `/v1/inquiries` contract
 - [ ] T2 `app/lib/intake/manifest.ts` and `app/lib/intake/engine.ts`
   (transport selection, 10 s timeout)
