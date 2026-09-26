@@ -106,6 +106,15 @@ The fallback address comes from `CONTACT_FALLBACK_EMAIL` (see B-D4).
 
 ## 3. Decisions for Tobias (this track)
 
+**Decided 2026-09-26: all as recommended.** No acknowledgement email (B-D1);
+Turnstile before go-live (B-D2 — the widget waits on a Turnstile-only
+Cloudflare token for Terraform, since the Terraform token cannot be edited);
+the fallback address is `jramirez203@outlook.com` until `hello@jrcodex.dev` is
+active (B-D4). For B-D3 he asked whether to self-host on the node behind
+Cloudflare: no — the site is how clients reach him, and client-facing systems
+must not depend on the node at runtime, so the target is Workers. Which
+portfolio becomes jrcodex.dev is still his to say.
+
 | # | Decision | Recommendation |
 |---|---|---|
 | **B-D1** | **The acknowledgement email to the visitor.** Inquiries has no acknowledgement; the current route sends one. | **Drop it.** A form that makes jrcodex.dev send mail to any address someone types is a known abuse channel (people type a victim's address), and it is the only reason the site needs an SES credential at all. The page already confirms on screen; the success text can promise the reply time the email used to ("I'll reply personally, usually within a couple of days"). If he wants it kept, it stays in the site behind the same honeypot and bot check. |
