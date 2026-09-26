@@ -17,7 +17,9 @@ import { http, rpc, type SeoClient, type SitesBinding } from "@jrcodex/seo-kit";
 /** Every engine call over HTTP gives up after this long (spec section 2). */
 export const ENGINE_TIMEOUT_MS = 10_000;
 
+/** The variables this module reads, inside any environment: process.env, or a Worker's env. */
 export interface EngineEnv {
+  [name: string]: unknown;
   /** The seo-engine Worker's `Sites` entrypoint (a service binding). Never in process.env. */
   SEO?: unknown;
   /** The engine's HTTPS base URL. */

@@ -1,8 +1,20 @@
 import { NextResponse } from 'next/server'
+import { transportFor } from '@/lib/intake/engine'
+import { handleContact } from '@/lib/intake/handle'
 import { contactRoute } from '@/lib/ses/adapters'
 
 /**
- * Contact form -> SES.
+ * Contact form -> the platform's Inquiries when it is configured, else SES.
+ *
+ * Platform path (specs/001-platform-intake): when the environment names an
+ * engine transport - SEO_ENGINE_URL here on Vercel, a SEO service binding on
+ * Workers - the inquiry goes to the SEO engine through app/lib/intake. Its
+ * variables: SEO_ENGINE_URL, SEO_SITE_KEY, ENGINE_WRITE_HOST,
+ * CONTACT_FALLBACK_EMAIL, and optionally the Turnstile pair
+ * (TURNSTILE_SECRET_KEY, NEXT_PUBLIC_TURNSTILE_SITE_KEY). Removing
+ * SEO_ENGINE_URL is the rollback: the SES path below answers again.
+ *
+ * Legacy path, unchanged: contact form -> SES.
  *
  * Environment variable names are unchanged from the previous implementation so
  * that nothing has to be reconfigured in Vercel:
@@ -44,6 +56,11 @@ const handler = configured
   : null
 
 export async function POST(request: Request) {
+  // Read per request, not at module load, so the choice always matches the
+  // environment the handler itself reads.
+  if (transportFor(process.env) !== null) {
+    return handleContact(request, { env: process.env })
+  }
   if (!handler) {
     console.error('contact: SES environment variables missing')
     return NextResponse.json({ error: 'Server configuration error' }, { status: 500 })

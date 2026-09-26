@@ -189,7 +189,7 @@ Payload, anything in Vercel.
 - [x] T3 `app/lib/intake/handle.ts`: honeypot → validate → Turnstile (when
   configured) → host guard → announceOnce → inquire, returning the outcomes in
   §1, framework-free (`Request` → `Response`)
-- [ ] T4 the route: platform path when configured, the unchanged SES path
+- [x] T4 the route: platform path when configured, the unchanged SES path
   otherwise
 - [ ] T5 the Turnstile widget on the page, rendered only when its site key is
   set
