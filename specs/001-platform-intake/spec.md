@@ -191,7 +191,7 @@ Payload, anything in Vercel.
   §1, framework-free (`Request` → `Response`)
 - [x] T4 the route: platform path when configured, the unchanged SES path
   otherwise
-- [ ] T5 the Turnstile widget on the page, rendered only when its site key is
+- [x] T5 the Turnstile widget on the page, rendered only when its site key is
   set
 - [ ] T6 `.env.example` documents every variable; the spec's go-live list
   stays accurate

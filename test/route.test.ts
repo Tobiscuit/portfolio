@@ -60,7 +60,7 @@ describe("POST /api/contact", () => {
     ["only SEO_SITE_KEY left behind (the rollback: SEO_ENGINE_URL removed)", { SEO_SITE_KEY: SITE_KEY }],
   ])("with %s, still sends through the existing SES path", async (_label, extra: Record<string, string>) => {
     for (const [name, value] of Object.entries(extra)) vi.stubEnv(name, value);
-    const ses = vi.fn(async (_input: RequestInfo | URL, _init?: RequestInit) => Response.json({ MessageId: "stub-message-id" }));
+    const ses = vi.fn<typeof fetch>(async () => Response.json({ MessageId: "stub-message-id" }));
     vi.stubGlobal("fetch", ses);
     const { POST } = await loadRoute();
 
