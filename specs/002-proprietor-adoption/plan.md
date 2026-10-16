@@ -193,7 +193,7 @@ cd ~/proprietor-mail   # the address printer (plan §12) prints the Directory ro
 cd ~/cloudflare-infra && git pull && mv jrcodex-mail.tf.pending jrcodex-mail.tf && ./tf plan
 ./tf apply && git add jrcodex-mail.tf && git commit -m "hello@jrcodex.dev: routing on, forward to Gmail" && git push
 #    send one message to hello@jrcodex.dev; it arrives in Gmail. Set the mailbox to store-and-forward (mail-admin), then:
-git rm --cached jrcodex-mail.tf; mv jrcodex-mail-to-worker.tf.pending jrcodex-mail.tf && ./tf plan   # 1 in-place update
+mv jrcodex-mail-to-worker.tf.pending jrcodex-mail.tf && ./tf plan   # overwrites step 1's file; expect 1 in-place update
 ./tf apply && git add jrcodex-mail.tf && git commit -m "hello@jrcodex.dev: to the proprietor-mail Worker" && git push
 #    two weeks later, on your word: delivery -> store (mail-admin)
 
