@@ -1,80 +1,72 @@
 # 002 — Plan
 
 Architecture, the contracts between slices, the infrastructure parked for
-approval, and the owner's runbook. The slices and their acceptance tests are
-in `tasks.md`.
+approval, the engine door (D14), and the owner's runbook, for the decided
+hybrid (spec §3 D1): Payload keeps projects and media, the site stays on
+Next.js and Vercel, Proprietor supplies blog, inquiries, profile, mail and
+video through `@jrcodex/seo-kit` over `http()`. The slices and their
+acceptance tests are in `tasks.md`.
 
-## 1. Shape of the work: two halves in one PR
-
-The PR reviews in two halves, in commit order:
-
-1. **Additive platform modules** (slice A) — new pages and reads that also
-   work on today's Next.js/Vercel build with `http()` or nothing configured.
-   Nothing breaks if the cutover waits.
-2. **Hosting cutover** — ON HOLD until Tobias decides D1. Written twice in
-   `tasks.md`: slice B (vinext, Payload retired) and slice B′ (hybrid:
-   OpenNext + Payload on D1/R2 beside the kit's modules). Exactly one is
-   built, in its own commits, last. Under B′, A's `/work` commit is reverted
-   and the engine PR drops its "028 projects" commits.
-
-The engine's half (slice E) is a separate PR in `~/seo-engine`.
+## 1. Shape of the work
 
 ```
-  app/
-    (app)/blog/page.tsx, blog/[slug]/page.tsx       A
-    (app)/work/page.tsx, work/[slug]/page.tsx       A
-    (app)/videos/page.tsx                           A
-    (app)/layout.tsx  (+ <Footer/>)                 A (3 lines)
-    components/Header.tsx (nav: Blog, Work, Videos) A (navLinks only; the redesign lane restyles)
-    components/platform/*                           A  plain semantic markup, existing tokens
-    lib/platform/env.ts        runtime env           A creates (process.env); B swaps the body (cloudflare:workers)
-    lib/platform/client.ts     PlatformConnection    A
-    lib/platform/reads.ts      cached reads          A
-    lib/platform/videos.ts     the structural shim   A
-    lib/site.ts                SITE_URL, links, fallback profile   A
-    lib/legacy-redirects.ts    D13 map               B
-    lib/intake/manifest.ts     has: intake, blog, projects         A
-    sitemap.ts, robots.ts                           A
-    api/contact/route.ts       env from cloudflare:workers         B
-  worker/index.ts, wrangler.jsonc, vite.config.ts, env.d.ts, .dev.vars.example   B
-  scripts/export-portfolio.mjs                      B (first commit of the slice, before removals)
-  tests/smoke/**, tests/stubs/seo-engine/**          B (built Worker + stub engine over wrangler dev)
-  test/**                                            A (Node, stub over http())
-  docs/delivery-pipeline.md, .github/workflows/ci.yml   B
-  specs/002-proprietor-adoption/**                   architect; tasks.md ticks by each slice
-```
+  this repo (feat/proprietor-adoption, PR against feat/platform-intake)
+    app/(app)/blog/page.tsx, blog/[slug]/page.tsx     A2  posts, compose(), the engine's head
+    app/(app)/videos/page.tsx                         A4  shown cuts, empty -> invisible
+    app/media/[...key]/route.ts                       A   the engine's images and video, via mediaHandler
+    app/components/platform/*, Footer.tsx             A   plain semantic markup, existing tokens
+    app/components/Header.tsx  (navLinks only)        A   Blog; Videos when there are any
+    app/(app)/layout.tsx       (mount <Footer/>)      A
+    app/lib/platform/{env,client,reads,images,videos}.ts   A   the only reader of process.env is env.ts
+    app/lib/site.ts            SITE_URL, links, fallback profile   A
+    app/lib/intake/manifest.ts { intake, blog } + renders           A
+    app/sitemap.ts, app/robots.ts                     A
+    test/**                                           A   Node, the stub over http()
+    package.json               + @jrcodex/seo-kit 0.6.2 exact      A   (nothing else: existing versions are the upgrade lane's)
 
-Removed by B: `app/(payload)/**`, `collections/`, `payload.config.ts`,
-`payload-types.ts`, `scripts/{mirror-assets,seed,verify-media,check-region}.ts`,
-`seed*.log`, `public/media/`, `postcss.config.js` (Tailwind through
-`@tailwindcss/vite`), `app/lib/getProjects.ts`, `app/lib/project-data.ts`,
-`app/lib/types.ts`, `app/(app)/projects/**`, `app/components/ProjectCard.tsx`,
-`app/components/ProjectDetailsView.tsx`, `app/lib/ses/**` and the SES branch
-of the route (B-D1 decided; the platform path is the only path on the
-Worker), `next.config.js` → `next.config.mjs` without `withPayload`.
+  ~/seo-engine (028-portfolio-site, PR against main)
+    migration 0034, src/video/store.ts, src/render/sites.ts, src/sites-entrypoint.ts,
+    dashboard videos toggle, packages/seo-kit 0.7.0     E   videos on the site, Range on media
+
+  ~/cloudflare-infra (parked, *.tf.pending)
+    jrcodex-mail.tf.pending, jrcodex-mail-to-worker.tf.pending, jrcodex-turnstile.tf.pending
+
+  NOT in this work: Payload, collections/, app/(app)/projects/**, any version bump,
+  the contact page and route (spec 001, as built), the engine door (D14, §9).
+```
 
 ## 2. Contracts
 
 ### 2.1 The site's reads (A), honoured by the stub (A) and the engine (E)
 
-Rules, from montano `lib/blog.ts` and `lib/projects.ts`:
+From montano's `lib/blog.ts` and `lib/projects.ts`, adjusted for Vercel:
 
-- A list read (`posts`, `projects`, `videos`, `profile`) on an unconnected
-  site answers empty / the fallback profile and logs once per isolate. A
-  connected site whose list read fails lets the error through on `/blog`
-  and `/work` (a 5xx is retried by crawlers) but not on the home page, the
-  footer or the sitemap, which show none.
-- A single read (`post`, `project`) answering `null` is `notFound()`; a
-  project whose `path` is not the URL asked for redirects to its real path.
-- Reads are allowed from any host; writes only from `ENGINE_WRITE_HOST`.
-- Images: on the production host, the engine's transform URLs as given;
-  off it (previews, local), `/cdn-cgi/image/...` is rewritten to
-  `/media/<key>` (montano `lib/images.ts`), because transforms answer only on
-  the production zone.
-- Every page: one `<h1>`; the engine's canonical and alternates as
-  `postMetadata` gives them; `robots: { index: false }` on an empty index.
+- **Transport.** `transportFor(env)` from `app/lib/intake/engine.ts`
+  decides, as for the contact form: a `SEO` binding → `rpc()`;
+  `SEO_ENGINE_URL` → `http()` with the 10 s timeout; neither → unconnected.
+  On Vercel it is always `http()` or unconnected.
+- **Unconnected** (no transport, or no key): list reads answer empty, the
+  profile answers the site's fallback, logged once per isolate.
+- **Connected, a read fails**: `/blog` and `/blog/<slug>` let it through (a
+  5xx is retried by crawlers; a 404 would say a real post is gone); the
+  footer, the nav and the sitemap catch it and show none.
+- **A single read answering null** is `notFound()`.
+- **Reads from any host; writes only from `ENGINE_WRITE_HOST`** (announce
+  and inquire are spec 001's; this work adds no write).
+- **Images, on every host: `/media/<key>`.** www.jrcodex.dev resolves to
+  Vercel unproxied (`dns.tf` record `www`, `proxied = false`), so
+  Cloudflare's `/cdn-cgi/image/<options>/media/<key>` transform path exists
+  on none of this site's hosts. `images.ts` rewrites every transform URL in
+  post html, hero `src` and `srcset` to `/media/<key>` (montano's
+  `withoutTransforms`), and `app/media/[...key]/route.ts` serves it through
+  the kit's `mediaHandler` and `http()` client. Engine keys always contain a
+  slash (`<business slug>/…`); Payload's mirrored files in `public/media/`
+  are flat names, and Next serves `public/` before a dynamic route.
+- **Every page**: one `<h1>`; a post's canonical, alternates and JSON-LD as
+  `postMetadata`/`postJsonLd` give them; `robots: { index: false }` on an
+  empty index.
 
-### 2.2 Videos (E provides, A consumes through the shim)
+### 2.2 Videos (E provides, A consumes)
 
 ```ts
 /** One cut the owner chose to show (engine spec 028). */
@@ -82,7 +74,7 @@ export interface VideoSummary {
   id: string;
   /** The owner's title, one language. */
   title: string;
-  /** Root-relative: /media/<slug>/video/renders/<id>.mp4 — serve with mediaHandler. */
+  /** Root-relative: /media/<slug>/video/renders/<id>.mp4 — served by the site's /media route. */
   src: string;
   contentType: "video/mp4";
   seconds: number;
@@ -90,208 +82,160 @@ export interface VideoSummary {
   /** ISO 8601: when the owner showed it on the site. Newest first in the list. */
   publishedAt: string;
 }
-// Sites:   videos(siteKey: string): Promise<VideoSummary[]>
-// Kit 0.7: client.videos(): Promise<VideoSummary[]>;  http(): GET /v1/videos
-// media(): a render key answers only while shown; honours Range -> 206 with
-//          Content-Range and Accept-Ranges: bytes; HEAD answers the headers.
+// Sites:      videos(siteKey: string): Promise<VideoSummary[]>
+//             media(siteKey, key, opts?: { range?: string }): a render key answers only while shown;
+//             Range -> 206 with Content-Range and Accept-Ranges: bytes; HEAD answers the headers.
+// Kit 0.7.0:  client.videos(): Promise<VideoSummary[]>   rpc(): binding.videos(key); http(): GET /v1/videos
+//             client.media(key, { range })                http(): the range header on GET /v1/media/<key>
+//             mediaHandler forwards the request's range header.
 ```
 
-The site's shim (`app/lib/platform/videos.ts`): if `env.SEO` has a function
-`videos`, call `env.SEO.videos(siteKey)`; otherwise `[]`. Deleted when the
-site moves to kit 0.7.0.
+The site's shim (`app/lib/platform/videos.ts`) reads, in order: the kit
+client's `videos()` when it has one (0.7.0, either transport); the `SEO`
+binding's `videos(siteKey)` when present; else `[]`. It validates each item
+before rendering. Moving the site to kit 0.7.0 is a one-line bump that
+leaves the shim's first branch as the only live one.
 
-`ProjectSummary.link: string | null` is read the same way: `"link" in
-summary ? summary.link : null`.
+**Bandwidth, stated.** On Vercel, every image and video byte the site
+serves passes through a Vercel function (`/media/*`), which counts toward
+Vercel's bandwidth and function duration (D7). At a portfolio's scale this
+is small; the clean fix is the move in D1's "later", where `/media/*` is
+served by the site's own Worker over the binding.
 
-### 2.3 PortfolioExport (B's export writes it; E's import reads it)
+## 3. The engine door (D14) — what `SEO_ENGINE_URL` needs
 
-```ts
-export interface PortfolioExport {
-  version: 1;
-  source: "mongo" | "code";
-  exportedAt: string;                 // ISO 8601
-  /** The origin the images are fetched from by the engine's import-gallery task. */
-  origin: string;                     // "https://jrcodex.dev"
-  projects: ExportedProject[];        // in display order (Payload `order`, or the array order)
-}
-export interface ExportedProject {
-  legacyId: number;                   // Payload `order` / project-data `id`: the /projects/<id> URL
-  title: string;                      // <= 160
-  summary: string;                    // description, <= 400 (truncated at a sentence end if longer, the rest moved into the body's first paragraph)
-  link: string | null;                // the live URL, https only
-  service: string;                    // a taxonomy category (plan §7); the owner edits
-  features: string[];
-  tech: string[];
-  /** Sections in order; `html` is the Payload/data HTML as stored (the import sanitises). */
-  sections: { heading: string | null; html: string; listHtml: string | null; image: ExportedImage | null }[];
-  cover: ExportedImage | null;
-}
-export interface ExportedImage {
-  /** Root-relative path on `origin`, e.g. /images/projects/weatherwise/arch_diagram_1.png */
-  path: string;
-  alt: string;
-  role: "detail";                     // software screenshots have no before/after
-}
-```
+The engine has had no public address since 2026-10-05, and `/v1` has never
+had a server (`~/seo-engine/docs/spec-audit-2026-09-27.md` item 5). Until
+something answers the kit's HTTP contract, a site on Vercel reaches nothing:
+the contact form keeps its SES path (spec 001's rollback state) and the new
+pages render empty. §9 is the design for Tobias to approve.
 
-The import turns `sections` into one `bodyHtml`: `<h2>` per heading, the
-section's paragraphs, its list, "Built with: …" as the last paragraph; the
-images become `project_images` in section order with the cover first; the
-rows are emitted as SQL for review (`scripts/showcase/build.ts` is the
-pattern), applied with `./deploy d1 execute seo-engine --remote --file`.
-
-### 2.4 Worker config (B) — the facts it must carry
-
-`name: "jrcodex-dev"` (never `juanramirez-portfolio`, which exists);
-`routes: [{ pattern: "jrcodex.dev", custom_domain: true }, { pattern:
-"www.jrcodex.dev", custom_domain: true }]`; `workers_dev: false`;
-`preview_urls: true`; `compatibility_date` no later than the workerd both
-wrangler and the test pool ship, and on or after 2026-04-21 (enhanced error
-serialization: `InquiryRefused.retryAfterSeconds` crosses the binding);
-`compatibility_flags: ["nodejs_compat"]`; `services: [{ binding: "SEO",
-service: "seo-engine", entrypoint: "Sites" }]`; `vars: { ENGINE_WRITE_HOST,
-CONTACT_FALLBACK_EMAIL }` (+ `TURNSTILE_SITE_KEY` once the widget exists);
-secrets `SEO_SITE_KEY`, `TURNSTILE_SECRET_KEY` through stdin; `assets:
-{ not_found_handling: "none" }`; `observability.enabled: true`; `cache:
-{ enabled: true }` with an explicit Cache-Control on every response
-(montano `lib/cache-policy.ts`). No D1, no R2, no KV: the site stores nothing.
-
-### 2.5 The contact route on the Worker (B)
-
-`handleContact(request, { env: { SEO: env.SEO, SEO_SITE_KEY, ENGINE_WRITE_HOST,
-CONTACT_FALLBACK_EMAIL, TURNSTILE_SECRET_KEY, NEXT_PUBLIC_TURNSTILE_SITE_KEY:
-env.TURNSTILE_SITE_KEY } })`. The handler and its tests are unchanged; the
-page's inlined `NEXT_PUBLIC_TURNSTILE_SITE_KEY` keeps its name (vinext
-honours `NEXT_PUBLIC_*` at build time).
-
-## 3. Delivery (B, documented as montano's `docs/delivery-pipeline.md`)
-
-- Branches: `develop` is created at merge time by the owner (it does not
-  exist in this repo yet); until then PRs stack on `main`.
-- Workers Builds, two triggers: production `main` → `npm run build` then
-  `npx wrangler deploy -c dist/server/wrangler.json`; preview `*` minus
-  `main` → `npm run build` then `npx wrangler versions upload -c
-  dist/server/wrangler.json`, no alias.
-- CI (`.github/workflows/ci.yml`): `npm ci`, typecheck, build, test; no
-  secrets, no deploy.
-- What only the owner can do: connect the repo, create the triggers, put the
-  secrets, confirm the preview gate.
-
-## 4. Dependency currency (B)
-
-Every dependency the ported site keeps or adds lands at the current stable
-`npm view <pkg> version` at the time of the slice, breaking changes
-researched with context7, versions and any deliberate hold recorded in
-`tasks.md` B6 and the PR body. Montano's versions are a reference, not the
-target. Expected set: `vinext`, `vite`, `@cloudflare/vite-plugin`,
-`@vinext/cloudflare`, `@vitejs/plugin-rsc`, `wrangler`, `react`,
-`react-dom`, `@types/react`, `@types/react-dom`, `@types/node`, `typescript`,
-`tailwindcss`, `@tailwindcss/vite`, `lucide-react`, `react-zoom-pan-pinch`,
-`@jrcodex/seo-kit` (0.6.2 exact: 0.7.0 is unpublished), `vitest`, `eslint`
-and whichever flat config survives Next's removal (if `eslint-config-next`
-needs `next`, replace it with `typescript-eslint` + `eslint-plugin-react-hooks`
-and say so).
-
-## 5. Tests, with no secrets anywhere
+## 4. Tests, with no secrets anywhere
 
 - A: vitest in Node against `test/stub-engine.ts`, extended with the read
-  routes (`GET /v1/posts`, `/v1/posts/:locale/:slug`, `/v1/projects`,
-  `/v1/projects/:locale/:slug`, `/v1/profile`, `/v1/sitemap`, `/v1/media/*`,
-  `/v1/videos`), fixtures shaped like montano's
-  `tests/stubs/seo-engine/fixtures.ts`; pages rendered with
-  `renderToStaticMarkup` after awaiting the server component.
-- B: montano's smoke harness: `vinext build`, then `wrangler dev --local` of
-  `dist/server/wrangler.json` beside a stub `seo-engine` Worker whose `Sites`
-  class answers from fixtures and records writes in a local D1; tests assert
-  pages, heads, redirects, `/media`, Cache-Control, no RSC error rows
-  (`tests/flight.ts`), and that the smoke Worker sees the production host
-  (`wrangler dev` rewrites the host for `custom_domain` routes).
-- E: the engine's existing `@cloudflare/vitest-pool-workers` projects
-  (`npm test` runs `workers` + `architecture`); the kit's `kit.test.ts`.
+  routes (`GET /v1/posts?locale=`, `/v1/posts/:locale/:slug`, `/v1/sitemap`,
+  `/v1/profile`, `/v1/media/<key>`, `/v1/videos`) and fixtures shaped like
+  montano's `tests/stubs/seo-engine/fixtures.ts`, the business being a
+  fictional one; pages rendered by awaiting the server component and
+  `renderToStaticMarkup`. `test/harness.test.ts` keeps the stub pinned to the
+  kit's real `http()` client, so the stub is the door's executable spec.
+- E: the engine's `npm test` (the `workers` project under
+  `@cloudflare/vitest-pool-workers` with the real migrations, and the
+  `architecture` project in Node) and the kit's tests.
+
+## 5. Delivery
+
+Unchanged: Vercel builds this repo; Vercel's PR previews serve review
+copies; `ENGINE_WRITE_HOST=www.jrcodex.dev` keeps a preview from announcing
+or inquiring. The engine half deploys with the engine's own `./deploy` after
+its PR merges; kit 0.7.0 is staged by the engine's publish workflow on the
+tag `seo-kit-v0.7.0` and made public by Tobias (`npm stage approve`, 2FA).
 
 ## 6. Infrastructure, parked (architect) — `~/cloudflare-infra/*.tf.pending`
 
-Never applied here; the Vault token is expired and the checkout is shared.
-Each file says what it replaces and how to approve it.
+Never applied here (the Vault token is expired; the checkout is shared).
+Each file says what it does and how to approve it. All three validated
+2026-10-16 with `terraform validate` on a scratch copy of the checkout (local
+backend, `init -backend=false`), never with `./tf`.
 
-| File | What it does | Order |
+| File | What it does | When |
 |---|---|---|
-| `dns.tf.pending` | `dns.tf` without `jrcodex_root` (A 76.76.21.21) and `www` (CNAME cname.vercel-dns.com): Terraform destroys both, then the Worker's deploy creates its custom domains. Needed under D1 (a) and (b) alike; not under (c). | after D1 and D5, before the first production deploy |
-| `redirects.tf.pending` | `redirects.tf` with `jrcodex` added to `local.www_redirects` (D5 apex). A replacement file, like `dns.tf.pending`. Only with the apex choice. | with the above |
-| `jrcodex-mail.tf.pending` | `cloudflare_email_routing_dns.jrcodex` (MX + apex SPF), a DMARC record (the zone had none), rule `hello@jrcodex.dev` → forward to the verified Gmail address (dual delivery, step 1), SES: `aws_sesv2_email_identity.jrcodex` joins tenant `proprietor`, a second inline policy on `ses-send-mail` allowing `hello@jrcodex.dev` through `send-proprietor-mail` (inside `iam/ses-send-boundary.json`). | D4(a); after the Directory row |
-| `jrcodex-mail-to-worker.tf.pending` | REPLACES `jrcodex-mail.tf`: the rule's action becomes `worker proprietor-mail` (step 2; an in-place update). | after step 1 delivers and delivery is store-and-forward |
-| `jrcodex-turnstile.tf.pending` | the widget (created in the dashboard, adopted by import once a Turnstile-capable token exists) | D11 |
-| `jrcodex-admin-access.tf.pending` | ONLY under D1(b): Access at the edge on Payload's `/admin*` and its API paths, Tobias only; the B′ builder corrects the path list from the built site before approval. | D1(b) |
+| `jrcodex-mail.tf.pending` | `cloudflare_email_routing_dns.jrcodex` (MX + apex SPF), a DMARC record (the zone had none), rule `hello@jrcodex.dev` → forward to the verified Gmail address (dual delivery, step 1), SES: the `jrcodex.dev` identity joins tenant `proprietor`, a second inline policy on `ses-send-mail` allowing `hello@jrcodex.dev` through `send-proprietor-mail` (inside `iam/ses-send-boundary.json`). | D4(a), after the Directory address row |
+| `jrcodex-mail-to-worker.tf.pending` | REPLACES `jrcodex-mail.tf`: the rule's action becomes `worker proprietor-mail` (an in-place update). | after step 1 delivers and the mailbox is store-and-forward |
+| `jrcodex-turnstile.tf.pending` | the contact form's widget, created in the dashboard, adopted by import once a Turnstile-capable token exists | D11 |
 
-All six validated 2026-10-16 with `terraform validate` on a scratch copy of the
-checkout (local backend, `init -backend=false`), never with `./tf`.
+The DNS, redirect and Payload-admin Access files written for the cutover
+were deleted when D1 was decided: the hybrid changes no DNS.
 
 ## 7. The business `jrcodex` on the engine (owner, `seo-admin`)
 
 Trade (vertical) proposal — `t` in `seo-admin`:
 
-- trade `software-engineering-portfolio`, persona: a full-stack engineer
-  writing in the first person about systems he built; voice: plain, specific,
-  no hype; safety: no claims about employers or clients beyond what the
-  profile says.
-- taxonomy (the `service` of a project and the `category` of a post):
-  `cloud-architecture`, `web-platforms`, `ecommerce-systems`,
-  `ai-and-automation`, `delivery-and-devops`, `security-engineering`.
-- mapping the nine projects: WeatherWise → cloud-architecture; WeFix4U →
-  web-platforms; Three Chicks & A Wick → ecommerce-systems; The Gilded
-  Shear → web-platforms; NASA Mission Control → web-platforms; TC&AW admin
-  → ecommerce-systems; The Commons → ai-and-automation; Audify →
-  ai-and-automation; Project Eta → drop (placeholder text).
+- trade `software-engineering`, persona: a full-stack engineer writing in
+  the first person about systems he built; voice: plain, specific, no hype;
+  safety: no claims about employers or clients beyond what the profile says.
+- taxonomy (each post's `category`): `cloud-architecture`, `web-platforms`,
+  `ecommerce-systems`, `ai-and-automation`, `delivery-and-devops`,
+  `security-engineering`.
 
 Business: name "Juan Ramirez", short name `jrcodex`, locale `en`, team
-`solo`, owner tobiasramzy@gmail.com, status active (no runs until he asks:
-pause after creation if the blog should wait).
+`solo`, owner tobiasramzy@gmail.com; pause it after creation if the blog
+should not start writing yet.
 
 ## 8. Owner runbook (in order; nothing here runs from a builder)
 
 ```sh
-# 0. Secrets reach a process only through Vault and stdin. Never argv, never a file.
+# 0. Secrets reach a process only through Vault and stdin or the dashboard. Never argv, never a kept file.
 vault login                                   # the node's token is expired
 
-# 1. The business and the site key
-npm run admin --prefix ~/seo-engine           # t: trade (§7) · a: business jrcodex · w: connect https://jrcodex.dev (D5)
-#    the key is shown once:
-vault kv put secret/seo-engine/sites/jrcodex key=-   # paste, then ^D   (never on the command line)
+# 1. The business and the site key (D3, D10)
+npm run admin --prefix ~/seo-engine           # t: trade (§7) · a: business jrcodex · w: connect https://www.jrcodex.dev
+vault kv put secret/seo-engine/sites/jrcodex key=-   # paste the key shown once, then ^D (never on the command line)
 
-# 2. Decide D1. Merge order: PR #2 -> PR #1 -> this PR's additive half; then the cutover PR (B or B'); the engine PR (028, minus
-#    its "028 projects" commits under (b)) -> deploy the engine (./deploy). Steps 3-5 and 8 apply to (a) and (b); step 5's import only to (a).
+# 2. Merge, in order: PR #2 -> the upgrade PR -> PR #1 -> this PR -> the redesign.
+#    Engine: PR 028 -> ./deploy (engine, then dashboard); kit: git tag seo-kit-v0.7.0 && git push origin seo-kit-v0.7.0,
+#    then: npm stage approve @jrcodex/seo-kit@0.7.0   (2FA)
 
-# 3. Terraform (shared checkout; announce first; never leave an unapproved .tf on disk)
-cd ~/cloudflare-infra && git pull
-mv dns.tf.pending dns.tf && mv redirects.tf.pending redirects.tf
-./tf plan                                     # expect: 2 to destroy (jrcodex_root, www), 1 ruleset to create (www -> apex)
-./tf apply && git add -A && git commit -m "jrcodex.dev: leave Vercel; www -> apex" && git push
+# 3. D14: approve and build the door (§9; its own spec and PR); deploy it; note its URL.
 
-# 4. Workers Builds (dashboard): connect Tobiscuit/portfolio, two triggers (docs/delivery-pipeline.md)
-#    secrets, from Vault through stdin:
-vault kv get -field=key secret/seo-engine/sites/jrcodex | npx wrangler secret put SEO_SITE_KEY --name jrcodex-dev
-#    first production deploy creates both custom domains; verify:
-dig +short jrcodex.dev @1.1.1.1 ; dig +short www.jrcodex.dev @1.1.1.1 ; curl -sI https://www.jrcodex.dev | head -3   # 301 to apex
-#    open a preview URL in a private window: the Access gate must challenge (D9)
+# 4. Vercel, Production environment only (dashboard; there is no Vercel CLI on the node):
+#    SEO_ENGINE_URL=<the door>  SEO_SITE_KEY=<from Vault>  ENGINE_WRITE_HOST=www.jrcodex.dev
+#    CONTACT_FALLBACK_EMAIL=jramirez203@outlook.com (hello@jrcodex.dev after step 6)
+#    NEXT_PUBLIC_TURNSTILE_SITE_KEY + TURNSTILE_SECRET_KEY (step 7)
+#    Redeploy. Send one message through the live form, as yourself; it shows first on the dashboard.
 
-# 5. Content
-#    on a machine with the Vercel CLI (not the node):  vercel env pull .env.local   -> DATABASE_URI
-node scripts/export-portfolio.mjs --source mongo --out export/portfolio.json      # or --source code; diff the two
-node ~/seo-engine/scripts/import-gallery.ts --business jrcodex --file export/photos.json --apply   # fetches from https://jrcodex.dev
-#    wait for the engine's "gallery-imported" line, then
-npx -y tsx ~/seo-engine/scripts/import-portfolio.ts --business jrcodex --file export/portfolio.json          # dry run: prints SQL + the slug map
-npx -y tsx ~/seo-engine/scripts/import-portfolio.ts --business jrcodex --file export/portfolio.json --apply  # ./deploy d1 execute --remote
-#    paste the slug map into app/lib/legacy-redirects.ts (D13), PR, deploy
+# 5. Videos: turn the tool on for business jrcodex (as for t-proprietor:
+#    businesses.tools = '["video"]', or '["video","email"]' under D4b), upload, cut, "Show on site".
 
 # 6. Mail (D4a)
-cd ~/proprietor-mail && node scripts/provision-mailbox.ts --add-address ...   # the address printer (plan §12); review the SQL, apply with the workers token
-cd ~/cloudflare-infra && mv jrcodex-mail.tf.pending jrcodex-mail.tf && ./tf plan && ./tf apply   # routing on, forward to Gmail
-#    send one message to hello@jrcodex.dev; it arrives in Gmail; then
-mv jrcodex-mail-to-worker.tf.pending jrcodex-mail.tf && ./tf plan && ./tf apply   # the rule flips to the Worker (store-and-forward)
-#    two weeks later, on his word: delivery -> store (mail-admin)
+cd ~/proprietor-mail   # the address printer (plan §12) prints the Directory row for hello@jrcodex.dev
+                       # on mbx_343m0trnz4ccka4vvq5mfpwhc7; review the SQL, apply it with the workers token
+cd ~/cloudflare-infra && git pull && mv jrcodex-mail.tf.pending jrcodex-mail.tf && ./tf plan
+./tf apply && git add jrcodex-mail.tf && git commit -m "hello@jrcodex.dev: routing on, forward to Gmail" && git push
+#    send one message to hello@jrcodex.dev; it arrives in Gmail. Set the mailbox to store-and-forward (mail-admin), then:
+git rm --cached jrcodex-mail.tf; mv jrcodex-mail-to-worker.tf.pending jrcodex-mail.tf && ./tf plan   # 1 in-place update
+./tf apply && git add jrcodex-mail.tf && git commit -m "hello@jrcodex.dev: to the proprietor-mail Worker" && git push
+#    two weeks later, on your word: delivery -> store (mail-admin)
 
-# 7. Turnstile (D11): create the widget in the dashboard for jrcodex.dev; TURNSTILE_SITE_KEY into wrangler.jsonc vars,
-#    the secret: printf '%s' "$SECRET" | npx wrangler secret put TURNSTILE_SECRET_KEY --name jrcodex-dev   (from Vault, not typed)
+# 7. Turnstile (D11): create the widget in the Cloudflare dashboard for jrcodex.dev (managed);
+#    its site key and secret into Vercel's Production environment; keep jrcodex-turnstile.tf.pending
+#    until a Turnstile-capable token exists, then fill its import id and approve it.
 
-# 8. After a quiet week: delete the Vercel project; remove the SES variables; close the S3 bucket and the Atlas cluster.
+# 8. After a quiet week: the SES path and its variables leave Vercel (spec 001 §4 step 5).
 ```
+
+## 9. The door (D14) — design for approval, not built
+
+A Worker, `seo-engine-sites-http` (name to confirm), in the engine repo,
+reached at `https://api.proprietor.systems/v1` (the 2026-09-27 audit's
+choice: the platform's own domain, not a client's), with:
+
+- **one binding**, `services: [{ binding: "SEO", service: "seo-engine",
+  entrypoint: "Sites" }]`: the engine itself stays private; the door holds
+  no data, no D1, no R2, no secret of its own;
+- **exactly the kit's `http()` contract** and nothing more: `GET
+  /v1/posts?locale=`, `/v1/posts/:locale/:slug`, `/v1/sitemap`,
+  `/v1/profile`, `/v1/gallery`, `/v1/projects?locale=`,
+  `/v1/projects/:locale/:slug`, `/v1/videos`, `/v1/media/<key>` (Range
+  passed through), `POST /v1/manifest`, `POST /v1/inquiries`. No recipes,
+  no chat, no FAQ: the kit refuses those over `http()` by design;
+- **identity** from `authorization: Bearer sk_…`, passed to the `Sites`
+  method that already resolves it; `SiteKeyError` → 401, `ManifestError` →
+  400 with the message, `InquiryRefused` → 400, or 429 with `Retry-After`;
+  any other error → 502 with no detail; `null` → 404;
+- **abuse limits** before the binding: a Workers rate-limit binding keyed on
+  the key's hash (reads generous, writes as the engine's 60 inquiries an
+  hour), a 64 KB body cap on writes, no CORS headers (server-to-server only:
+  a browser never holds a site key);
+- **custom domain** in its own wrangler `routes` (`custom_domain: true`), not
+  Terraform; `workers_dev: false`, `preview_urls: false`; Workers Logs on
+  with no request bodies logged (inquiries are personal data);
+- **tests**: the site's `test/stub-engine.ts` contract, run against the door
+  over a miniflare service binding to a fixture `Sites`; the kit's
+  `kit.test.ts` `http()` cases pointed at it;
+- **cost**: Workers Paid includes the requests; $0 extra. **Risk**: a new
+  public surface for every business with a site key; the security-posture
+  document gets a line, and Tobias's explicit go comes before the first
+  deploy.
+
+About a day. Its own spec (engine 029) and PR when he says go.
