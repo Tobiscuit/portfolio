@@ -24,9 +24,11 @@ Aggregates:
   `ENGINE_WRITE_HOST`; reads from any host, Vercel previews included.
 - **Manifest** — what the site declares. Invariant (spec 005): declare only
   what the site renders in the same release. This work moves it from
-  `{ intake }` to `{ intake, blog }` with `renders`; never `projects`
+  `{ intake }` to `{ intake, blog, videos }` with `renders`; never `projects`
   (Payload's), `gallery`, `chat`, `catalog`; `email` only under D4(b);
-  `video` is not declarable (a tool).
+  `videos` because it renders `/videos` (engine 028 added the module after
+  review: "Show on my website" is offered only to a site that declares it).
+  The operator's video *tool* is a separate switch on the business.
 - **MediaPath** — every engine image or video the site shows is
   `/media/<key>` on the site's own origin, served by its route through the
   kit. Invariant: no `/cdn-cgi/image/` URL is ever rendered (the site's
@@ -44,7 +46,8 @@ The business `jrcodex`: profile, taxonomy, posts, cuts, inquiries, the site
 row, memberships. Identity on every call is the site key.
 
 - **Cut** (025) — a rendered clip or video. New in 028:
-  `shown_on_site_at`, settable only on a `ready` cut; `Sites.videos()` lists
+  `shown_on_site_at`, settable only on a `ready` cut of a business whose
+  site declares `videos`; served with a five-minute lifetime; `Sites.videos()` lists
   exactly the shown, not removed cuts; `Sites.media()` serves a render key
   only while it is shown, with Range. Invariant: hiding a cut takes its URL
   down with it, as a removed gallery photo's does.
@@ -100,7 +103,7 @@ state above. Nothing in the core knows what the footage is of.
 | G2 | **Video has no site edge.** 025 is deployed; nothing faces a site; no publication state on a cut. | `/videos` | 028: `shown_on_site_at`, `Sites.videos()`, Range on `media()`, a dashboard toggle, kit 0.7.0 on both transports; the site's shim until 0.7.0 is published. |
 | G3 | **Mail: jrcodex.dev receives no mail, and the partition said it never would** (`mail.tf`, 2026-09-06). The Mail Worker's SES policy names only proprietor.systems addresses. | `hello@jrcodex.dev` | D4 supersedes the partition; parked Terraform adds routing, DMARC, the tenant association and a policy; the Directory gets the address row. |
 | G4 | **The engine has no public address, and `/v1` never had a server.** Spec 001 planned `http()` from Vercel; with the hybrid, that is the production path. | Everything live | D14: the door (plan §9). Until then the pages render empty and the contact form keeps SES. |
-| G5 | **The manifest's `has` lifecycle.** A module declared before its pages exist makes the dashboard link to 404s; one declared late hides the owner's tools. | Manifest, dashboard nav | `{ intake, blog }` lands with the blog pages; `email` per D4; `video` is a tool. A test asserts the manifest literally. |
+| G5 | **The manifest's `has` lifecycle.** A module declared before its pages exist makes the dashboard link to 404s; one declared late hides the owner's tools. | Manifest, dashboard nav | `{ intake, blog, videos }` lands with the pages; `email` per D4; the video tool is the operator's switch, the `videos` module the site's. A test asserts the manifest literally. |
 | G6 | **Image transforms do not exist on the site's hosts** (Vercel, unproxied). The engine's post html names `/cdn-cgi/image/...`. | Every post image | MediaPath: rewrite to `/media/<key>` everywhere, served by the site's route. |
 | G7 | **Every media byte passes through a Vercel function.** | Bandwidth, D7 | Stated (plan §2.2); small at this scale; gone if the site ever moves. |
 | G8 | **Profile has no LinkedIn or GitHub field.** | Footer | The site's own constants; a profile addition is a later engine nicety, not built here. |

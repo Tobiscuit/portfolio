@@ -37,13 +37,14 @@ through the kit when `SEO_ENGINE_URL` is set (spec 001), and SES otherwise.
   ├── /videos                     shown cuts    │  read from the engine's Sites
   ├── footer                      profile       │  through @jrcodex/seo-kit over
   ├── /api/contact                inquiry      ─┘  http(SEO_ENGINE_URL, SEO_SITE_KEY)   (spec 001, as built)
-  └── announce(manifest)          { intake, blog }, production host only
+  └── announce(manifest)          { intake, blog, videos }, production host only
                   │  HTTPS, the kit's /v1 contract, bearer site key
                   ▼
   the engine door (D14: does not exist yet - the one thing between this PR and live content)
                   │  service binding -> seo-engine#Sites (private, as today)
   Proprietor (app.proprietor.systems): ONE dashboard, business "jrcodex":
-     Blog · Inquiries · Videos (tool) · Profile; Inbox on the Proprietor business (D4)
+     Blog · Inquiries · Videos (the tool, plus "Show on my website" because the site declares videos) · Profile;
+     Inbox on the Proprietor business (D4)
   hello@jrcodex.dev  ->  Email Routing  ->  proprietor-mail Worker  ->  his inbox
 ```
 
@@ -92,9 +93,21 @@ read the platform and render empty, never an error, when it is unreachable.
   transports and the Range passthrough. The site reads videos through a
   structural shim until 0.7.0 is published (`plan.md` §2.2).
 - **The manifest catalogue is closed**: `blog, intake, commerce, email,
-  gallery, projects, chat, catalog`. This site declares `{ intake: true,
-  blog: true }` plus `renders`. `video` is a tool the operator turns on per
-  business (`businesses.tools`), not a module. `email` only under D4(b).
+  gallery, projects, chat, catalog`, and `videos` from engine spec 028 (added
+  after PR #12's review: the dashboard offers "Show on my website" only to a
+  business whose site declares it, so no owner is told a clip is on a site
+  that cannot show one). This site declares `{ intake: true, blog: true,
+  videos: true }` plus `renders`. Two different things share a word: the
+  operator's video *tool* (`businesses.tools`, which turns the dashboard's
+  Videos screens on) and the site's `videos` *module* (this site renders
+  `/videos`). Both are needed for a clip to reach jrcodex.dev. `email` only
+  under D4(b).
+- **A shown clip's cache lifetime** is `public, max-age=300` (engine 028,
+  from the same review): hiding takes effect everywhere within five minutes.
+  The site's `/media` route forwards it verbatim (Next.js keeps a handler's
+  Cache-Control); Vercel's CDN stores nothing without `s-maxage`, so on this
+  site only the visitor's browser keeps a clip, for five minutes. Images keep
+  their year-long `immutable`.
 - **Profile** (spec 010): no LinkedIn or GitHub field, so those two links
   stay the site's own constants (`app/lib/site.ts`), like montano's
   `FALLBACK_PROFILE`.
@@ -158,7 +171,8 @@ read the platform and render empty, never an error, when it is unreachable.
    himself; the dashboard shows it first.
 6. Mail (D4a): the Directory address row, `jrcodex-mail.tf`, a test message
    to Gmail, then `jrcodex-mail-to-worker.tf`; two weeks later, `store`.
-7. Videos: turn the tool on for business `jrcodex` (`businesses.tools`),
+7. Videos: turn the tool on for business `jrcodex` (`businesses.tools`; the
+   site's `videos` module comes from its manifest),
    upload, cut, "Show on site".
 8. After a quiet week: the SES path and its variables leave Vercel (spec 001
    §4 step 5).

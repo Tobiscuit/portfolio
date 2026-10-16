@@ -44,6 +44,12 @@ Sites method list, and the tests for each.
   forwards the request's `range` as `media(key, { range })`, README, version
   bump (tagging and `npm stage approve` are Tobias's)
 - [ ] ~~E5, E6 (projects link, headings, import)~~ cancelled with D1
+- [ ] E8 (PR #12's review) a shown clip answers `public, max-age=300`, no
+  `immutable`, full and ranged; `videos` joins MODULES, the control plane's
+  list, the dashboard registry and the kit's `Module`; "Show on my website"
+  only when the site's announced manifest declares `videos` (hide always
+  allowed); the nits: a case-insensitive range unit, a reversed range served
+  whole; README lines; spec 028 updated
 - [ ] E7 PR against `main`; body ends with the attribution line
 
 **Acceptance tests (written first):**
@@ -82,7 +88,8 @@ contact page, `app/lib/intake/{engine,handle,form,turnstile}.ts`,
 - [x] A1 (`948d1fa`) kit 0.6.2; `app/lib/site.ts` (SITE_URL, LinkedIn/GitHub, fallback
   profile "Juan Ramirez"); `app/lib/platform/{env,client,reads,images,videos}.ts`
   (`env.ts` returns `process.env` and is the only reader of it); manifest
-  `has: { intake: true, blog: true }` + `renders`; the stub extended with the
+  `has: { intake: true, blog: true }` + `renders` (`videos: true` added after
+  PR #12's review, see A7); the stub extended with the
   read routes and fixtures
 - [x] A2 (`3440185`, with `app/media/[...key]/route.ts`) `/blog` and `/blog/[slug]`: `postMetadata`, `postJsonLd`,
   `compose(post, { supports: manifest.renders })` mapped to plain components;
@@ -98,6 +105,10 @@ contact page, `app/lib/intake/{engine,handle,form,turnstile}.ts`,
   videos never) and `robots.ts`
 - [x] A6 tests green: `npm test`, `npx tsc --noEmit`, the Next build with the
   platform unconfigured
+
+- [ ] A7 (after PR #12's review) `has.videos: true` in the manifest; a test
+  that `/media` forwards the engine's Cache-Control verbatim (a clip's
+  `public, max-age=300`, an image's year-long `immutable`)
 
 **Acceptance tests (written first), against the stub over `http()`:**
 - unconfigured: `/blog` and `/videos` render 200 with their empty states and

@@ -19,7 +19,7 @@ acceptance tests are in `tasks.md`.
     app/(app)/layout.tsx       (mount <Footer/>)      A
     app/lib/platform/{env,client,reads,images,videos}.ts   A   the only reader of process.env is env.ts
     app/lib/site.ts            SITE_URL, links, fallback profile   A
-    app/lib/intake/manifest.ts { intake, blog } + renders           A
+    app/lib/intake/manifest.ts { intake, blog, videos } + renders   A
     app/sitemap.ts, app/robots.ts                     A
     test/**                                           A   Node, the stub over http()
     package.json               + @jrcodex/seo-kit 0.6.2 exact      A   (nothing else: existing versions are the upgrade lane's)
@@ -89,6 +89,18 @@ export interface VideoSummary {
 //             client.media(key, { range })                http(): the range header on GET /v1/media/<key>
 //             mediaHandler forwards the request's range header.
 ```
+
+**Gate and lifetime (from PR #12's review).** The site declares `videos`
+in its manifest; the dashboard offers "Show on my website" only when the
+announced manifest has it (hiding is always allowed). A shown clip answers
+with `cache-control: public, max-age=300`, no `immutable`, on the 200 and
+206 paths, so hiding reaches every cache within five minutes; images keep
+`public, max-age=31536000, immutable`. The site's `/media` route forwards
+both verbatim (a test pins it). On a Worker-hosted site, the site's own
+cache policy must keep the engine's lifetime for `/media/<slug>/video/*`
+rather than force `immutable` (montano's `lib/cache-policy.ts` forces it for
+all `/media/*`; harmless there today because montano does not declare
+`videos`, and the first such site must change it).
 
 The site's shim (`app/lib/platform/videos.ts`) reads, in order: the kit
 client's `videos()` when it has one (0.7.0, either transport); the `SEO`
@@ -183,11 +195,14 @@ vault kv put secret/seo-engine/sites/jrcodex key=-   # paste the key shown once,
 #    CONTACT_FALLBACK_EMAIL=jramirez203@outlook.com (hello@jrcodex.dev after step 6)
 #    NEXT_PUBLIC_TURNSTILE_SITE_KEY + TURNSTILE_SECRET_KEY (step 7)
 #    Redeploy. Send one message through the live form, as yourself; it shows first on the dashboard.
-#    That message also announces the manifest ({ intake, blog }): on Vercel only the contact route
-#    announces (spec 001); until then the dashboard shows the Blog for a never-announced site anyway.
+#    That message also announces the manifest ({ intake, blog, videos }): on Vercel only the contact route
+#    announces (spec 001); until then the dashboard shows the Blog for a never-announced site anyway,
+#    but NOT "Show on my website" (gated on the announced has.videos). Deploy engine 028 BEFORE this first
+#    announce: an engine without the videos module would turn the unknown name into a question (spec 011).
 
 # 5. Videos: turn the tool on for business jrcodex (as for t-proprietor:
-#    businesses.tools = '["video"]', or '["video","email"]' under D4b), upload, cut, "Show on site".
+#    businesses.tools = '["video"]', or '["video","email"]' under D4b), upload, cut, "Show on my website"
+#    (offered once the announced manifest has videos: true).
 
 # 6. Mail (D4a)
 cd ~/proprietor-mail   # the address printer (plan §12) prints the Directory row for hello@jrcodex.dev
