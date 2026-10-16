@@ -1,21 +1,37 @@
+import type { Metadata } from 'next'
 import ProjectCard from '@/app/components/ProjectCard'
+import PageShell, { Section } from '@/app/components/ui/PageShell'
+import SectionHeader from '@/app/components/ui/SectionHeader'
+import { CardGrid } from '@/app/components/ui/CardGrid'
+import EmptyState from '@/app/components/ui/EmptyState'
 import { getProjects } from '@/app/lib/getProjects'
+
+export const metadata: Metadata = {
+  title: 'Projects',
+  description: "A selection of applications and systems Juan Ramirez has built, with case studies where they exist.",
+}
 
 export default async function Projects() {
   const projects = await getProjects()
   return (
-    <div className="min-h-screen bg-sage-blue-900">
-      <div className="container mx-auto px-4 py-12 md:px-8">
-        <header className="mb-12">
-          <h1 className="font-serif text-parchment-100">Projects</h1>
-          <p className="text-ink-500 mt-4">A selection of applications and systems I&apos;ve built</p>
-        </header>
-        <main className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {projects.map((project, index) => (
-            <ProjectCard key={project.id} project={project} priority={index < 6} />
-          ))}
-        </main>
-      </div>
-    </div>
+    <Section>
+      <PageShell>
+        <SectionHeader
+          as="h1"
+          eyebrow="Work"
+          title="Projects"
+          lede={`A selection of applications and systems I've built: ${projects.length} so far. A card opens the project page; Visit opens the build itself.`}
+        />
+        {projects.length > 0 ? (
+          <CardGrid aria-label="All projects">
+            {projects.map((project, index) => (
+              <ProjectCard key={project.id} project={project} priority={index < 3} headingLevel="h2" />
+            ))}
+          </CardGrid>
+        ) : (
+          <EmptyState title="Nothing here yet">Projects are on their way.</EmptyState>
+        )}
+      </PageShell>
+    </Section>
   )
 }

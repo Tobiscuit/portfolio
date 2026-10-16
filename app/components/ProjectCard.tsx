@@ -1,49 +1,67 @@
 'use client'
 
-import Link from 'next/link'
-import { SuspenseImage, ImageSkeleton } from './ui/SuspenseImage'
+import type { CSSProperties } from 'react'
+import { ExternalLink } from 'lucide-react'
+import { Card } from './ui/CardGrid'
+import { TagList } from './ui/TagChip'
+import { SuspenseImage } from './ui/SuspenseImage'
 import type { Project } from '@/app/lib/types'
+
+/** Shared element name: the card image morphs into the detail page hero. */
+export const projectTransitionName = (id: number) => `project-${id}`
+
+export function hostnameOf(url: string): string {
+  try {
+    return new URL(url).hostname
+  } catch {
+    return url
+  }
+}
 
 type ProjectCardProps = {
   project: Project
   priority?: boolean
+  /** h2 on the projects index; h3 when the grid sits under a section heading. */
+  headingLevel?: 'h2' | 'h3'
 }
 
-export default function ProjectCard({ project, priority = false }: ProjectCardProps) {
+export default function ProjectCard({ project, priority = false, headingLevel = 'h2' }: ProjectCardProps) {
   return (
-    <Link href={`/projects/${project.id}`} className="group block">
-      <div className="flex flex-col gap-4">
-        <div className="overflow-hidden rounded-lg">
-          {project.image ? (
-            <SuspenseImage
-              src={project.image}
-              alt={project.title}
-              width={1920}
-              height={1080}
-              quality={90}
-              priority={priority}
-              sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-              className="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-300 aspect-[16/9]"
-              aspectRatio="16/9"
-              blurDataURL={project.blurDataURL}
-            />
-          ) : (
-            <div className="w-full bg-ink-900 aspect-[16/9]" style={{
-              backgroundImage: `radial-gradient(#415A77 1px, transparent 1px)`,
-              backgroundSize: `12px 12px`,
-            }}>
-            </div>
+    <Card
+      as="li"
+      title={project.title}
+      titleAs={headingLevel}
+      href={`/projects/${project.id}`}
+      description={project.description}
+      mediaStyle={{ viewTransitionName: projectTransitionName(project.id) } as CSSProperties}
+      media={
+        project.image ? (
+          <SuspenseImage
+            src={project.image}
+            alt=""
+            width={1920}
+            height={1080}
+            quality={80}
+            priority={priority}
+            sizes="(max-width: 48rem) 100vw, (max-width: 64rem) 50vw, 33vw"
+            className="w-full h-full object-cover"
+            aspectRatio="16/9"
+            blurDataURL={project.blurDataURL}
+          />
+        ) : undefined
+      }
+      footer={
+        <>
+          <TagList items={project.tech} max={3} label="Technologies" />
+          {project.url && (
+            <a className="card__external" href={project.url} target="_blank" rel="noopener noreferrer">
+              Visit
+              <ExternalLink aria-hidden="true" />
+              <span className="sr-only"> {hostnameOf(project.url)} (opens in a new tab)</span>
+            </a>
           )}
-        </div>
-        <div>
-          <h4 className="font-serif text-parchment-100 group-hover:text-arcane-gold-500 transition-colors">
-            {project.title}
-          </h4>
-          <p className="text-sm text-ink-500 mt-1">
-            {project.description}
-          </p>
-        </div>
-      </div>
-    </Link>
+        </>
+      }
+    />
   )
 }
