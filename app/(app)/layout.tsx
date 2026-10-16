@@ -7,6 +7,12 @@ import { showVideosInNav } from '@/components/platform/nav'
 
 const siteUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000'
 
+// The nav's "Videos" and the footer's profile come from the platform
+// (specs/002-proprietor-adoption): static pages beneath this layout are
+// regenerated at most every 5 minutes, so neither waits for a deploy. Pages
+// with `dynamic = 'force-dynamic'` stay rendered per request.
+export const revalidate = 300
+
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: 'Juan Ramirez | Portfolio',
