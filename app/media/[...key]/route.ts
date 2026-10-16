@@ -23,7 +23,22 @@ import { platformEnv } from "@/lib/platform/env";
 async function serve(request: Request): Promise<Response> {
   const client = platformClient(platformEnv());
   if (client === null) return new Response("not found", { status: 404 });
-  return (await mediaHandler(request, client)) ?? new Response("not found", { status: 404 });
+  const response = await mediaHandler(request, client);
+  return response === null ? new Response("not found", { status: 404 }) : decoded(response);
+}
+
+/**
+ * Over the kit's http(), Node's fetch decodes a gzip/deflate/br body but keeps
+ * the engine's `content-encoding` and `content-length`; passed on, they would
+ * label the decoded bytes as compressed, at the compressed length. The body is
+ * already decoded, so both headers go; the host re-encodes as it sees fit.
+ */
+function decoded(response: Response): Response {
+  if (!response.headers.has("content-encoding")) return response;
+  const headers = new Headers(response.headers);
+  headers.delete("content-encoding");
+  headers.delete("content-length");
+  return new Response(response.body, { status: response.status, statusText: response.statusText, headers });
 }
 
 export async function GET(request: Request): Promise<Response> {

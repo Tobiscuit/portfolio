@@ -38,7 +38,8 @@ export const SITE_KEY = "sk_test_portfolio_intake"; // pragma: allowlist secret
 /** A path without its query string, e.g. "/v1/posts" or "/v1/posts/en/queues-before-cron". */
 export type EnginePath = string;
 
-export type Reply = { status: number; body?: string; headers?: Record<string, string> } | "hang";
+/** A scripted answer: a body as text or raw bytes (e.g. gzip, sent with its own content-encoding), or "hang". */
+export type Reply = { status: number; body?: string | Uint8Array; headers?: Record<string, string> } | "hang";
 
 export interface RecordedRequest {
   method: string;
@@ -182,9 +183,9 @@ function readText(req: IncomingMessage): Promise<string> {
   });
 }
 
-function send(res: ServerResponse, status: number, text: string, headers: Record<string, string> = {}): void {
+function send(res: ServerResponse, status: number, body: string | Uint8Array, headers: Record<string, string> = {}): void {
   res.writeHead(status, { "content-type": "text/plain; charset=utf-8", ...headers });
-  res.end(text);
+  res.end(body);
 }
 
 function sendJson(res: ServerResponse, status: number, value: unknown): void {

@@ -1,3 +1,5 @@
+import { gzipSync } from "node:zlib";
+
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { FIXTURE_MEDIA, FIXTURE_VIDEOS, HERO_KEY, ORIGIN } from "./fixtures";
@@ -69,6 +71,40 @@ describe("/media/<key>", () => {
     expect(await response.text()).toBe("not found");
     expect((await HEAD(request(`/media/${HERO_KEY}`, { method: "HEAD" }))).status).toBe(404);
     expect(engine.requests).toEqual([]);
+  });
+
+  it("keeps a plain answer's content-length", async () => {
+    const { GET } = await route();
+    const response = await GET(request(`/media/${HERO_KEY}`));
+    const bytes = Buffer.from(await response.arrayBuffer());
+    expect(response.headers.get("content-encoding")).toBeNull();
+    expect(response.headers.get("content-length")).toBe(String(bytes.length));
+  });
+
+  it("drops content-encoding and content-length when the kit's http() already decoded a compressed answer", async () => {
+    // Node's fetch decodes a gzip body but keeps both headers, so passing them
+    // on would label the decoded bytes as gzip of the wrong length.
+    const key = "jrcodex/diagrams/fixture-diagram.svg";
+    const original = Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg">${"<rect width=\"1\" height=\"1\"/>".repeat(200)}</svg>`);
+    const gzipped = gzipSync(original);
+    engine.respond(`/v1/media/${key}`, {
+      status: 200,
+      body: gzipped,
+      headers: { "content-type": "image/svg+xml", "content-encoding": "gzip", "content-length": String(gzipped.length), etag: '"diagram-1"' },
+    });
+    const { GET, HEAD } = await route();
+
+    const response = await GET(request(`/media/${key}`));
+    expect(response.status).toBe(200);
+    expect(response.headers.get("content-encoding")).toBeNull();
+    expect(response.headers.get("content-length")).toBeNull();
+    expect(response.headers.get("content-type")).toBe("image/svg+xml");
+    expect(response.headers.get("etag")).toBe('"diagram-1"');
+    expect(Buffer.from(await response.arrayBuffer()).equals(original)).toBe(true);
+
+    const head = await HEAD(request(`/media/${key}`, { method: "HEAD" }));
+    expect(head.headers.get("content-encoding")).toBeNull();
+    expect(head.headers.get("content-length")).toBeNull();
   });
 
   it("lets an engine failure through as an error (a 5xx), never a 404", async () => {
