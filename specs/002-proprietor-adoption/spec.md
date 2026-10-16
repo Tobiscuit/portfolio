@@ -1,6 +1,6 @@
 # 002 — jrcodex.dev becomes a tenant of Proprietor
 
-Status: written 2026-10-16, on top of spec 001 (branch `feat/platform-intake`,
+Status: written 2026-10-16 (D1 reopened the same day: the cutover half waits for Tobias), on top of spec 001 (branch `feat/platform-intake`,
 PR #1). Companion documents: `domain-model.md` (the DDD pass and the gaps),
 `plan.md` (architecture, contracts, infrastructure, the owner's runbook),
 `tasks.md` (the build slices and the versions they landed). Engine side:
@@ -128,7 +128,7 @@ flip; nothing below is decided for him.
 
 | # | Decision | Recommendation |
 |---|---|---|
-| **D1** | **Hosting: retire Payload and run jrcodex.dev as a vinext Worker like the client sites** (this work builds it), or keep Payload on Workers via OpenNext + D1 + R2 (Payload's own `with-cloudflare-d1` template). Costed in spec 001 §5: 3–5 days, medium risk: swap the Mongo adapter for D1 and generate Payload's migrations, move Users/Media/Projects through the Local API, copy S3 to R2 and switch to `storage-r2`, drop `sharp` (resize at request time instead), a second Next-on-Workers toolchain beside vinext, and the admin stays a second CMS outside the dashboard. | **Retire Payload; vinext.** "All of that through Proprietor" means projects managed in the one dashboard, not a second CMS; one toolchain (vinext) across every site he runs and the dashboard; four external services retired (MongoDB Atlas, S3, Vercel, `sharp`) at $0 extra; and the Proprietor dashboard is stronger résumé material than Payload's admin. Research found no hard blocker: everything the site imports is in vinext's compatibility table (`next/font/google` CDN-loaded, `next/image` without build-time optimisation, `next/script` full, route handlers, `generateMetadata`, `sitemap.ts`); the one native module, `sharp`, leaves with Payload. Tobias has since said the same (2026-10-16). |
+| **D1** | **Hosting and the content layer** — three real options, costed below the table. (a) Retire Payload; the site is a vinext Worker like the client sites; projects live in the engine's Projects. (b) Hybrid on Workers: Payload stays as the site's own content layer for projects and media, moved to Workers with Payload's own `with-cloudflare-d1` template (OpenNext + D1 + R2); Proprietor supplies blog, inquiries, profile, mail and video through the kit over the service binding. (c) Hybrid staying on Vercel: Payload and projects as today; Proprietor's modules reach the site only if the engine grows a public HTTPS `/v1` again. Tobias is weighing Payload's new agentic authoring (not researched here, by instruction: Payload's version matters only to the export script). | **(a)**, as recommended before and as he first said; but this is his call and (b) is a sound site. The case for (a): one dashboard for everything he does, one toolchain (vinext) across every site he runs and the dashboard, four services retired at $0, the engine can cross-link projects to posts (015 steps 4–5), and the Proprietor dashboard is the stronger résumé piece. The case for (b): Payload's structured case studies (sections with their own images, code, lists) are richer than the engine's Project even after 028 (headings and a link; still no inline images or code), it keeps a CMS he knows and may want to show, and nothing he wrote is flattened. (c) is not recommended: it reverses the 2026-10-05 security posture to serve one site. The additive slices here are the same under every option; the cutover slice is written twice (`tasks.md` B and B′) and waits for his word. |
 | **D2** | **Which portfolio is jrcodex.dev's future**: this repo, or the Hono + HTMX `juanramirez-portfolio` Worker whose source exists only on his Windows machine. | **This one** (assumed by the brief). The BASTION Workers stay where they are, out of scope. If he ever wants the other, the platform modules here are reusable only as a design. |
 | **D3** | **Which business on the platform**: a new business `jrcodex` (profile "Juan Ramirez", solo, its own vertical and taxonomy, posts in his voice), or attach the site to the existing `t-proprietor` row (brand "Proprietor", vertical `v-platform`, taxonomy about getting found online). | **A new business `jrcodex`**, as spec 001 already named it (tenant `jrcodex`, Vault `secret/seo-engine/sites/jrcodex`). The blog on his portfolio is his engineering writing, not the product's marketing; the profile is him, not Proprietor. Needs a new trade in `seo-admin` first (`t`); a taxonomy is proposed in `plan.md` §7. |
 | **D4** | **Mail at `hello@jrcodex.dev`**: (a) add it as an address on his existing proprietor mailbox (mail plan §12: several addresses, one mailbox; reply-from follows the address a message arrived at), or (b) a second mailbox for business `jrcodex` (its own key ceremony, SES tenant and configuration set, a second Inbox to check). Either way the zone needs Email Routing (`cloudflare_email_routing_dns` writes the MX and apex SPF; SES keeps sending from `mail.jrcodex.dev`), a rule for `hello@`, the jrcodex SES identity associated with the mailbox's SES tenant, and `ses-send-mail` allowed to send as `hello@jrcodex.dev`. | **(a), one inbox.** "My own mail" is one place to read it; (a) is three Terraform resources, one `addresses` row and one IAM policy line, with mail plan §8's dual delivery (forward to Gmail first, then the Worker) as the safe path. Consequence: the jrcodex site does NOT declare `has.email` (the Inbox lives on the Proprietor business). If he prefers (b), `has.email` is the one-line follow-up spec 001 promised, after that mailbox is active. The prior partition note in `mail.tf` ("jrcodex.dev receives no mail") is superseded by this decision either way. |
@@ -142,13 +142,27 @@ flip; nothing below is decided for him.
 | **D12** | **Images on the Worker**: `images: { unoptimized: true }` (the assets are already sized WebP/PNG; $0 guaranteed) or `@vinext/cloudflare`'s `imagesOptimizer()` on an Images binding (free tier 5,000 unique transformations a month per account, shared with the client zones' `/cdn-cgi/image/` use). | **Unoptimized.** A portfolio's forty images do not need a transform pipeline, and the redesign lane may choose otherwise with its own images later. |
 | **D13** | **Old URLs**: `/projects` and `/projects/<id>` (1–9) are indexed today. | 301 `/projects` to `/work` and each `/projects/<id>` to its `/work/<slug>` from a map in `lib/legacy-redirects.ts`, with slugs the import script prints; the runbook verifies the map after the import. |
 
+### D1, costed
+
+| | (a) vinext, Payload retired | (b) hybrid on Workers (OpenNext + Payload on D1/R2) | (c) hybrid on Vercel |
+|---|---|---|---|
+| Build, in days | site port 2 · removals 0.5 · export and import scripts 1 · smoke harness and delivery 1 · **≈ 4.5**; engine 028 ≈ 1.5 (videos 1, project link/headings 0.5) | OpenNext + D1 adapter + Payload migrations 1.5 · Mongo → D1 through the Local API 1 · S3 → R2 and `storage-r2` 0.5 · `sharp` out, request-time resizing 0.5 · smoke harness and delivery 1 · the `/media`, announce and contact wiring inside OpenNext's Worker 0.5 · **≈ 5** (spec 001 §5 said 3–5); engine 028 ≈ 1 (videos only) | site 0 (stays) · engine: a public `/v1` for reads and inquiries with bearer keys, rate limits and Access-less exposure **≈ 2**, plus the posture reversal; video streaming would come from a public engine URL |
+| "One dashboard" | **Yes**: blog, projects, photos, inquiries, videos, inbox in Proprietor | **No**: projects and media in Payload's admin (a second sign-in, a second database); everything else in Proprietor | same as (b) |
+| Toolchains he maintains | one (vinext) | two (OpenNext here, vinext everywhere else) | two (Next on Vercel, vinext elsewhere) |
+| Services retired | Vercel, Atlas, S3, `sharp` | the same four (D1 and R2 replace Atlas and S3) | none |
+| What is lost | inline `<code>`/`<a>` and per-section images in migrated write-ups (D8) | the engine's cross-links and topic sourcing for projects; `/work` stays the site's own pages | as (b), plus the engine's private-network posture |
+| Risk | low: everything the site imports is in vinext's compatibility table; `sharp` leaves with Payload | medium: Payload's template says it needs Workers Paid for bundle size (he has it); its D1 adapter and OpenNext are a second moving stack | low on the site, high on the engine (a public door that exists for one tenant) |
+| Can start now | the additive half and 028 yes; the cutover on his word | the same | the additive half yes; the engine door is a new spec |
+
 ## 4. Going live (owner steps, in order; `plan.md` §8 has the commands)
 
 1. `vault login`. Decide D3, D4, D5.
 2. `seo-admin`: trade, business `jrcodex`, connect the website (D10). Key to
    Vault and, later, to the Worker.
-3. Review and merge, in order: PR #2, PR #1, this PR. (Nothing is deployed by
-   a merge: the Worker does not exist until step 5.)
+3. Decide D1. Review and merge, in order: PR #2, PR #1, this PR's additive
+   half; the cutover half (B under (a), B′ under (b)) is built on his word
+   and merged after. (Nothing is deployed by a merge: the Worker does not
+   exist until step 5.)
 4. Approve the parked Terraform (`plan.md` §6): remove the two Vercel records,
    add the www redirect, Email Routing on the zone (D4), the Turnstile import
    when the token allows.

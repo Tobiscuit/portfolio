@@ -11,9 +11,11 @@ The PR reviews in two halves, in commit order:
 1. **Additive platform modules** (slice A) — new pages and reads that also
    work on today's Next.js/Vercel build with `http()` or nothing configured.
    Nothing breaks if the cutover waits.
-2. **Hosting cutover** (slice B) — the vinext port, Payload's removal, the
-   Worker, the delivery path and the dependency currency pass. Its own
-   commits, last.
+2. **Hosting cutover** — ON HOLD until Tobias decides D1. Written twice in
+   `tasks.md`: slice B (vinext, Payload retired) and slice B′ (hybrid:
+   OpenNext + Payload on D1/R2 beside the kit's modules). Exactly one is
+   built, in its own commits, last. Under B′, A's `/work` commit is reverted
+   and the engine PR drops its "028 projects" commits.
 
 The engine's half (slice E) is a separate PR in `~/seo-engine`.
 
@@ -214,7 +216,7 @@ Each file says what it replaces and how to approve it.
 
 | File | What it does | Order |
 |---|---|---|
-| `dns.tf.pending` | `dns.tf` without `jrcodex_root` (A 76.76.21.21) and `www` (CNAME cname.vercel-dns.com): Terraform destroys both, then the Worker's deploy creates its custom domains. | after D5, before the first production deploy |
+| `dns.tf.pending` | `dns.tf` without `jrcodex_root` (A 76.76.21.21) and `www` (CNAME cname.vercel-dns.com): Terraform destroys both, then the Worker's deploy creates its custom domains. Needed under D1 (a) and (b) alike; not under (c). | after D1 and D5, before the first production deploy |
 | `redirects-jrcodex.tf.pending` | adds `jrcodex` to `local.www_redirects` (D5 apex). Only with the apex choice. | with the above |
 | `jrcodex-mail.tf.pending` | `cloudflare_email_routing_dns.jrcodex`, rule `hello@jrcodex.dev` → forward to the verified Gmail address (dual delivery, step 1), SES: associate `aws_sesv2_email_identity.jrcodex` with tenant `proprietor`, add `hello@jrcodex.dev` to `ses-send-mail`'s FromAddress list. A second file, `jrcodex-mail-to-worker.tf.pending`, flips the rule to `worker proprietor-mail` (step 2). | D4(a); after the Directory row |
 | `jrcodex-turnstile.tf.pending` | the widget, by import, once a Turnstile-capable token exists | D11 |
@@ -251,7 +253,8 @@ npm run admin --prefix ~/seo-engine           # t: trade (§7) · a: business jr
 #    the key is shown once:
 vault kv put secret/seo-engine/sites/jrcodex key=-   # paste, then ^D   (never on the command line)
 
-# 2. Merge order: PR #2 -> PR #1 -> this PR (site), and the engine PR (028) -> deploy the engine (./deploy)
+# 2. Decide D1. Merge order: PR #2 -> PR #1 -> this PR's additive half; then the cutover PR (B or B'); the engine PR (028, minus
+#    its "028 projects" commits under (b)) -> deploy the engine (./deploy). Steps 3-5 and 8 apply to (a) and (b); step 5's import only to (a).
 
 # 3. Terraform (shared checkout; announce first; never leave an unapproved .tf on disk)
 cd ~/cloudflare-infra && git pull
