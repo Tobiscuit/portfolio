@@ -1,7 +1,6 @@
 {
   "compilerOptions": {
-    "baseUrl": ".",
-    "target": "es5",
+    "target": "ES2017",
     "lib": [
       "dom",
       "dom.iterable",
@@ -25,13 +24,13 @@
     ],
     "paths": {
       "@/components/*": [
-        "app/components/*"
+        "./app/components/*"
       ],
       "@/lib/*": [
-        "app/lib/*"
+        "./app/lib/*"
       ],
       "@/app/*": [
-        "app/*"
+        "./app/*"
       ],
       "@payload-config": [
         "./payload.config.ts"

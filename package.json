@@ -32,7 +32,7 @@
     "react-zoom-pan-pinch": "^3.7.0",
     "sharp": "^0.34.5",
     "tailwindcss": "^4.1.18",
-    "typescript": "5.9.3"
+    "typescript": "~6.0.3"
   },
   "devDependencies": {
     "@types/node": "^25.2.3",
