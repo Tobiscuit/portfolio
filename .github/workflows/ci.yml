@@ -1,0 +1,76 @@
+name: CI
+
+# The four gates every pull request must pass: lint, typecheck, test, build.
+# Nothing here deploys or touches Vercel, Atlas or S3.
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  gates:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    # `npm run build` starts with scripts/mirror-assets.ts, which calls
+    # getPayload() and so needs a MongoDB it can reach. This throwaway,
+    # empty one stands in for Atlas: the mirror finds no media and the
+    # pages build from the hardcoded project data. 7.0 rather than 8.x
+    # because MongoDB 8's tcmalloc refuses to start on Linux kernels 6.19
+    # and newer (SERVER-121912); 7.0 runs on any runner kernel and is
+    # supported by the driver Payload 3.91 uses (mongodb 6.20).
+    services:
+      mongo:
+        image: mongo:7.0.45
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "mongosh --quiet --eval 'db.runCommand({ ping: 1 }).ok'"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+
+    # Obviously-dummy values, for CI only. They let payload.config.ts build its
+    # adapters; nothing connects to S3, and the database is the service above.
+    # Real values live only in the Vercel project settings.
+    env:
+      DATABASE_URI: mongodb://localhost:27017/portfolio-ci
+      PAYLOAD_SECRET: ci-dummy
+      S3_BUCKET: ci-dummy-bucket
+      AWS_REGION: us-east-2
+      AWS_ACCESS_KEY_ID: ci-dummy
+      AWS_SECRET_ACCESS_KEY: ci-dummy
+      NEXT_TELEMETRY_DISABLED: "1"
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "26"
+          cache: npm
+
+      - run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck
+        # next typegen writes .next/types first, so the route types that
+        # next-env.d.ts imports are checked too.
+        run: |
+          npx next typegen
+          npx tsc --noEmit
+
+      - name: Test
+        run: npm run test
+
+      - name: Build
+        run: npm run build
