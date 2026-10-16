@@ -217,9 +217,14 @@ Each file says what it replaces and how to approve it.
 | File | What it does | Order |
 |---|---|---|
 | `dns.tf.pending` | `dns.tf` without `jrcodex_root` (A 76.76.21.21) and `www` (CNAME cname.vercel-dns.com): Terraform destroys both, then the Worker's deploy creates its custom domains. Needed under D1 (a) and (b) alike; not under (c). | after D1 and D5, before the first production deploy |
-| `redirects-jrcodex.tf.pending` | adds `jrcodex` to `local.www_redirects` (D5 apex). Only with the apex choice. | with the above |
-| `jrcodex-mail.tf.pending` | `cloudflare_email_routing_dns.jrcodex`, rule `hello@jrcodex.dev` → forward to the verified Gmail address (dual delivery, step 1), SES: associate `aws_sesv2_email_identity.jrcodex` with tenant `proprietor`, add `hello@jrcodex.dev` to `ses-send-mail`'s FromAddress list. A second file, `jrcodex-mail-to-worker.tf.pending`, flips the rule to `worker proprietor-mail` (step 2). | D4(a); after the Directory row |
-| `jrcodex-turnstile.tf.pending` | the widget, by import, once a Turnstile-capable token exists | D11 |
+| `redirects.tf.pending` | `redirects.tf` with `jrcodex` added to `local.www_redirects` (D5 apex). A replacement file, like `dns.tf.pending`. Only with the apex choice. | with the above |
+| `jrcodex-mail.tf.pending` | `cloudflare_email_routing_dns.jrcodex` (MX + apex SPF), a DMARC record (the zone had none), rule `hello@jrcodex.dev` → forward to the verified Gmail address (dual delivery, step 1), SES: `aws_sesv2_email_identity.jrcodex` joins tenant `proprietor`, a second inline policy on `ses-send-mail` allowing `hello@jrcodex.dev` through `send-proprietor-mail` (inside `iam/ses-send-boundary.json`). | D4(a); after the Directory row |
+| `jrcodex-mail-to-worker.tf.pending` | REPLACES `jrcodex-mail.tf`: the rule's action becomes `worker proprietor-mail` (step 2; an in-place update). | after step 1 delivers and delivery is store-and-forward |
+| `jrcodex-turnstile.tf.pending` | the widget (created in the dashboard, adopted by import once a Turnstile-capable token exists) | D11 |
+| `jrcodex-admin-access.tf.pending` | ONLY under D1(b): Access at the edge on Payload's `/admin*` and its API paths, Tobias only; the B′ builder corrects the path list from the built site before approval. | D1(b) |
+
+All six validated 2026-10-16 with `terraform validate` on a scratch copy of the
+checkout (local backend, `init -backend=false`), never with `./tf`.
 
 ## 7. The business `jrcodex` on the engine (owner, `seo-admin`)
 
@@ -258,8 +263,8 @@ vault kv put secret/seo-engine/sites/jrcodex key=-   # paste, then ^D   (never o
 
 # 3. Terraform (shared checkout; announce first; never leave an unapproved .tf on disk)
 cd ~/cloudflare-infra && git pull
-mv dns.tf.pending dns.tf && mv redirects-jrcodex.tf.pending redirects-jrcodex.tf
-./tf plan                                     # expect: 2 destroyed (jrcodex_root, www), 1 ruleset created
+mv dns.tf.pending dns.tf && mv redirects.tf.pending redirects.tf
+./tf plan                                     # expect: 2 to destroy (jrcodex_root, www), 1 ruleset to create (www -> apex)
 ./tf apply && git add -A && git commit -m "jrcodex.dev: leave Vercel; www -> apex" && git push
 
 # 4. Workers Builds (dashboard): connect Tobiscuit/portfolio, two triggers (docs/delivery-pipeline.md)
