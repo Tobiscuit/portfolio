@@ -24,15 +24,16 @@ const SITEVERIFY_URL = "https://challenges.cloudflare.com/turnstile/v0/siteverif
 const visitor = { name: "Ada Tester", email: "ada.tester@example.test", message: "Looking for help with a data pipeline, ref 7731." };
 
 /**
- * Spec 001's manifest, plus the blog (specs/002-proprietor-adoption, A1): the
- * modules the site has, and `renders`, exactly the compose() items the post
- * page maps (A2). Never projects (D1: Payload keeps them), gallery, chat,
- * catalog or email; `video` is a tool, not a module.
+ * Spec 001's manifest, plus the blog and videos (specs/002-proprietor-adoption,
+ * A1, A4): the modules the site has, and `renders`, exactly the compose() items
+ * the post page maps (A2). `videos` because the site renders /videos (engine
+ * PR #12's module, apart from the operator's video tool). Never projects (D1:
+ * Payload keeps them), gallery, chat, catalog or email.
  */
 const EXPECTED_MANIFEST = {
   version: 1,
   kind: "service",
-  has: { intake: true, blog: true },
+  has: { intake: true, blog: true, videos: true },
   renders: { pullQuote: true, keyPoints: true, aside: true, placements: ["wide", "inset-left", "inset-right"] },
   locales: ["en"],
   intake: { fields: ["name", "email", "message"] },

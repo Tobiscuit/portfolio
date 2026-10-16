@@ -73,6 +73,18 @@ describe("/media/<key>", () => {
     expect(engine.requests).toEqual([]);
   });
 
+  it("forwards the engine's Cache-Control verbatim: a video's short max-age, an image's immutable year", async () => {
+    const video = "jrcodex/video/renders/cut_01j9x4m2k7.mp4";
+    engine.respond(`/v1/media/${video}`, {
+      status: 200,
+      body: new Uint8Array([0, 0, 0, 24, 102, 116, 121, 112]),
+      headers: { "content-type": "video/mp4", "cache-control": "public, max-age=300" },
+    });
+    const { GET } = await route();
+    expect((await GET(request(`/media/${video}`))).headers.get("cache-control")).toBe("public, max-age=300");
+    expect((await GET(request(`/media/${HERO_KEY}`))).headers.get("cache-control")).toBe("public, max-age=31536000, immutable");
+  });
+
   it("keeps a plain answer's content-length", async () => {
     const { GET } = await route();
     const response = await GET(request(`/media/${HERO_KEY}`));

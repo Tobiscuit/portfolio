@@ -70,8 +70,8 @@ describe("the slice's boundaries", () => {
     }
   });
 
-  it("declares exactly the modules the site has: intake and blog", async () => {
+  it("declares exactly the modules the site has: intake, blog and videos", async () => {
     const { manifest } = await import("@/lib/intake/manifest");
-    expect(Object.keys(manifest.has).sort()).toEqual(["blog", "intake"]);
+    expect(Object.keys(manifest.has).sort()).toEqual(["blog", "intake", "videos"]);
   });
 });
