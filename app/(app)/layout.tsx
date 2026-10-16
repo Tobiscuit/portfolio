@@ -2,8 +2,16 @@ import type { Metadata } from 'next'
 import '../globals.css'
 import { Inter, Source_Serif_4 } from 'next/font/google'
 import Header from '@/components/Header'
+import Footer from '@/components/Footer'
+import { showVideosInNav } from '@/components/platform/nav'
 
 const siteUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000'
+
+// The nav's "Videos" and the footer's profile come from the platform
+// (specs/002-proprietor-adoption): static pages beneath this layout are
+// regenerated at most every 5 minutes, so neither waits for a deploy. Pages
+// with `dynamic = 'force-dynamic'` stay rendered per request.
+export const revalidate = 300
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -43,7 +51,7 @@ const sourceSerif = Source_Serif_4({
   variable: '--font-source-serif',
 })
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode
@@ -56,10 +64,11 @@ export default function RootLayout({
     >
       <body className="bg-sage-blue-900 text-parchment-100" suppressHydrationWarning={true}>
         <div className="min-h-screen flex flex-col">
-          <Header />
+          <Header showVideos={await showVideosInNav()} />
           <main className="flex-grow">
             {children}
           </main>
+          <Footer />
         </div>
       </body>
     </html>

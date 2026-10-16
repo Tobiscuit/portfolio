@@ -23,6 +23,22 @@ const SITEVERIFY_URL = "https://challenges.cloudflare.com/turnstile/v0/siteverif
 
 const visitor = { name: "Ada Tester", email: "ada.tester@example.test", message: "Looking for help with a data pipeline, ref 7731." };
 
+/**
+ * Spec 001's manifest, plus the blog and videos (specs/002-proprietor-adoption,
+ * A1, A4): the modules the site has, and `renders`, exactly the compose() items
+ * the post page maps (A2). `videos` because the site renders /videos (engine
+ * PR #12's module, apart from the operator's video tool). Never projects (D1:
+ * Payload keeps them), gallery, chat, catalog or email.
+ */
+const EXPECTED_MANIFEST = {
+  version: 1,
+  kind: "service",
+  has: { intake: true, blog: true, videos: true },
+  renders: { pullQuote: true, keyPoints: true, aside: true, placements: ["wide", "inset-left", "inset-right"] },
+  locales: ["en"],
+  intake: { fields: ["name", "email", "message"] },
+};
+
 let engine: StubEngine;
 let handleContact: (request: Request, deps: ContactDeps) => Promise<Response>;
 let logs: string[] = [];
@@ -105,13 +121,7 @@ describe("a valid submission, through the kit's http() against the stub engine",
     expect(second).toMatchObject({ status: 200, body: { ok: true } });
     expect(enginePaths()).toEqual(["/v1/manifest", "/v1/inquiries", "/v1/inquiries"]);
     expect(engine.requests.every((r) => r.authorization === `Bearer ${SITE_KEY}`)).toBe(true);
-    expect(engine.requests[0].body).toEqual({
-      version: 1,
-      kind: "service",
-      has: { intake: true },
-      locales: ["en"],
-      intake: { fields: ["name", "email", "message"] },
-    });
+    expect(engine.requests[0].body).toEqual(EXPECTED_MANIFEST);
     const submission = { locale: "en", page: "/contact", fields: { name: visitor.name, email: visitor.email, message: visitor.message } };
     expect(engine.requests[1].body).toEqual(submission);
     expect(engine.requests[2].body).toEqual(submission);
@@ -119,7 +129,7 @@ describe("a valid submission, through the kit's http() against the stub engine",
 
   it("declares exactly the manifest in the spec", async () => {
     const { manifest } = await import("@/lib/intake/manifest");
-    expect(manifest).toEqual({ version: 1, kind: "service", has: { intake: true }, locales: ["en"], intake: { fields: ["name", "email", "message"] } });
+    expect(manifest).toEqual(EXPECTED_MANIFEST);
   });
 
   it("announces again after a failed announce", async () => {
