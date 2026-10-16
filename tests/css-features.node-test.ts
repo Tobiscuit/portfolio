@@ -113,6 +113,7 @@ test('JS-driven view transitions check reduced motion and API support first', ()
   const src = read('app/components/ui/TransitionLink.tsx')
   assert.ok(src.indexOf("typeof document.startViewTransition !== 'function'") > -1)
   assert.ok(src.indexOf("matchMedia('(prefers-reduced-motion: reduce)').matches") > -1)
+  assert.ok(src.indexOf('.pathname === window.location.pathname) return') > -1, 'same-path navigations skip the transition')
 })
 
 test('no raw hex colours outside tokens.css', () => {

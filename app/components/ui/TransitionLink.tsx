@@ -58,6 +58,10 @@ export default function TransitionLink({ onNavigate, href, ...rest }: Transition
         if (!canTransition()) return
         const target = typeof href === 'string' ? href : href.pathname ?? null
         if (!target) return
+        // The transition settles when the pathname changes, so a same-path
+        // navigation (current page, query or hash only, e.g. ?page=2) would
+        // hold the snapshot until the timeout. Let those navigate plainly.
+        if (new URL(target, window.location.href).pathname === window.location.pathname) return
 
         event.preventDefault()
         // Any transition still waiting is superseded.
