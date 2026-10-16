@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import '../globals.css'
 import { Inter, Source_Serif_4 } from 'next/font/google'
 import Header from '@/components/Header'
+import Footer from '@/components/Footer'
 import { showVideosInNav } from '@/components/platform/nav'
 
 const siteUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000'
@@ -61,6 +62,7 @@ export default async function RootLayout({
           <main className="flex-grow">
             {children}
           </main>
+          <Footer />
         </div>
       </body>
     </html>
