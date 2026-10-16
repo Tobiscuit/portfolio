@@ -19,14 +19,18 @@ const useIsMobile = () => {
   return isMobile
 }
 
-export default function Header() {
+export default function Header({ showVideos = false }: { showVideos?: boolean }) {
   const pathname = usePathname()
   const [isResumeModalOpen, setIsResumeModalOpen] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const isMobile = useIsMobile()
 
+  // Blog and Videos come from the platform (specs/002-proprietor-adoption);
+  // Videos only while the owner shows a cut: the layout passes showVideos.
   const navLinks = [
     { href: '/projects', text: 'Work' },
+    { href: '/blog', text: 'Blog' },
+    ...(showVideos ? [{ href: '/videos', text: 'Videos' }] : []),
     { href: '/about', text: 'About' },
     { href: '/contact', text: 'Contact' },
   ]

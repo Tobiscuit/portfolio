@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import '../globals.css'
 import { Inter, Source_Serif_4 } from 'next/font/google'
 import Header from '@/components/Header'
+import { showVideosInNav } from '@/components/platform/nav'
 
 const siteUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000'
 
@@ -43,7 +44,7 @@ const sourceSerif = Source_Serif_4({
   variable: '--font-source-serif',
 })
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode
@@ -56,7 +57,7 @@ export default function RootLayout({
     >
       <body className="bg-sage-blue-900 text-parchment-100" suppressHydrationWarning={true}>
         <div className="min-h-screen flex flex-col">
-          <Header />
+          <Header showVideos={await showVideosInNav()} />
           <main className="flex-grow">
             {children}
           </main>
