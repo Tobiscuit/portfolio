@@ -63,10 +63,13 @@ Sites method list, and the tests for each.
 On today's Next.js build; every page renders with the platform unconfigured;
 `http()` is the production transport.
 
-**Owns:** `app/(app)/blog/**`, `app/(app)/videos/**`,
+**Owns:** `app/(app)/blog/**`, `app/(app)/videos/**`, `app/media/[...key]/route.ts`
+(the engine's images and video, added at the audit: www.jrcodex.dev is not
+proxied by Cloudflare, so `/cdn-cgi/image/` exists on none of its hosts),
 `app/components/platform/**`, `app/components/Footer.tsx`,
 `app/components/Header.tsx` (the `navLinks` array only),
-`app/(app)/layout.tsx` (mounting `<Footer/>` only), `app/lib/platform/**`,
+`app/(app)/layout.tsx` (mounting `<Footer/>`, the `showVideos` prop, and the
+subtree's `revalidate`), `app/lib/platform/**`,
 `app/lib/site.ts`, `app/lib/intake/manifest.ts`, `app/sitemap.ts`,
 `app/robots.ts`, `test/**`, `package.json`/`package-lock.json` (adding the
 kit at 0.6.2 exact and nothing else; existing versions are the upgrade

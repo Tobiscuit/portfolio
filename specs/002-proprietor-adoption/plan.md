@@ -183,6 +183,8 @@ vault kv put secret/seo-engine/sites/jrcodex key=-   # paste the key shown once,
 #    CONTACT_FALLBACK_EMAIL=jramirez203@outlook.com (hello@jrcodex.dev after step 6)
 #    NEXT_PUBLIC_TURNSTILE_SITE_KEY + TURNSTILE_SECRET_KEY (step 7)
 #    Redeploy. Send one message through the live form, as yourself; it shows first on the dashboard.
+#    That message also announces the manifest ({ intake, blog }): on Vercel only the contact route
+#    announces (spec 001); until then the dashboard shows the Blog for a never-announced site anyway.
 
 # 5. Videos: turn the tool on for business jrcodex (as for t-proprietor:
 #    businesses.tools = '["video"]', or '["video","email"]' under D4b), upload, cut, "Show on site".
