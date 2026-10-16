@@ -76,24 +76,24 @@ contact page, `app/lib/intake/{engine,handle,form,turnstile}.ts`,
 `app/api/**`, `payload.config.ts`, `collections/`, `app/(app)/projects/**`,
 `app/lib/getProjects.ts` (read by the sitemap, never edited).
 
-- [ ] A1 kit 0.6.2; `app/lib/site.ts` (SITE_URL, LinkedIn/GitHub, fallback
+- [x] A1 (`948d1fa`) kit 0.6.2; `app/lib/site.ts` (SITE_URL, LinkedIn/GitHub, fallback
   profile "Juan Ramirez"); `app/lib/platform/{env,client,reads,images,videos}.ts`
   (`env.ts` returns `process.env` and is the only reader of it); manifest
   `has: { intake: true, blog: true }` + `renders`; the stub extended with the
   read routes and fixtures
-- [ ] A2 `/blog` and `/blog/[slug]`: `postMetadata`, `postJsonLd`,
+- [x] A2 (`3440185`, with `app/media/[...key]/route.ts`) `/blog` and `/blog/[slug]`: `postMetadata`, `postJsonLd`,
   `compose(post, { supports: manifest.renders })` mapped to plain components;
   the manifest's `renders` says exactly what A2 maps
 - [ ] ~~A3 `/work`, `has.projects`~~ cancelled with D1
-- [ ] A4 `/videos`: `<video controls preload="metadata">` per cut, title,
+- [x] A4 (`156e481`; the layout hands Header a `showVideos` boolean from `showVideosInNav()`) `/videos`: `<video controls preload="metadata">` per cut, title,
   duration; empty → nothing visible and `noindex`; the nav shows "Videos"
   only when the list is non-empty (say how); the shim reads `client.videos()`
   when the kit has it, else the binding's `videos`, else `[]`
-- [ ] A5 footer with the profile (name, email, LinkedIn, GitHub) and the
+- [x] A5 (`9daf18a`) footer with the profile (name, email, LinkedIn, GitHub) and the
   fallback when unconnected; `sitemap.ts` (the site's pages, `/projects` and
   each `/projects/<id>` through the existing `getProjects()`, every post;
   videos never) and `robots.ts`
-- [ ] A6 tests green: `npm test`, `npx tsc --noEmit`, the Next build with the
+- [x] A6 tests green: `npm test`, `npx tsc --noEmit`, the Next build with the
   platform unconfigured
 
 **Acceptance tests (written first), against the stub over `http()`:**
