@@ -86,7 +86,7 @@ export default async function Home() {
             id="work-title"
             eyebrow="Selected work"
             title="Three builds to start with."
-            lede={`All ${projects.length} are on the projects page, each with the reasoning behind it where a write-up exists.`}
+            lede="The rest are on the projects page, with the reasoning behind each build where a write-up exists."
             actions={
               <ButtonLink href="/projects" variant="secondary">
                 All projects

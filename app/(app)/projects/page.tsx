@@ -20,7 +20,7 @@ export default async function Projects() {
           as="h1"
           eyebrow="Work"
           title="Projects"
-          lede={`A selection of applications and systems I've built: ${projects.length} so far. A card opens the project page; Visit opens the build itself.`}
+          lede="A selection of applications and systems I've built. A card opens the project page; Visit opens the build itself."
         />
         {projects.length > 0 ? (
           <CardGrid aria-label="All projects">

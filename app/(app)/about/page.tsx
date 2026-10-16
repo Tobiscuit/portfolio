@@ -74,7 +74,7 @@ export default function About() {
             <ResumeButton>View résumé</ResumeButton>
           </div>
 
-          <div className="stack--l">
+          <div className="stack--xl">
             <header>
               <p className="eyebrow">About</p>
               <h1>A Foundation Built on First Principles.</h1>

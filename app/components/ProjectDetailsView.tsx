@@ -170,9 +170,9 @@ export default function ProjectDetailsView({ project }: { project: Project }) {
                 </div>
                 {project.url && (
                   <a href={project.url} target="_blank" rel="noopener noreferrer" className="btn btn--secondary">
-                    Visit {hostnameOf(project.url)}
+                    Visit site
                     <ExternalLink aria-hidden="true" />
-                    <span className="sr-only"> (opens in a new tab)</span>
+                    <span className="sr-only">: {hostnameOf(project.url)} (opens in a new tab)</span>
                   </a>
                 )}
               </aside>

@@ -35,7 +35,7 @@
       .reveal {
         animation: reveal-up linear both;
         animation-timeline: view();
-        animation-range: entry 0% entry 35%;
+        animation-range: entry 0% entry 40%;
       }
     }
   }
@@ -139,9 +139,11 @@
   }
 }
 
+/* Movement only, never opacity: content must be readable without scrolling
+   (full-page captures, print, link previews never advance the timeline). */
 @keyframes reveal-up {
-  from { opacity: 0; translate: 0 1rem; }
-  to { opacity: 1; translate: 0 0; }
+  from { translate: 0 1.5rem; }
+  to { translate: 0 0; }
 }
 @keyframes progress-grow {
   from { scale: 0 1; }
