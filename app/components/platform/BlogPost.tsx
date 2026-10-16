@@ -1,5 +1,6 @@
 /* eslint-disable @next/next/no-img-element -- the engine's pictures come with their own srcset; /media serves them */
 import type { ReactNode } from "react";
+import Link from "next/link";
 import type { Post } from "@jrcodex/seo-kit";
 import { compose, type LayoutItem } from "@jrcodex/seo-kit/compose";
 import { postJsonLd } from "@jrcodex/seo-kit/next";
@@ -38,9 +39,9 @@ export default function BlogPost({ post }: { post: Post }) {
   return (
     <article className="w-full max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
       <p className="mb-8 text-sm">
-        <a href="/blog" className="text-ink-500 hover:text-parchment-100 transition-colors">
+        <Link href="/blog" className="text-ink-500 hover:text-parchment-100 transition-colors">
           All posts
-        </a>
+        </Link>
       </p>
       <div className="flow-root">{renderItems(compose(post, { supports: manifest.renders }), post)}</div>
       <script type="application/ld+json" dangerouslySetInnerHTML={postJsonLd(post)} />
@@ -129,9 +130,9 @@ function renderItem(item: Exclude<LayoutItem, { kind: "html" }>, index: number, 
       return (
         <div key={`closing-${index}`} data-tone={item.tone} className="mt-12 clear-both">
           {item.cta === "read-more" ? (
-            <a href="/blog" className={BUTTON}>
+            <Link href="/blog" className={BUTTON}>
               More posts
-            </a>
+            </Link>
           ) : (
             // "call" and "schedule": the site has no phone, so both are the contact form.
             <a href="/contact" className={BUTTON}>
