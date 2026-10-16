@@ -683,6 +683,17 @@
   .contact-channel:hover { color: var(--accent-text); }
   .contact-channel svg { inline-size: 1.25em; block-size: 1.25em; color: var(--accent-text); flex: none; }
   .contact-form-panel { padding: var(--space-m); border: 1px solid var(--line); border-radius: var(--corner-m); background: var(--surface-raised); --text-subtle: var(--text-muted); }
+  /* The form's status lines keep main's class names (text-green-400 /
+     text-red-400) so the Turnstile PR, which edits those lines, merges
+     cleanly. The panel re-points those two Tailwind colours to the semantic
+     status colours, which pass AA in both schemes. */
+  .contact-form-panel {
+    --color-green-400: var(--success-text);
+    --color-red-400: var(--error-text);
+  }
+  .contact-form-panel form > p { margin: 0; padding: var(--space-xs) var(--space-s); border: 1px solid currentColor; border-radius: var(--corner-s); font-weight: 500; }
+  .contact-form-panel form > p.text-green-400 { background: var(--success-soft); }
+  .contact-form-panel form > p.text-red-400 { background: var(--error-soft); }
   @media (min-width: 48rem) {
     .contact-layout { grid-template-columns: 5fr 7fr; gap: var(--space-2xl); align-items: start; }
     .contact-form-panel { padding: var(--space-l); }

@@ -12,18 +12,24 @@ const siteLinks = [
 ]
 
 type SiteFooterProps = {
-  /** Extra profile details rendered under the tagline (used by the platform-fed pages). */
+  /** Owner's name; defaults to the site's own. The platform profile can pass it in. */
+  name?: string
+  /** Contact email; defaults to the site's own. Pass null to hide it. */
+  email?: string | null
+  /** Extra links for the "Elsewhere" column (e.g. GitHub). */
+  elsewhere?: { href: string; label: string }[]
+  /** Extra profile details rendered under the tagline. */
   children?: ReactNode
 }
 
-export default function SiteFooter({ children }: SiteFooterProps) {
+export default function SiteFooter({ name = 'Juan Ramirez', email = CONTACT_EMAIL, elsewhere = [], children }: SiteFooterProps) {
   const year = new Date().getFullYear()
   return (
     <footer className="site-footer">
       <div className="shell">
         <div className="site-footer__grid">
           <div>
-            <p className="site-footer__brand">Juan Ramirez</p>
+            <p className="site-footer__brand">{name}</p>
             <p className="site-footer__tagline">
               Platform engineer: k3s, GitOps, Vault, Argo CD. Builds the apps too (React/Next.js).
             </p>
@@ -47,9 +53,11 @@ export default function SiteFooter({ children }: SiteFooterProps) {
           <div>
             <h2 className="site-footer__heading">Elsewhere</h2>
             <ul className="site-footer__list">
-              <li>
-                <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>
-              </li>
+              {email && (
+                <li>
+                  <a href={`mailto:${email}`}>{email}</a>
+                </li>
+              )}
               <li>
                 <a href={LINKEDIN_URL} rel="me">
                   LinkedIn
@@ -61,11 +69,18 @@ export default function SiteFooter({ children }: SiteFooterProps) {
               <li>
                 <a href="https://fluency.study">fluency.study</a>
               </li>
+              {elsewhere.map((link) => (
+                <li key={link.href}>
+                  <a href={link.href}>{link.label}</a>
+                </li>
+              ))}
             </ul>
           </div>
         </div>
         <div className="site-footer__meta">
-          <span>© {year} Juan Ramirez</span>
+          <span>
+            © {year} {name}
+          </span>
           <span>jrcodex.dev</span>
         </div>
       </div>

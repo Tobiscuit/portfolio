@@ -6,7 +6,12 @@
  *
  * tests/fixtures/contact-form-logic.txt is copied verbatim from origin/main.
  * A deliberate behaviour change (e.g. PR #1 adding a Turnstile token to the
- * payload) updates that fixture in the same commit, so the change is explicit.
+ * payload and new success text) updates the fixture and the expected strings
+ * here in the same commit, so the change is explicit.
+ *
+ * Runs under node:test (npm run test:design). The .node-test.ts suffix keeps
+ * it out of the Vitest include patterns on other branches (the test/ folder,
+ * and files ending in .test.ts).
  */
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
@@ -52,6 +57,8 @@ test('status messages and the submit label are unchanged', () => {
     "{isSubmitting ? 'Sending...' : 'Send Message'}",
     "{submitStatus === 'success' && (",
     "{submitStatus === 'error' && (",
+    '<p className="text-green-400 text-center">Message sent successfully!</p>',
+    '<p className="text-red-400 text-center">{errorMessage}</p>',
     '{errorMessage}',
     'onSubmit={handleSubmit}',
     'disabled={isSubmitting}',
@@ -110,5 +117,14 @@ test('the form keeps its JSX skeleton so PR #1 (Turnstile) merges cleanly', () =
     const at = form.indexOf(marker)
     assert.ok(at > last, marker + ' out of order')
     last = at
+  }
+})
+
+test('the page imports nothing through @/ aliases other test runners cannot resolve', () => {
+  // PR #1's Vitest config aliases only @/lib; relative imports keep its contact-page test working after a merge.
+  const imports = source.split('\n').filter((line) => line.indexOf('import ') === 0)
+  assert.ok(imports.length > 0)
+  for (const line of imports) {
+    assert.ok(line.indexOf("'@/") === -1 || line.indexOf("'@/lib/") > -1, 'aliased import: ' + line)
   }
 })

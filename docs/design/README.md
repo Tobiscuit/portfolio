@@ -43,7 +43,7 @@ the same.
 
 Derived tints use `color-mix(in oklch, …)` behind `@supports`, with the same mix
 pre-computed as a hex fallback just above. Every documented pair is checked by
-`tests/tokens.test.ts`; add your new pair to `design-system.json` → `accessibility`.
+`tests/tokens.node-test.ts`; add your new pair to `design-system.json` → `accessibility`.
 
 ### Type
 
@@ -173,8 +173,9 @@ existing `ImageModal`.
 is required and becomes the player's accessible name), in a `.card-grid` or a `.split`.
 Use `ratio="9 / 16"` for vertical clips.
 
-**Profile details in the footer / contact page.** `SiteFooter` renders `children` under
-the tagline; pass a `<dl className="fact-list">` there. On the contact page, add details
+**Profile details in the footer / contact page.** `SiteFooter` takes `name`, `email` and
+`elsewhere` links (defaults are the site's own), and renders `children` under the tagline:
+`const { name, email } = await getProfile(); return <SiteFooter name={name} email={email} elsewhere={[{ href: GITHUB_URL, label: 'GitHub' }]} />`. On the contact page, add details
 inside `.contact-channels` using `.contact-channel` links.
 
 ## 3. Primitives
@@ -215,7 +216,7 @@ inside `.contact-channels` using `.contact-channel` links.
 | `text-wrap: balance / pretty` | ignored if unknown | normal wrapping |
 | `backdrop-filter` | `@supports` | opaque header |
 
-`tests/css-features.test.ts` fails if any of these properties appears outside its gate,
+`tests/css-features.node-test.ts` fails if any of these properties appears outside its gate,
 so add new ones to `enhancements.css` inside a gate.
 
 ## 5. Accessibility checklist
@@ -253,14 +254,14 @@ so add new ones to `enhancements.css` inside a gate.
 - Use gold as text on light surfaces, or ink-500 text on raised dark surfaces.
 - Render `<main>`, a second `h1`, or a link inside a link.
 - Put a modern CSS property outside its `@supports` gate.
-- Change the contact form's logic. `tests/contact-form.test.ts` compares it with
+- Change the contact form's logic. `tests/contact-form.node-test.ts` compares it with
   `tests/fixtures/contact-form-logic.txt` (copied from main). An intentional change,
   such as adding the Turnstile token, updates that fixture in the same commit.
 
 ## 8. Checks
 
 ```
-npm test            # node:test via tsx: form, landmarks, CSS gating, contrast, theme
+npm test            # = npm run test:design (node:test via tsx): form, landmarks, CSS gating, contrast, theme
 npx tsc --noEmit    # tests are type-checked too
 npm run build
 ```
