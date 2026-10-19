@@ -8,9 +8,11 @@
     "build": "tsx scripts/mirror-assets.ts && payload generate:types && payload generate:importmap && next build",
     "start": "next start",
     "lint": "eslint .",
-    "test": "vitest run"
+    "test": "vitest run && npm run test:design",
+    "test:design": "node --import tsx --import ./tests/setup.ts --test \"tests/**/*.node-test.ts\""
   },
   "dependencies": {
+    "@jrcodex/seo-kit": "0.6.2",
     "@payloadcms/db-mongodb": "^3.91.0",
     "@payloadcms/next": "^3.91.0",
     "@payloadcms/richtext-lexical": "^3.91.0",

@@ -1,6 +1,30 @@
 'use client'
+import { Mail } from 'lucide-react'
+import PageShell from '../../components/ui/PageShell'
 
-import { useState } from 'react'
+import Script from 'next/script'
+import { useEffect, useRef, useState } from 'react'
+import { TOKEN_FIELD, TURNSTILE_ACTION } from '@/lib/intake/form'
+
+/**
+ * Turnstile's site key, inlined at build time. Set together with the server's
+ * TURNSTILE_SECRET_KEY (specs/001-platform-intake): without it no widget
+ * renders, and the server skips the check only when both are unset.
+ */
+const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY
+
+/** The part of Turnstile's explicit-rendering API this page uses. */
+interface TurnstileApi {
+  render(container: HTMLElement, options: Record<string, unknown>): string | undefined
+  reset(widgetId: string): void
+  remove(widgetId: string): void
+}
+
+declare global {
+  interface Window {
+    turnstile?: TurnstileApi
+  }
+}
 
 export default function Contact() {
   const [formData, setFormData] = useState({
@@ -14,6 +38,31 @@ export default function Contact() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle')
   const [errorMessage, setErrorMessage] = useState('')
+  const [turnstileToken, setTurnstileToken] = useState('')
+  const widgetContainer = useRef<HTMLDivElement>(null)
+  const widgetId = useRef<string | undefined>(undefined)
+
+  // Explicit rendering, so the widget follows this component's lifecycle.
+  // next/script calls onReady after the script loads and on every remount.
+  const renderTurnstile = () => {
+    if (!TURNSTILE_SITE_KEY || !window.turnstile || !widgetContainer.current || widgetId.current) return
+    widgetId.current = window.turnstile.render(widgetContainer.current, {
+      sitekey: TURNSTILE_SITE_KEY,
+      action: TURNSTILE_ACTION,
+      theme: 'dark',
+      callback: (token: string) => setTurnstileToken(token),
+      'expired-callback': () => setTurnstileToken(''),
+      'error-callback': () => setTurnstileToken(''),
+    })
+  }
+
+  useEffect(
+    () => () => {
+      if (widgetId.current) window.turnstile?.remove(widgetId.current)
+      widgetId.current = undefined
+    },
+    [],
+  )
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -25,7 +74,7 @@ export default function Contact() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(TURNSTILE_SITE_KEY ? { ...formData, [TOKEN_FIELD]: turnstileToken } : formData),
       })
       
       if (response.ok) {
@@ -42,6 +91,11 @@ export default function Contact() {
       setSubmitStatus('error')
     } finally {
       setIsSubmitting(false)
+      // A token is single-use: whatever the answer, the next attempt needs a new one.
+      if (widgetId.current) {
+        window.turnstile?.reset(widgetId.current)
+        setTurnstileToken('')
+      }
     }
   }
 
@@ -53,65 +107,47 @@ export default function Contact() {
   }
 
   return (
-    <div className="w-full max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-12">
-        <div className="md:col-span-5 flex flex-col justify-center text-center md:text-left">
-          <h2 className="text-3xl font-bold tracking-tight text-parchment-100 sm:text-4xl">
-            Let&apos;s Build Something Efficient.
-          </h2>
-          <p className="mt-4 text-lg text-parchment-300">
+    <PageShell as="section" className="section">
+      <div className="contact-layout">
+        <div className="contact-intro">
+          <p className="eyebrow">Contact</p>
+          <h1>Let&apos;s build something efficient.</h1>
+          <p className="lede mt-space-m">
             Whether you have a complex system that needs optimization or a new
             project that requires a foundation of clean, performant code, I&apos;m
-            ready to dive in. Let&apos;s connect.
+            ready to dive in.
           </p>
-          <div className="mt-8 flex flex-col gap-4">
-            <a
-              className="group inline-flex items-center justify-center md:justify-start gap-3 text-lg text-parchment-100 hover:text-amber-500 transition-colors"
-              href="mailto:jramirez203@outlook.com"
-            >
+          <p className="measure mt-space-s text-text-muted">
+            Hiring for a platform or software-engineering role? The résumé is one click away in the header, and
+            I&apos;m glad to walk through any project on this site. Running a small business that needs a website?
+            Tell me what it has to do. Either way, I&apos;ll reply personally, usually within a couple of days.
+          </p>
+          <div className="contact-channels">
+            <a className="contact-channel" href="mailto:jramirez203@outlook.com">
+              <Mail aria-hidden="true" />
+              <span>jramirez203@outlook.com</span>
+            </a>
+            <a className="contact-channel" href="https://www.linkedin.com/in/cloud-juan-manuel-ramirez/">
               <svg
-                className="h-6 w-6"
                 fill="none"
-                height="24"
                 stroke="currentColor"
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 strokeWidth="2"
                 viewBox="0 0 24 24"
-                width="24"
                 xmlns="http://www.w3.org/2000/svg"
+                aria-hidden="true"
               >
-                <rect height="16" rx="2" width="20" x="2" y="4" />
-                <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+                <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
+                <rect height="12" width="4" x="2" y="9" />
+                <circle cx="4" cy="4" r="2" />
               </svg>
-              <span>jramirez203@outlook.com</span>
+              <span>LinkedIn</span>
             </a>
-            <div className="flex items-center justify-center md:justify-start space-x-4 mt-4">
-              <a
-                className="text-parchment-300 hover:text-white transition-colors"
-                href="https://www.linkedin.com/in/cloud-juan-manuel-ramirez/"
-              >
-                <svg
-                  fill="none"
-                  height="28"
-                  stroke="currentColor"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  viewBox="0 0 24 24"
-                  width="28"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
-                  <rect height="12" width="4" x="2" y="9" />
-                  <circle cx="4" cy="4" r="2" />
-                </svg>
-              </a>
-            </div>
           </div>
         </div>
-        <div className="md:col-span-7">
-          <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="contact-form-panel">
+          <form onSubmit={handleSubmit} className="form-stack">
             <input
               type="text"
               name="_gotcha"
@@ -122,17 +158,17 @@ export default function Contact() {
               aria-hidden="true"
               className="absolute -left-[9999px] h-0 w-0 opacity-0"
             />
-            <div>
+            <div className="field">
               <label
-                className="block text-sm font-medium text-parchment-100"
+                className="field__label"
                 htmlFor="name"
               >
                 Name
               </label>
-              <div className="mt-1">
+              <div className="field__control">
                 <input
                   autoComplete="name"
-                  className="block w-full rounded-md border-transparent bg-ink-700 text-white placeholder-parchment-300 focus:border-amber-500 focus:ring-amber-500 sm:text-sm py-3 px-4"
+                  className="field__input"
                   id="name"
                   name="name"
                   placeholder="e.g., Jordan Sage"
@@ -143,17 +179,17 @@ export default function Contact() {
                 />
               </div>
             </div>
-            <div>
+            <div className="field">
               <label
-                className="block text-sm font-medium text-parchment-100"
+                className="field__label"
                 htmlFor="email"
               >
                 Email
               </label>
-              <div className="mt-1">
+              <div className="field__control">
                 <input
                   autoComplete="email"
-                  className="block w-full rounded-md border-transparent bg-ink-700 text-white placeholder-parchment-300 focus:border-amber-500 focus:ring-amber-500 sm:text-sm py-3 px-4"
+                  className="field__input"
                   id="email"
                   name="email"
                   placeholder="you@example.com"
@@ -164,16 +200,16 @@ export default function Contact() {
                 />
               </div>
             </div>
-            <div>
+            <div className="field">
               <label
-                className="block text-sm font-medium text-parchment-100"
+                className="field__label"
                 htmlFor="message"
               >
                 Message
               </label>
-              <div className="mt-1">
+              <div className="field__control">
                 <textarea
-                  className="block w-full rounded-md border-transparent bg-ink-700 text-white placeholder-parchment-300 focus:border-amber-500 focus:ring-amber-500 sm:text-sm py-3 px-4"
+                  className="field__textarea"
                   id="message"
                   name="message"
                   placeholder="e.g., &apos;Hi, I&apos;m looking for a developer for an e-commerce project. Let&apos;s connect!&apos;"
@@ -184,9 +220,19 @@ export default function Contact() {
                 />
               </div>
             </div>
+            {TURNSTILE_SITE_KEY && (
+              <>
+                <Script
+                  src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"
+                  strategy="afterInteractive"
+                  onReady={renderTurnstile}
+                />
+                <div id="turnstile-widget" ref={widgetContainer} className="flex justify-center md:justify-start" />
+              </>
+            )}
             <div>
               <button
-                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-bold text-sage-blue-950 bg-amber-500 hover:bg-yellow-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 focus:ring-offset-sage-blue-900 transition-colors disabled:opacity-50"
+                className="btn btn--primary btn--block"
                 type="submit"
                 disabled={isSubmitting}
               >
@@ -194,7 +240,9 @@ export default function Contact() {
               </button>
             </div>
             {submitStatus === 'success' && (
-              <p className="text-green-400 text-center">Message sent successfully!</p>
+              <p className="text-green-400 text-center">
+                Message sent. I&apos;ll reply personally, usually within a couple of days.
+              </p>
             )}
             {submitStatus === 'error' && (
               <p className="text-red-400 text-center">{errorMessage}</p>
@@ -202,6 +250,6 @@ export default function Contact() {
           </form>
         </div>
       </div>
-    </div>
+    </PageShell>
   )
 }

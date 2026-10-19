@@ -1,7 +1,12 @@
-import Link from 'next/link'
+import type { Metadata } from 'next'
 import { getProjects, getProject } from '@/app/lib/getProjects'
 import ProjectDetailsView from '@/app/components/ProjectDetailsView'
+import PageShell, { Section } from '@/app/components/ui/PageShell'
+import EmptyState from '@/app/components/ui/EmptyState'
+import { ButtonLink } from '@/app/components/ui/Button'
 import type { Project } from '@/app/lib/types'
+
+type Params = { params: Promise<{ id: string }> }
 
 export async function generateStaticParams(): Promise<{ id: string }[]> {
   const projects = await getProjects()
@@ -10,20 +15,36 @@ export async function generateStaticParams(): Promise<{ id: string }[]> {
   }))
 }
 
-export default async function ProjectDetailsPage({ params }: { params: Promise<{ id: string }> }) {
+export async function generateMetadata({ params }: Params): Promise<Metadata> {
+  const { id } = await params
+  const project = await getProject(id)
+  if (!project) return { title: 'Project not found' }
+  return { title: project.title, description: project.description }
+}
+
+export default async function ProjectDetailsPage({ params }: Params) {
   const { id } = await params
   const project = await getProject(id)
 
   if (!project) {
     return (
-      <div className="min-h-screen bg-sage-blue-900 text-parchment-100 flex flex-col items-center justify-center">
-        <h1 className="text-4xl font-serif mb-4">Project Not Found</h1>
-        <Link href="/projects" className="text-arcane-gold-500 hover:underline">
-          Back to Projects
-        </Link>
-      </div>
+      <Section spacing="loose">
+        <PageShell size="narrow">
+          <EmptyState
+            as="h1"
+            title="Project not found"
+            actions={
+              <ButtonLink href="/projects" variant="secondary">
+                Back to projects
+              </ButtonLink>
+            }
+          >
+            There is no project at this address. It may have been renamed or removed.
+          </EmptyState>
+        </PageShell>
+      </Section>
     )
   }
 
   return <ProjectDetailsView project={project} />
-} 
+}

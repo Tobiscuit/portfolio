@@ -51,3 +51,6 @@ docs/*
 
 # typescript incremental build cache
 *.tsbuildinfo
+
+# Design-system docs are tracked even though the rest of docs/ is not.
+!docs/design/
