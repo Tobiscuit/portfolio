@@ -10,7 +10,9 @@
 # cloudflare_zone.juanramirez_codes.id - which means the state surgery in that
 # document (`./tf state rm` of the dead zone and its five records) MUST happen
 # in the same sitting as this apply, or the plan fails on the dead id before
-# it ever reads this file.
+# it ever reads this file. And mail.tf (the LIVE file) still declares this
+# same address: mail.tf.pending must have replaced mail.tf first (it removes
+# the zone from there), or Terraform refuses the duplicate declaration.
 #
 # THE 28-DAY RULE, so it does not repeat: a Free-plan zone that is still
 # Pending after 28 days is deleted. Apply this, then set the two nameservers
