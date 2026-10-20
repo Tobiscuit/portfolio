@@ -1,0 +1,50 @@
+# PARKED 2026-10-20 - Turnstile for the contact form on juanramirez.codes
+# (portfolio spec 003, D3: RE-TARGETS jrcodex-turnstile.tf.pending, which is
+# left as it is and is superseded by this file once this one is approved).
+# Copy of ~/portfolio/specs/003-juanramirez-codes/infra/juanramirez-codes-turnstile.tf.pending.
+#
+# Same path as the parked jrcodex file and montanobtm-turnstile.tf.pending,
+# because the Terraform token has no Turnstile permission ("Failed common
+# permission check", 2026-09-26):
+#
+#   1. Dashboard -> Turnstile -> Add widget: name "juanramirez.codes contact
+#      form", hostnames juanramirez.codes AND jrcodex.dev (the old host keeps
+#      serving the form until the 301 is live; subdomains are covered), mode
+#      Managed.
+#   2. The site key goes into wrangler.jsonc `vars` as TURNSTILE_SITE_KEY
+#      (public); the secret, from Vault, through stdin, never argv:
+#        vault kv get -field=secret secret/portfolio/turnstile | scripts/deploy secret put TURNSTILE_SECRET_KEY
+#   3. When a Turnstile-capable token exists (Account -> Turnstile -> Edit,
+#      stored at secret/cloudflare/turnstile, used through a provider alias):
+#      fill the import id below, rename this file to .tf, ./tf plan (expect
+#      0 to add, 1 to import).
+#
+# "managed" is Cloudflare's recommended mode; "invisible" would oblige the
+# site's privacy policy to reference the Turnstile Privacy Addendum.
+#
+# After the 301 is live and the Vercel site is gone, drop "jrcodex.dev" from
+# `domains` (1 to change).
+
+resource "cloudflare_turnstile_widget" "juanramirez_contact_form" {
+  account_id = var.cloudflare_account_id
+  name       = "juanramirez.codes contact form"
+  domains    = ["juanramirez.codes", "jrcodex.dev"]
+  mode       = "managed"
+}
+
+output "juanramirez_turnstile_sitekey" {
+  description = "Public. The Worker's TURNSTILE_SITE_KEY."
+  value       = cloudflare_turnstile_widget.juanramirez_contact_form.sitekey
+}
+
+output "juanramirez_turnstile_secret" {
+  description = "Secret. The Worker's TURNSTILE_SECRET_KEY; never print it."
+  value       = cloudflare_turnstile_widget.juanramirez_contact_form.secret
+  sensitive   = true
+}
+
+# Fill in once the widget exists in the dashboard (step 1 above):
+# import {
+#   to = cloudflare_turnstile_widget.juanramirez_contact_form
+#   id = "${var.cloudflare_account_id}/<SITEKEY>"
+# }
