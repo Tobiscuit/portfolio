@@ -10,6 +10,8 @@ const compat = new FlatCompat({
 });
 
 const eslintConfig = [
+  // spike/ has its own package.json and node_modules; it is not part of this app
+  { ignores: ["spike/**"] },
   ...compat.extends("next/core-web-vitals", "next/typescript"),
   {
     settings: {

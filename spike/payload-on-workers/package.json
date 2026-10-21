@@ -1,0 +1,46 @@
+{
+  "name": "payload-on-workers-spike",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Spec 003 hosting spike: Payload 3 on Cloudflare Workers (OpenNext + D1 + R2), cut down from Payload's official templates/with-cloudflare-d1",
+  "type": "module",
+  "scripts": {
+    "dev": "NODE_OPTIONS=--no-deprecation next dev",
+    "build": "NODE_OPTIONS=--no-deprecation opennextjs-cloudflare build",
+    "preview": "opennextjs-cloudflare preview",
+    "bundle": "wrangler deploy --dry-run --outdir dist",
+    "migrate": "NODE_OPTIONS=--no-deprecation PAYLOAD_SECRET=ignore payload migrate",
+    "migrate:create": "NODE_OPTIONS=--no-deprecation PAYLOAD_SECRET=ignore payload migrate:create",
+    "generate:types": "npm run generate:types:cloudflare && npm run generate:types:payload",
+    "generate:types:cloudflare": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts",
+    "generate:types:payload": "NODE_OPTIONS=--no-deprecation PAYLOAD_SECRET=ignore payload generate:types",
+    "generate:importmap": "NODE_OPTIONS=--no-deprecation PAYLOAD_SECRET=ignore payload generate:importmap",
+    "payload": "NODE_OPTIONS=--no-deprecation payload",
+    "typecheck": "tsc --noEmit",
+    "measure": "bash scripts/measure.sh",
+    "local": "bash scripts/local.sh"
+  },
+  "dependencies": {
+    "@opennextjs/cloudflare": "1.20.12",
+    "@payloadcms/db-d1-sqlite": "3.91.0",
+    "@payloadcms/next": "3.91.0",
+    "@payloadcms/richtext-lexical": "3.91.0",
+    "@payloadcms/storage-r2": "3.91.0",
+    "@payloadcms/ui": "3.91.0",
+    "graphql": "16.14.2",
+    "next": "16.4.2",
+    "payload": "3.91.0",
+    "react": "19.3.1",
+    "react-dom": "19.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "26.6.5",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "typescript": "6.0.3",
+    "wrangler": "4.151.3"
+  },
+  "engines": {
+    "node": ">=24.15.0"
+  }
+}
