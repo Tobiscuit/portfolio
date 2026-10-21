@@ -1,6 +1,5 @@
-// Copied from payloadcms/payload templates/with-cloudflare-d1/src/payload.config.ts (main, 2026-10-20),
-// adapted to the installed Payload 3.91: main already uses 4.x API (top-level `storage`).
-// plus the Projects collection. The logger and the Cloudflare-context dance are the template's.
+// payloadcms/payload templates/with-cloudflare-d1/src/payload.config.ts at the v3.91.0 tag,
+// verbatim except the Projects collection (the spike's one content type).
 import fs from 'fs'
 import path from 'path'
 import { sqliteD1Adapter } from '@payloadcms/db-d1-sqlite'
@@ -17,9 +16,22 @@ import { Projects } from './collections/Projects'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
-const realpath = (value: string) => (fs.existsSync(value) ? fs.realpathSync(value) : undefined)
+const realpath = (value: string) => {
+  try {
+    return fs.existsSync(value) ? fs.realpathSync(value) : undefined
+  } catch {
+    return undefined
+  }
+}
 
-const isCLI = process.argv.some((value) => realpath(value).endsWith(path.join('payload', 'bin.js')))
+const isCLI = process.argv.some((value) => {
+  const resolved = realpath(value)
+  if (!resolved) return false
+  return (
+    resolved.endsWith(path.join('payload', 'bin.js')) ||
+    resolved.endsWith(path.join('next', 'dist', 'bin', 'next'))
+  )
+})
 const isProduction = process.env.NODE_ENV === 'production'
 
 const createLog =
@@ -31,8 +43,6 @@ const createLog =
     }
   }
 
-// Payload's default logger is pino + pino-pretty, which needs Node APIs workerd lacks
-// (template README: "fs.write is not implemented"). console.* works on Workers.
 const cloudflareLogger = {
   level: process.env.PAYLOAD_LOG_LEVEL || 'info',
   trace: createLog('trace', console.debug),
@@ -41,7 +51,7 @@ const cloudflareLogger = {
   warn: createLog('warn', console.warn),
   error: createLog('error', console.error),
   fatal: createLog('fatal', console.error),
-  silent: () => {},
+  silent: () => { },
 } as any // Use PayloadLogger type when it's exported
 
 const cloudflare =
