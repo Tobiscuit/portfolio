@@ -1,4 +1,5 @@
-// Copied from payloadcms/payload templates/with-cloudflare-d1/src/payload.config.ts (main, 2026-10-20)
+// Copied from payloadcms/payload templates/with-cloudflare-d1/src/payload.config.ts (main, 2026-10-20),
+// adapted to the installed Payload 3.91: main already uses 4.x API (top-level `storage`).
 // plus the Projects collection. The logger and the Cloudflare-context dance are the template's.
 import fs from 'fs'
 import path from 'path'
@@ -63,7 +64,7 @@ export default buildConfig({
   },
   db: sqliteD1Adapter({ binding: cloudflare.env.D1 }),
   logger: isProduction ? cloudflareLogger : undefined,
-  storage: [
+  plugins: [
     r2Storage({
       bucket: cloudflare.env.R2,
       collections: { media: true },
