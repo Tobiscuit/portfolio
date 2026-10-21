@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "dev": "NODE_OPTIONS=--no-deprecation next dev",
-    "build": "NODE_OPTIONS=--no-deprecation opennextjs-cloudflare build",
+    "build": "NODE_OPTIONS=--no-deprecation next build",
+    "build:worker": "NODE_OPTIONS=--no-deprecation opennextjs-cloudflare build",
     "preview": "opennextjs-cloudflare preview",
     "bundle": "wrangler deploy --dry-run --outdir dist",
     "migrate": "NODE_OPTIONS=--no-deprecation PAYLOAD_SECRET=ignore payload migrate",

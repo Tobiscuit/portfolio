@@ -42,7 +42,7 @@ npm run --silent migrate
 
 # 3. build
 if [ "$BUILD" = 1 ] || [ ! -f .open-next/worker.js ]; then
-  npm run --silent build
+  npm run --silent build:worker
 fi
 
 # 4. preview in its own session so the whole tree (npm -> opennextjs-cloudflare -> wrangler -> workerd)
