@@ -1,5 +1,5 @@
 # PARKED 2026-10-20, re-targeted 2026-10-21 - Turnstile for the contact form
-# on juanramirez.codes, the vinext Worker that is a Proprietor tenant
+# on juanramirez.codes, the Hono Worker that is a Proprietor tenant
 # (portfolio spec 003 as pivoted). Independent of jrcodex-turnstile.tf.pending
 # (2026-10-16, another session's file for jrcodex.dev), which this does not
 # replace or touch: jrcodex.dev is left as it is (Tobias, 2026-10-22).
