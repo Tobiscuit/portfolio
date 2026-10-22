@@ -29,6 +29,7 @@ export const WORK: ProjectCard[] = [
       { value: "188", label: "test files", source: "git -C ~/seo-engine ls-tree -r origin/main | grep .test.ts (9ca1df4)" },
     ],
     links: [{ label: "montanobtm.com, a client site running on it", href: "https://montanobtm.com/", kind: "live" }],
+    featured: true,
     path: null,
   },
   {
@@ -47,6 +48,7 @@ export const WORK: ProjectCard[] = [
     ],
     facts: [{ value: "Apache-2.0", label: "licence", source: "gh api repos/Tobiscuit/proprietor-mail (license apache-2.0), 2026-10-22" }],
     links: [{ label: "Source on GitHub", href: "https://github.com/Tobiscuit/proprietor-mail", kind: "repo" }],
+    featured: true,
     path: null,
   },
   {
@@ -68,6 +70,7 @@ export const WORK: ProjectCard[] = [
       { value: "7", label: "DNS zones in Terraform", source: "gh repo view Tobiscuit/cloudflare-infra (description), 2026-10-22" },
     ],
     links: [],
+    featured: true,
     path: null,
   },
   {
@@ -85,6 +88,7 @@ export const WORK: ProjectCard[] = [
     ],
     facts: [],
     links: [],
+    featured: false,
     path: null,
   },
   {
@@ -102,6 +106,7 @@ export const WORK: ProjectCard[] = [
     ],
     facts: [{ value: "0.3.0", label: "Pulse Agent version", source: "~/Projects/pulse-agent/Cargo.toml, tag v0.3.0" }],
     links: [],
+    featured: false,
     path: null,
   },
   {
@@ -116,6 +121,7 @@ export const WORK: ProjectCard[] = [
     highlights: [],
     facts: [],
     links: [{ label: "montanobtm.com", href: "https://montanobtm.com/", kind: "live" }],
+    featured: false,
     path: null,
   },
   {
@@ -130,6 +136,7 @@ export const WORK: ProjectCard[] = [
     highlights: [],
     facts: [],
     links: [],
+    featured: false,
     path: null,
   },
 ];

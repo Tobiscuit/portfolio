@@ -13,16 +13,29 @@
  * (domain-model gap G1). The mapping lives in the adapter.
  */
 
-/** Never "production" (content rules). `live` only with an allow-listed live link. */
-export const PROJECT_STATUSES = ["live", "built", "in-progress"] as const;
+/** Never "production" (content rules). `live` only with an allow-listed live link. Spec 030's case-study preset adds `archived`. */
+export const PROJECT_STATUSES = ["live", "built", "in-progress", "archived"] as const;
 export type ProjectStatus = (typeof PROJECT_STATUSES)[number];
 
 /** Grouping on /work. */
-export const PROJECT_KINDS = ["product", "open-source", "platform", "tooling", "client"] as const;
+export const PROJECT_KINDS = ["product", "open-source", "platform", "tooling", "client", "earlier"] as const;
 export type ProjectKind = (typeof PROJECT_KINDS)[number];
 
 /** The only URLs a card may call live (content rule: only montanobtm.com is live among client work). */
 export const LIVE_URLS: readonly string[] = ["https://montanobtm.com/"];
+
+/** The same rule by host, for links that arrive from the engine in any form (with or without a path). */
+export const LIVE_HOSTS: readonly string[] = ["montanobtm.com", "www.montanobtm.com"];
+
+/** True for an https URL on an allow-listed live host. */
+export function isAllowedLive(url: string): boolean {
+  try {
+    const parsed = new URL(url);
+    return parsed.protocol === "https:" && LIVE_HOSTS.includes(parsed.hostname);
+  } catch {
+    return false;
+  }
+}
 
 export interface ProjectLink {
   label: string;
@@ -46,7 +59,11 @@ export interface ProjectCard {
   /** One or two sentences: the card text. */
   summary: string;
   status: ProjectStatus;
+  /** The status in the owner's words (spec 030's model labels); the site's default when absent. */
+  statusLabel?: string;
   kind: ProjectKind;
+  /** The kind in the owner's words (spec 030's model labels); the site's default when absent. */
+  kindLabel?: string;
   /** "Designed and built it", "Sole engineer". */
   role: string | null;
   /** Chips. */
@@ -55,6 +72,8 @@ export interface ProjectCard {
   highlights: string[];
   facts: ProjectFact[];
   links: ProjectLink[];
+  /** Shown on the home page. */
+  featured: boolean;
   /** "/work/<slug>" when a page exists; null for a summary-only card. */
   path: string | null;
 }
@@ -64,6 +83,8 @@ export interface ProjectPage extends ProjectCard {
   bodyHtml: string;
   /** ISO 8601. */
   updatedAt: string;
+  /** The project's other fields, as words (never markup). */
+  details: Array<{ label: string; text: string }>;
 }
 
 export interface ProjectsPort {
