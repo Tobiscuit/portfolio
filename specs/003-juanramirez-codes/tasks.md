@@ -47,7 +47,7 @@ Every build and test run goes through `boxed` with a `timeout`.
   preview host, rate-limited with Retry-After, refused, site key, manifest,
   engine error, sent) and that no log line carries the visitor's words or a
   secret.
-- **Owns**: `lib/inquiry/*`, `app/api/inquiries/route.ts`.
+- **Owns**: `lib/inquiry/*`, `src/routes/contact.tsx`.
 
 ### T5 — Ports
 - **Acceptance**: `tests/unit/projects.test.ts` (placeholder adapter: no
@@ -56,9 +56,9 @@ Every build and test run goes through `boxed` with a `timeout`.
 - **Owns**: `lib/projects/*`, `lib/profile-links.ts`, `content/work.ts`.
 
 ### T6 — Design system and shell
-- **Inputs**: PR #5 `app/styles/*`, `app/components/ui/*`,
+- **Inputs**: PR #5 `app/styles/*`, `app/components/ui/*` (re-written as hono/jsx),
   `design-system.json`, `tests/tokens.node-test.ts`, `tests/helpers.ts`.
-- **Acceptance**: `tests/unit/tokens.test.ts` (palette fixed, every
+- **Acceptance**: `tests/unit/design.test.ts` (palette fixed, every
   documented pair meets its minimum, "avoid" pairs really fail).
 - **Owns**: `styles/*`, `src/views/*`, `src/assets.ts`, `design-system.json`, `public/*`.
 

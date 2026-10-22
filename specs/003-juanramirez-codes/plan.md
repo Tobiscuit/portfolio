@@ -17,12 +17,12 @@ no DNS, no merge.
                  │ 1. announceInBackground(manifestFor(caps))  production host only       │
                  │ 2. Hono app (src/app.tsx):                                             │
                  │    /projects* → 301 /work · /media/* (kit mediaHandler)                │
-                 │    /assets/site.<hash>.css · pages (hono/jsx) · /api/inquiries         │
+                 │    /assets/site.<hash>.css · pages (hono/jsx) · POST /contact          │
                  │    sitemap.xml · robots.txt · notFound · onError                       │
                  │ 3. withCachePolicy(request, response)                                  │
                  │                                                                        │
                  │ pages: lib/platform/* ── rpc(env.SEO, SEO_SITE_KEY) ──▶ SEO binding ───┼──▶ seo-engine
-                 │ POST /api/inquiries ── Turnstile ── inquire()                          │    entrypoint Sites
+                 │ POST /contact ── Turnstile ── inquire()  (htmx fragment or full page)  │    entrypoint Sites
                  │ vars: ENGINE_WRITE_HOST, TURNSTILE_SITE_KEY                            │    (no public URL)
                  │ secrets: SEO_SITE_KEY, TURNSTILE_SECRET_KEY                            │
                  └────────────────────────────────────────────────────────────────────────┘
@@ -55,7 +55,7 @@ touch are marked **contract**.
 | `lib/platform/reads.ts` | `readPosts`, `readPost`, `readSitemap`, `readProfile` with shape checks | ACL |
 | `lib/platform/images.ts` | `plainPost`, `plainPostSummary`: transform URLs → originals off production | — |
 | `lib/platform/videos.ts` | `readVideos(env)`, `canReadVideos(env)` | the shim (R4) |
-| `lib/inquiry/{form,turnstile,handle}.ts` | the intake flow | **contract**: `POST /api/inquiries` answers `200 {ok:true}` or `{ok:false,error}` with 400/429/503 |
+| `lib/inquiry/{form,turnstile,handle}.ts`, `src/routes/contact.tsx` | the intake flow | **contract**: `POST /contact` answers 200, 400, 429 (with `Retry-After`) or 503; with `HX-Request: true` the body is the `#form-status` fragment, otherwise the whole page with the fields kept |
 | `lib/projects/port.ts` | `ProjectsPort`, `ProjectCard`, `ProjectPage`, `ProjectStatus` | **contract** for the spec 030 adapter |
 | `lib/projects/placeholder.ts` | `placeholderProjects` | replaced by the engine adapter |
 | `lib/profile-links.ts` | `ProfileLinksPort`, `staticProfileLinks` | **contract** for spec 030's profile links |
@@ -142,8 +142,36 @@ freeze was a build that called itself).
 
 ## 5. Design system: PR #5 judged
 
-To be filled from this branch's own checks (tokens test, axe, Lighthouse):
-see §9 when the build reports.
+**It holds up, and is kept (R2).** Re-checked on this branch, not taken on
+PR #5's word:
+
+| PR #5's evidence | Re-run here | Result |
+|---|---|---|
+| 33 contrast pairs | `tests/unit/design.test.ts` (33 pairs, 7 "avoid" pairs that must fail) | all pass |
+| modern CSS gated, fallbacks outside the gate | the same file (PR #5's css-features test, moved) | pass |
+| axe 0 violations | `tests/a11y`: 7 pages × dark/light × 320/1280 px = 28 runs, WCAG 2.2 AA tags, plus a negative control | 0 violations |
+| CLS 0 | `tests/perf`: Lighthouse on 7 pages | CLS 0 on all |
+
+What changed to fit this stack:
+
+- **No Tailwind.** `styles/reset.css` keeps the part of the preflight the
+  primitives were written on, plus `.sr-only`; nothing used Tailwind
+  utilities once the components were re-written.
+- **No next/font.** Self-hosted variable woff2 (latin): Inter swaps onto a
+  metric-matched Arial face; Source Serif 4 is `optional`, so a late heading
+  font never moves a line.
+- **No client components.** The menu is a native popover (works without
+  JavaScript); the theme toggle is ~300 bytes of inline JS and is hidden
+  when JavaScript is off; TransitionLink is replaced by
+  `@view-transition { navigation: auto }`; the résumé dialog and image zoom
+  are dropped with the pages that used them (D8).
+- **One stylesheet**: 49 KB after comment stripping, 9.8 KB gzip, 8.5 KB
+  brotli, served at its content hash.
+
+Weaknesses noted, not fixed: dark by default ignores the OS preference (D10);
+`primitives.css` carries patterns this site does not use yet (dialogs,
+pagination, tooltips), about 3 KB compressed, kept so the system stays one
+system.
 
 ## 6. Verified facts for the content (each with its source)
 
@@ -217,7 +245,33 @@ portfolio-spike-d1` / `wrangler r2 bucket delete portfolio-spike-media`.
    proxied placeholders, apply `jrcodex-dev-redirect.tf.pending`.
 7. **Spike teardown check** (§7).
 
-## 9. Results on this branch
+## 9. Results on this branch (2026-10-22, all run through `boxed`)
 
-Filled as the build reports (test counts, axe, Lighthouse numbers, the
-design-system judgment).
+| Gate | Command | Result |
+|---|---|---|
+| Typecheck | `npm run typecheck` | 0 errors |
+| Unit (the whole Hono app in Node, fake binding) | `npm run test:unit` | 158 passed, 10 files |
+| Smoke (workerd + stub engine over a real binding) | `npm run test:smoke` | 24 passed |
+| Accessibility + browser behaviour | `npm run test:a11y` | 32 passed; axe 0 violations in 28 runs; the htmx form sent twice in a real browser |
+| Performance | `npm run test:perf` | 7 passed (below) |
+| Build | `npm run build` (`wrangler deploy --dry-run`) | 229 KiB, 57.7 KiB gzip; nothing uploaded |
+
+Lighthouse 13, mobile, simulated 4G, local Worker:
+
+| Page | LCP | CLS | TBT | Bytes | Score |
+|---|---|---|---|---|---|
+| `/` | 1.54 s | 0 | 0 ms | 115 KB | 100 |
+| `/about` | 1.54 s | 0 | 0 ms | 114 KB | 100 |
+| `/work` | 1.52 s | 0 | 0 ms | 115 KB | 100 |
+| `/blog` | 1.52 s | 0 | 0 ms | 118 KB | 100 |
+| `/blog/<post>` | 1.69 s | 0 | 0 ms | 124 KB | 100 |
+| `/contact` | 1.52 s | 0 | 0 ms | 267 KB (Turnstile) | 100 |
+| `/videos` | 1.52 s | 0 | 0 ms | 112 KB | 100 |
+
+Caveats: measured against `wrangler dev` on this node, not Cloudflare's
+network; the fixture post's images are the engine's transform URLs, which
+answer nothing locally, so the post's LCP element is text. The remote
+numbers come from a preview URL once one can be uploaded (owner step).
+
+Compared with the Payload spike (§1.1 of the spec): 229 KiB against 60 MB,
+and a build that is a bundle step rather than 52 s at 4.2 GB.

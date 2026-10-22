@@ -36,7 +36,7 @@ to `~/backups/juanramirez-portfolio-2026-10-19/content.json`.
   ├── /blog, /blog/<s>   posts                ─┐
   ├── /videos            shown clips (fallback)│  Proprietor engine, Sites entrypoint
   ├── /media/<key>       engine media          │  rpc(env.SEO, SEO_SITE_KEY) over the SEO
-  ├── /contact           form → POST /api/inquiries → inquire() → his inbox on the dashboard
+  ├── /contact           form → POST /contact (htmx, or a plain post) → inquire() → his dashboard's inquiries
   ├── footer + about     profile() (name, email); links: a port until spec 030
   └── announce(manifest) once per isolate, production host only
        { has: { blog, intake, videos? }, renders, locales: ["en"], intake.fields }
@@ -183,10 +183,10 @@ says so.
 
 | Budget | Target | How it is checked here |
 |---|---|---|
-| LCP | < 2.0 s, mobile, 4G (Lighthouse simulated: 150 ms RTT, 1.6 Mbps, 4× CPU) | `tests/perf/lighthouse.mjs` against the local build in workerd, on `/`, `/about`, `/work`, `/blog`, `/contact` |
+| LCP | < 2.0 s, mobile, 4G (Lighthouse simulated: 150 ms RTT, 1.6 Mbps, 4× CPU) | `tests/perf/perf.test.ts` (Lighthouse 13 default mobile profile) against the Worker in workerd, on all seven pages |
 | CLS | < 0.05 | the same run |
-| INP | < 200 ms | lab proxy: the same run's TBT (< 200 ms), plus a Playwright interaction timing on the theme toggle and menu |
-| Accessibility | WCAG 2.2 AA | `tests/a11y` — axe-core (`wcag2a wcag2aa wcag21a wcag21aa wcag22aa`) through Playwright on every public route, dark and light, 320 px and 1280 px: 0 violations; the contrast pairs re-checked by `tests/unit/tokens.test.ts` |
+| INP | < 200 ms | lab proxy: the same run's TBT (< 200 ms), plus a Playwright timing on the theme toggle (`tests/a11y`) |
+| Accessibility | WCAG 2.2 AA | `tests/a11y` — axe-core (`wcag2a wcag2aa wcag21a wcag21aa wcag22aa`) through Playwright on every public route, dark and light, 320 px and 1280 px: 0 violations; the contrast pairs re-checked by `tests/unit/design.test.ts` |
 | Weight | no third-party script except Turnstile on `/contact`; fonts self-hosted | smoke tests assert the script origins per page |
 
 ## 4. What the site renders, and from where
@@ -284,9 +284,10 @@ badges `live` / `built` / `in progress` (never "production").
 ## 10. Acceptance (this branch)
 
 - [x] Spec pivoted; the spike's evidence recorded; spike removed in one commit.
-- [ ] `npm run typecheck`, `npm test` (unit + smoke against the Worker in
+- [x] `npm run typecheck`, `npm test` (158 unit + 24 smoke, the Worker in
       `wrangler dev` with a stub engine), `npm run build` (`wrangler deploy
       --dry-run`, which uploads nothing): green, run through `boxed`.
-- [ ] axe 0 violations on every route, both schemes, two widths.
-- [ ] Lighthouse budgets met locally (§3), numbers in the PR.
-- [ ] PR #6's body: the pivot, what is built, what waits, decisions, teardown.
+- [x] axe 0 violations on every route, both schemes, two widths (28 runs).
+- [x] Lighthouse budgets met locally (§3): LCP 1.52–1.69 s, CLS 0, TBT 0;
+      `plan.md` §9.
+- [x] PR #6's body: the pivot, what is built, what waits, decisions, teardown.
