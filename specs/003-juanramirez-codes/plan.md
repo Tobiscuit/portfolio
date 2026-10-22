@@ -207,8 +207,8 @@ Worker (nothing applied):
 | File | What | Change from the first version |
 |---|---|---|
 | `juanramirez-codes-zone.tf.pending` | the zone, re-declared; 28-day rule | none in substance |
-| `juanramirez-codes-turnstile.tf.pending` | one widget for `juanramirez.codes` (+ `jrcodex.dev` during the redirect window) | the secret goes in with `wrangler secret put` through stdin; no deploy wrapper |
-| `jrcodex-dev-redirect.tf.pending` | 301 jrcodex.dev/www → juanramirez.codes | `/projects` → `/work` is answered by the Worker (R7) |
+| `juanramirez-codes-turnstile.tf.pending` | one widget for `juanramirez.codes` | the secret goes in with `wrangler secret put` through stdin; no deploy wrapper; no jrcodex.dev hostname |
+| ~~`jrcodex-dev-redirect.tf.pending`~~ | removed | jrcodex.dev: left as it is (Tobias, 2026-10-22) |
 | ~~`juanramirez-codes-admin-access.tf.pending`~~ | removed | there is no admin: content is edited in the Proprietor dashboard, already behind Access |
 
 **Teardown of the spike.** As far as known the spike created **no Cloudflare
@@ -241,8 +241,7 @@ portfolio-spike-d1` / `wrangler r2 bucket delete portfolio-spike-media`.
    post images resize there.
 5. **Deploy** from `main` (Workers Builds, D11); the `routes` entry attaches
    `juanramirez.codes`.
-6. **Redirect**: retire the Vercel project, flip jrcodex.dev's two records to
-   proxied placeholders, apply `jrcodex-dev-redirect.tf.pending`.
+6. **jrcodex.dev**: nothing. Left as it is (Tobias, 2026-10-22).
 7. **Spike teardown check** (§7).
 
 ## 9. Results on this branch (2026-10-22, all run through `boxed`)

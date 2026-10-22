@@ -41,7 +41,7 @@ to `~/backups/juanramirez-portfolio-2026-10-19/content.json`.
   └── announce(manifest) once per isolate, production host only
        { has: { blog, intake, videos? }, renders, locales: ["en"], intake.fields }
 
-  jrcodex.dev, www.jrcodex.dev ──301 (path kept)──▶ juanramirez.codes   (parked Terraform, D2)
+  jrcodex.dev: left as it is (Tobias, 2026-10-22). No redirect, nothing changes on the old Vercel site.
   /projects, /projects/<x>     ──301──▶ /work    (the old site's paths; the Worker answers)
 ```
 
@@ -153,7 +153,7 @@ says so.
 | # | Decision | Recommendation |
 |---|---|---|
 | **D1** | **Merge this PR in place of #1–#5**, then close those five as superseded. | **Yes.** Their reusable parts are in this tree with attribution; the rest is Payload/Vercel work this spec removes. Close, do not delete, the branches (history). |
-| **D2** | **Domain.** `juanramirez.codes` canonical; `jrcodex.dev` and `www` 301 to it, path kept. | **Yes** (unchanged from the first version). Owner steps in `plan.md` §8: zone re-declared, nameservers at Namecheap within 28 days, then the redirect once Vercel is retired. |
+| **D2** | **Domain.** `juanramirez.codes` canonical. **jrcodex.dev: left as it is (Tobias, 2026-10-22)**: no redirect, nothing goes to the old Vercel site; this site replaces it rather than taking over its address. | Decided. Owner steps in `plan.md` §8: zone re-declared, nameservers at Namecheap within 28 days. |
 | **D3** | **Engine tenant**: a business row and a site key for origin `https://juanramirez.codes`. Slug `juanramirez`. | **`juanramirez`** (the name says what it is; `jrcodex` stays the npm scope). Minted by the engine lane; the key goes to Vault, then `wrangler secret put` through stdin. Until then the site renders its fallbacks (empty blog, the site's own profile). |
 | **D4** | **The visible e-mail address.** | **`juan@proprietor.systems`** as the fallback profile's address (exists, delivers to his inbox) until his business profile on the engine says otherwise; the profile's email wins when set. |
 | **D5** | **Client work on `/work`.** | **montanobtm.com named and called live** (the only one allowed). Every other client build appears only as an anonymised placeholder ("a Houston garage-door company"), each **flagged for his per-client yes/no**; nothing client-specific renders until spec 030 lands and he writes them. Three Chicks stays out; "Gilded Shear Production-Grade" stays out. |
@@ -172,7 +172,7 @@ says so.
 | Titles, meta description, canonical, Open Graph, Twitter card | `src/views/document.tsx` from a `PageMeta` per route; a post's from the engine's `Post` (title, excerpt, canonical, alternates, JSON-LD) since the kit's `./next` helpers only shape Next metadata objects |
 | `sitemap.xml`, `robots.txt` | routes in `src/routes/seo.ts`; own pages + `sitemap()` entries, absolute on `SITE_URL` |
 | 404 and 500 pages | `app.notFound` and `app.onError` render the site's own pages (no stack traces) |
-| Redirects | `/projects*` → `/work` (301) in the Worker; jrcodex.dev → juanramirez.codes is **proposed** as parked Terraform (D2), applied only if he says so |
+| Redirects | `/projects*` → `/work` (301) in the Worker, from tenant data; jrcodex.dev is left as it is (D2) |
 | Cache-Control per route | `lib/cache-policy.ts` on every Worker response; `_headers` on static assets; never `immutable` on `/media/<slug>/video/*` |
 | Image resizing | the engine's `/cdn-cgi/image/` URLs on the production zone once it is proxied and transformations are enabled; originals elsewhere |
 | Asset fingerprinting | the CSS's content hash in its URL (R0) |

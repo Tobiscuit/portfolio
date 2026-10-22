@@ -1,7 +1,8 @@
 # PARKED 2026-10-20, re-targeted 2026-10-21 - Turnstile for the contact form
 # on juanramirez.codes, the vinext Worker that is a Proprietor tenant
-# (portfolio spec 003 as pivoted; RE-TARGETS jrcodex-turnstile.tf.pending,
-# which is left as it is and is superseded by this file once approved).
+# (portfolio spec 003 as pivoted). Independent of jrcodex-turnstile.tf.pending
+# (2026-10-16, another session's file for jrcodex.dev), which this does not
+# replace or touch: jrcodex.dev is left as it is (Tobias, 2026-10-22).
 # The Worker verifies the token in lib/inquiry/turnstile.ts with the widget's
 # action "contact" before it hands the inquiry to the engine.
 # Copy of ~/portfolio/specs/003-juanramirez-codes/infra/juanramirez-codes-turnstile.tf.pending.
@@ -11,9 +12,9 @@
 # permission check", 2026-09-26):
 #
 #   1. Dashboard -> Turnstile -> Add widget: name "juanramirez.codes contact
-#      form", hostnames juanramirez.codes AND jrcodex.dev (the old host keeps
-#      serving the form until the 301 is live; subdomains are covered), mode
-#      Managed.
+#      form", hostname juanramirez.codes (subdomains are covered), mode
+#      Managed. jrcodex.dev is left as it is (Tobias, 2026-10-22), so it is
+#      not a hostname here.
 #   2. The site key goes into wrangler.jsonc `vars` as TURNSTILE_SITE_KEY
 #      (public); the secret into Vault at secret/portfolio/turnstile, then
 #      into the Worker through stdin, never argv:
@@ -26,14 +27,11 @@
 #
 # "managed" is Cloudflare's recommended mode; "invisible" would oblige the
 # site's privacy policy to reference the Turnstile Privacy Addendum.
-#
-# After the 301 is live and the Vercel site is gone, drop "jrcodex.dev" from
-# `domains` (1 to change).
 
 resource "cloudflare_turnstile_widget" "juanramirez_contact_form" {
   account_id = var.cloudflare_account_id
   name       = "juanramirez.codes contact form"
-  domains    = ["juanramirez.codes", "jrcodex.dev"]
+  domains    = ["juanramirez.codes"]
   mode       = "managed"
 }
 
