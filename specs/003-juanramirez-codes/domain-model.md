@@ -86,7 +86,7 @@ sources tried in order, one result shape).
   engine spec 030   ──(not yet published; the site waits behind ports)───────────▶ ProjectsPort, ProfileLinksPort
   Narrative + Platform Content ──(shared kernel: lib/site.ts host + links, cache policy)──▶ Delivery
   Cloudflare (Turnstile, Workers Cache, Access on previews) ──(upstream)──▶ Delivery
-  cloudflare-infra ──(parked .tf.pending, owner-applied)──▶ zone, redirect, Turnstile widget
+  cloudflare-infra ──(parked .tf.pending, owner-applied)──▶ zone, Turnstile widget (jrcodex.dev left as it is)
 ```
 
 ## 6. Gaps found (and what the spec does about each)

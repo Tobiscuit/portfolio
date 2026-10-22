@@ -83,6 +83,6 @@ Every build and test run goes through `boxed` with a `timeout`.
 | W2 | Engine adapter for `ProfileLinksPort` | spec 030 profile links | `lib/profile-links.ts` |
 | W3 | Kit 0.7.0: replace the videos shim with `videos()` | kit 0.7.0 published | `lib/platform/videos.ts` lookup deleted; `package.json` |
 | W4 | Tenant row + site key | engine lane (D3) | none in code; secrets per plan §8 |
-| W5 | Turnstile widget, zone, redirect | Tobias (plan §8) | `wrangler.jsonc` `vars.TURNSTILE_SITE_KEY` |
+| W5 | Turnstile widget, zone (jrcodex.dev: left as it is) | Tobias (plan §8) | `wrangler.jsonc` `vars.TURNSTILE_SITE_KEY` |
 | W6 | "Write my own post" | spec 030 blog mode | none: `/blog` renders what the engine publishes |
 | W7 | RSS `/feed.xml` | posts exist | a route over `posts()` |
