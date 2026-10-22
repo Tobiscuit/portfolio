@@ -1,5 +1,5 @@
-# PARKED 2026-10-20 - the zone for juanramirez.codes, declared again (portfolio
-# spec 003, D2). Not approved yet. Copy of
+# PARKED 2026-10-20 (re-read 2026-10-21 for the tenant pivot: unchanged) - the
+# zone for juanramirez.codes, declared again (portfolio spec 003, D2). Not approved yet. Copy of
 # ~/portfolio/specs/003-juanramirez-codes/infra/juanramirez-codes-zone.tf.pending.
 #
 # WHY AGAIN. mail.tf declared cloudflare_zone.juanramirez_codes on 2026-09-06.
@@ -25,9 +25,10 @@
 #     `routes: [{ pattern: "juanramirez.codes", custom_domain: true }]`), not
 #     the DNS estate - seo-engine-access.tf, "THE HOSTNAME IS NOT DECLARED
 #     HERE". The Terraform token cannot write Workers domains either.
-#   - mail: none on this domain for now (spec 003 D3/D3b). A null MX, SPF
-#     "-all" and DMARC reject belong here the moment the zone is active, so
-#     the name cannot be spoofed; they are the next file, after D3b.
+#   - mail: none on this domain for now (spec 003 D4: the site shows
+#     juan@proprietor.systems). A null MX, SPF "-all" and DMARC reject belong
+#     here the moment the zone is active, so the name cannot be spoofed; they
+#     are the next file.
 #   - DNSSEC: after activation, once the registrar side is confirmed.
 #
 # Approve with:

@@ -1,6 +1,9 @@
-# PARKED 2026-10-20 - Turnstile for the contact form on juanramirez.codes
-# (portfolio spec 003, D3: RE-TARGETS jrcodex-turnstile.tf.pending, which is
-# left as it is and is superseded by this file once this one is approved).
+# PARKED 2026-10-20, re-targeted 2026-10-21 - Turnstile for the contact form
+# on juanramirez.codes, the vinext Worker that is a Proprietor tenant
+# (portfolio spec 003 as pivoted; RE-TARGETS jrcodex-turnstile.tf.pending,
+# which is left as it is and is superseded by this file once approved).
+# The Worker verifies the token in lib/inquiry/turnstile.ts with the widget's
+# action "contact" before it hands the inquiry to the engine.
 # Copy of ~/portfolio/specs/003-juanramirez-codes/infra/juanramirez-codes-turnstile.tf.pending.
 #
 # Same path as the parked jrcodex file and montanobtm-turnstile.tf.pending,
@@ -12,8 +15,10 @@
 #      serving the form until the 301 is live; subdomains are covered), mode
 #      Managed.
 #   2. The site key goes into wrangler.jsonc `vars` as TURNSTILE_SITE_KEY
-#      (public); the secret, from Vault, through stdin, never argv:
-#        vault kv get -field=secret secret/portfolio/turnstile | scripts/deploy secret put TURNSTILE_SECRET_KEY
+#      (public); the secret into Vault at secret/portfolio/turnstile, then
+#      into the Worker through stdin, never argv:
+#        cd /home/link/portfolio && vault kv get -field=secret secret/portfolio/turnstile \
+#          | CLOUDFLARE_API_TOKEN="$(vault kv get -field=token secret/cloudflare/workers)" npx wrangler secret put TURNSTILE_SECRET_KEY
 #   3. When a Turnstile-capable token exists (Account -> Turnstile -> Edit,
 #      stored at secret/cloudflare/turnstile, used through a provider alias):
 #      fill the import id below, rename this file to .tf, ./tf plan (expect

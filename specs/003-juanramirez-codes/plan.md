@@ -1,193 +1,207 @@
-# 003 — Plan: juanramirez.codes on Cloudflare Workers
+# 003 — Plan: juanramirez.codes as a Proprietor tenant
 
-Status: **proposal, 2026-10-20**, for the decision checkpoint. This plan says
-how the site in `spec.md` is built if D1 (hosting) is decided for Workers,
-what the spike measured, which contracts the build slices share, what
-infrastructure is parked for the owner, and the runbook he will need. Nothing
-in it is applied: no deploy, no DNS, no merge.
-
-Read with: `spec.md` (what and why), `domain-model.md` (the DDD pass),
-`tasks.md` (the test-first slices), `../../spike/payload-on-workers/README.md`
-(the spike and its numbers).
+Read with `spec.md` (what and why), `domain-model.md` (contexts, ports,
+gaps) and `tasks.md` (slices). Nothing here is applied: no deploy, no upload,
+no DNS, no merge.
 
 ## 1. Architecture
 
-One Worker. Next.js 16 runs through `@opennextjs/cloudflare`; Payload 3.x is
-mounted in the same app (`app/(payload)`), with D1 as its database and R2 as
-its file store; the Proprietor engine is reached over a service binding.
-
 ```
-                 ┌────────────────────────── Cloudflare edge ───────────────────────────┐
-  browser ─────▶ │ Access (/admin*)   cache   /cdn-cgi/image/* transforms   Turnstile    │
-                 └───────────────────────────────┬───────────────────────────────────────┘
-                                                 ▼
-                 ┌──────────────── Worker: juanramirez-codes (OpenNext) ────────────────┐
-                 │  Next.js 16 server (App Router)            ASSETS: static files       │
-                 │  ├── public pages  ── Payload Local API ──▶ D1  (binding D1)          │
-                 │  │                                     └──▶ R2  (binding R2, uploads) │
-                 │  ├── /admin, /api/* ── Payload (auth: cookie JWT + users_sessions)    │
-                 │  ├── /blog, /videos, /media/*, /api/contact                           │
-                 │  │        └── @jrcodex/seo-kit rpc(env.SEO, SEO_SITE_KEY) ──▶ SEO ────┼──▶ seo-engine
-                 │  └── announce(manifest) once per isolate, canonical host only         │     (Sites entrypoint)
-                 │  secrets: PAYLOAD_SECRET, SEO_SITE_KEY, TURNSTILE_SECRET_KEY          │
-                 │  vars:    SITE_HOST, ENGINE_WRITE_HOST, TURNSTILE_SITE_KEY            │
+                 ┌─────────────────────────── Cloudflare edge ────────────────────────────┐
+  browser ─────▶ │ Workers Cache (RFC 9111; slices Range itself)   /cdn-cgi/image/*        │
+                 │ Access on preview URLs (account-wide app)        Turnstile (siteverify) │
+                 └──────────────────────────────────┬──────────────────────────────────────┘
+                                                    ▼
+                 ┌──────────────── Worker: juanramirez-codes (worker/index.ts) ───────────┐
+                 │ 1. announceInBackground(manifestFor(caps))  production host only       │
+                 │ 2. /projects* → 301 /work                                              │
+                 │ 3. engine doors: /media/* (kit mediaHandler)                           │
+                 │ 4. everything else → vinext/server/fetch-handler (RSC pages, routes)   │
+                 │ 5. withCachePolicy(request, response)                                  │
+                 │                                                                        │
+                 │ pages: lib/platform/* ── rpc(env.SEO, SEO_SITE_KEY) ──▶ SEO binding ───┼──▶ seo-engine
+                 │ POST /api/inquiries ── Turnstile ── inquire()                          │    entrypoint Sites
+                 │ vars: ENGINE_WRITE_HOST, TURNSTILE_SITE_KEY                            │    (no public URL)
+                 │ secrets: SEO_SITE_KEY, TURNSTILE_SECRET_KEY                            │
                  └────────────────────────────────────────────────────────────────────────┘
 ```
 
-Bindings (`wrangler.jsonc`, one `env.preview` block with its own data; D11):
+No D1, no R2, no KV: the site keeps no data of its own. `wrangler.jsonc`:
+`main: ./worker/index.ts`, `compatibility_date` = the newest the installed
+workerd supports (≥ 2026-04-21), `workers_dev: false`, `preview_urls: true`
+(Access-gated), `cache.enabled: true`, `services: [{ binding: "SEO",
+service: "seo-engine", entrypoint: "Sites" }]`, `routes: [{ pattern:
+"juanramirez.codes", custom_domain: true }]` (attaches only once the zone is
+active; the deploy is the owner's).
 
-| Binding | Production | Preview | Why |
-|---|---|---|---|
-| `D1` (d1_databases) | `portfolio-d1` | `portfolio-preview-d1` | Payload's data; previews must never migrate production (gap G6) |
-| `R2` (r2_buckets) | `portfolio-media` | `portfolio-preview-media` | Payload uploads, served at `/api/media/file/<name>` |
-| `SEO` (services → `seo-engine`, entrypoint `Sites`) | same | same | the engine; previews read but never write (`ENGINE_WRITE_HOST`) |
-| `ASSETS` | OpenNext's | OpenNext's | static output |
-| `NEXT_INC_CACHE_R2_BUCKET` + `WORKER_SELF_REFERENCE` | optional, phase 2 | optional | ISR cache; only if content pages are not fully dynamic |
+## 2. Files and contracts
 
-The custom domain is **part of the Worker's deploy**, not Terraform:
-`"routes": [{ "pattern": "juanramirez.codes", "custom_domain": true }]`, for
-the reasons recorded in `~/cloudflare-infra/seo-engine-access.tf` ("THE
-HOSTNAME IS NOT DECLARED HERE, deliberately": the Terraform token cannot write
-Workers domains, and a Workers domain lives and dies with the Worker). It only
-works once the zone is active (§5).
+Exclusive owner of each file: this branch. The interfaces other lanes will
+touch are marked **contract**.
 
-**The fallback, if D1 says no.** The public site stays exactly this Worker,
-reading D1 and R2; only *editing* moves to the node: Payload's admin runs as a
-k3s Deployment (behind Access, the node's Postgres), and a **publish** job
-copies the documents and files into the Worker's D1 and R2 (Payload Local API
-export → `wrangler d1 execute` / `rclone`), so the public site never calls the
-node at runtime. Costs: a second runtime to keep current, a sync that can lag,
-no "edit from a phone", and the node's downtime becomes the editor's downtime.
-It is a real option, not a punishment; the spike's numbers decide (§3).
-
-## 2. The template, as read, and the APIs this plan relies on
-
-Payload's `templates/with-cloudflare-d1` (GitHub `main`, read 2026-10-20; the
-spike copies it rather than inventing):
-
-- OpenNext (`open-next.config.ts`, `wrangler.jsonc` with `nodejs_compat`),
-  `@payloadcms/db-d1-sqlite` and `@payloadcms/storage-r2`.
-- A console logger: `pino-pretty` needs Node APIs workerd lacks.
-- `crop: false`, `focalPoint: false` on uploads "due to lack of sharp"; no
-  `imageSizes` (D10).
-- GraphQL "not guaranteed" on Workers (workerd issue 5175); this site does not
-  use it (`graphQL: { disable: true }`).
-- README: "can only be deployed on Paid Workers right now due to size
-  limits". **Stale on the size side** (spec §1: 64 MiB uncompressed on Free
-  and Paid, no compressed limit, 1 s startup); the account is on Workers Paid
-  regardless.
-
-APIs, verified with context7 on 2026-10-20:
-
-| What | Shape | Note |
+| Path | What | Contract |
 |---|---|---|
-| Bindings from Next code | `const { env } = await getCloudflareContext({ async: true })` (`@opennextjs/cloudflare`) | `async: true` is required in statically generated routes and under `next dev`; `initOpenNextCloudflareForDev()` in `next.config` for dev |
-| Payload database | `sqliteD1Adapter({ binding: env.D1 })` | `binding` required, must match the wrangler binding name |
-| Payload files | `r2Storage({ collections: { media: true }, bucket: env.R2 })` | one bucket, one collection |
-| Payload 4 | `4.0.0-beta.3` on `beta`; its migration guide ships `migrate:create --file @payloadcms/db-d1-sqlite/sizes-to-variants` | the build phase targets **3.91** (`latest`); the 4.x upgrade is a scheduled migration, not a pin (CLAUDE.md) |
+| `worker/index.ts` | entry: announce, redirects, `/media` door, delegate, cache policy | — |
+| `lib/site.ts` | `SITE_HOST = "juanramirez.codes"`, `SITE_URL`, `absolute(path)`, `DEFAULT_LOCALE`, `GITHUB_URL`, `LINKEDIN_URL`, `FALLBACK_PROFILE` | one host constant (G4) |
+| `lib/seo.ts` | `manifestFor({ videos })`, `engineClient(env)`, `mayWriteToEngine`, `announceInBackground`, `describe` | **contract**: the manifest the engine stores |
+| `lib/cache-policy.ts` | `cachePolicy(req, res)`, `withCachePolicy` | rules in §3 |
+| `lib/platform/reads.ts` | `readPosts`, `readPost`, `readSitemap`, `readProfile` with shape checks | ACL |
+| `lib/platform/images.ts` | `plainPost`, `plainPostSummary`: transform URLs → originals off production | — |
+| `lib/platform/videos.ts` | `readVideos(env)`, `canReadVideos(env)` | the shim (R4) |
+| `lib/inquiry/{form,turnstile,handle}.ts` | the intake flow | **contract**: `POST /api/inquiries` answers `200 {ok:true}` or `{ok:false,error}` with 400/429/503 |
+| `lib/projects/port.ts` | `ProjectsPort`, `ProjectCard`, `ProjectPage`, `ProjectStatus` | **contract** for the spec 030 adapter |
+| `lib/projects/placeholder.ts` | `placeholderProjects` | replaced by the engine adapter |
+| `lib/profile-links.ts` | `ProfileLinksPort`, `staticProfileLinks` | **contract** for spec 030's profile links |
+| `content/*.ts` | narrative data: home, about, work summaries | claims rules (G8) |
+| `app/**` | vinext App Router pages and routes | — |
+| `components/**` | the design system as React components | — |
+| `app/styles/*.css`, `design-system.json` | PR #5's tokens, base, primitives, enhancements | contrast pairs |
+| `tests/unit/**` | Node-only unit tests (Vitest) | — |
+| `tests/smoke/**`, `tests/stubs/seo-engine/**` | the built Worker in workerd with a stub `seo-engine` | — |
+| `tests/a11y/**`, `tests/perf/**` | Playwright + axe; Lighthouse | — |
 
-## 3. Spike measurements
+### 2.1 The projects port (the seam for engine spec 030)
 
-> Filled from `spike/payload-on-workers/README.md` when the builder reports.
-> Verdict for D1 is written here, under the numbers, so it cannot drift from
-> them. Vault was **sealed** during this run: everything below that needs the
-> account is listed as pending with the exact commands.
-
-### 3.1 Local (workerd through `opennextjs-cloudflare preview`)
-
-_pending builder report_
-
-### 3.2 Remote preview (needs Vault unsealed; not run this phase)
-
-```sh
-cd /home/link/worktrees/portfolio-juanramirez/spike/payload-on-workers
-export VAULT_ADDR=https://vault.superblock.dev CLOUDFLARE_ACCOUNT_ID=93368368c927399b55ef1fb9e98df666
-export CLOUDFLARE_API_TOKEN="$(vault kv get -field=token secret/cloudflare/workers)"
-npx wrangler d1 create portfolio-spike-d1            # paste database_id into wrangler.jsonc
-npx wrangler r2 bucket create portfolio-spike-media
-openssl rand -hex 32 | npx wrangler secret put PAYLOAD_SECRET   # stdin, never argv
-npm run migrate:remote                                # per the template's mechanism (README)
-npx opennextjs-cloudflare build
-npx wrangler versions upload --preview-alias spike    # prints startup time; NEVER `deploy`
-BASE_URL=https://spike-<worker>.<subdomain>.workers.dev scripts/measure.sh
-unset CLOUDFLARE_API_TOKEN
+```ts
+export type ProjectStatus = "live" | "built" | "in-progress";
+export interface ProjectCard {
+  slug: string;            // kebab-case, unique
+  title: string;
+  summary: string;         // one or two sentences
+  status: ProjectStatus;   // "live" only with an allow-listed liveUrl
+  role: string | null;     // "Designed and built it"
+  stack: string[];         // chips
+  links: Array<{ label: string; href: string; kind: "repo" | "live" | "write-up" }>;
+  path: string | null;     // "/work/<slug>" when a page exists; null for a summary-only card
+}
+export interface ProjectPage extends ProjectCard { bodyHtml: string; updatedAt: string }
+export interface ProjectsPort {
+  list(): Promise<ProjectCard[]>;
+  get(slug: string): Promise<ProjectPage | null>;
+}
 ```
 
-Teardown after the decision: `npx wrangler d1 delete portfolio-spike-d1`,
-`npx wrangler r2 bucket delete portfolio-spike-media`, `npx wrangler delete
---name portfolio-spike` (each needs the token for that one command).
+The engine adapter (later) maps spec 030's fixed core (title, summary,
+cover, path) and this site's extension fields (role, stack, links, status)
+onto `ProjectCard`. Until then `placeholderProjects.list()` returns the
+static summaries in `content/work.ts` with `path: null`, and `get()` returns
+null (so `/work/<slug>` is a 404, not a fake page).
 
-### 3.3 Verdict on D1
+## 3. Cache policy (`lib/cache-policy.ts`)
 
-_pending the numbers_
-
-## 4. Contracts between slices
-
-File ownership is exclusive per slice (`tasks.md`); these are the interfaces
-they share. A slice may read any of them; only the owner changes one.
-
-| Contract | Owner | Shape |
-|---|---|---|
-| **Canonical host** | S5 | `app/lib/site.ts`: `export const SITE_HOST = "juanramirez.codes"`; `canonical(path: string): string` returns `https://${SITE_HOST}${path}`. Payload `serverURL`, the sitemap base, JSON-LD `url` and `ENGINE_WRITE_HOST`'s default derive from it (gap G4); a test greps for the literal host outside this file and fails on a second occurrence |
-| **Cache policy** | S5 | `app/lib/cache-policy.ts`: `cacheControlFor(path: string, upstream: Headers \| null): string`. Rules: `/api/media/file/*` → `public, max-age=31536000, immutable`; `/media/*` → `upstream.get("cache-control")` verbatim (a video's `max-age=300` survives, PR #4 `a4ad7f7`); `/admin*`, `/api/*` (not media files) → `no-store`; content pages → the page's own `s-maxage`. One test per rule |
-| **Platform env** | S1 | `app/lib/platform/env.ts`: `platformEnv(): Promise<PlatformEnv>` becomes `const { env } = await getCloudflareContext({ async: true }); return env as PlatformEnv` (PR #4 says this is the one body that changes). `transportFor(env)` in `app/lib/intake/engine.ts` is unchanged: `SEO` bound ⇒ `rpc` |
-| **Manifest** | S5 (test), PR #4 (module) | `app/lib/intake/manifest.ts` unchanged: `has: { intake, blog, videos }`; `test/boundaries.test.ts` gains `expect(manifest.has).not.toHaveProperty("projects")` (gap G1) |
-| **Payload config** | S1 (adapters, `serverURL`, `secret`, logger, `graphQL.disable`), S2 (`collections`, `globals`) | `payload.config.ts`: S1 lands first with the spike's three collections; S2 replaces the `collections`/`globals` arrays with `collections/*.ts` and `globals/*.ts` and touches nothing else in the file |
-| **Content rules** | S2 | `collections/CONTENT-RULES.md` + hooks: `beforeValidate` on `projects` rejects `status: live` for `kind: client` unless `slug ∈ LIVE_CLIENT_SLUGS` (`["montanobtm"]`); rejects an `outcomes[]` row without `source`; `afterRead` strips `clientName` when `anonymised` and no user. Each rule is a pure function in `collections/rules.ts` with a unit test, then wired as a hook |
-| **Migrations** | S1 (initial), S2 (model) | `src/migrations/*` from `payload migrate:create`; CI applies to the environment's D1 before upload (`tasks.md` S6); never hand-written SQL |
-| **Media URLs** | S1 | Payload serves `/api/media/file/<filename>`; the `next/image` loader (S4) maps to `/cdn-cgi/image/<opts>/api/media/file/<filename>` only when `SITE_HOST` is proxied; otherwise the original |
-| **Seed / import** | S3 | `scripts/import-content.ts` (Local API, idempotent on slug), `scripts/verify-import.ts` (counts, slugs, byte lengths; non-zero exit on any difference); refuses to run with a placeholder social URL |
-| **Deploy wrapper** | S6 | `scripts/deploy`: the seo-engine pattern (`~/seo-engine/deploy`): reads `secret/cloudflare/workers` from Vault per invocation, exports `CLOUDFLARE_API_TOKEN` to the child `wrangler` only; never argv, never a file |
-| **Preview environment** | S6 | `wrangler.jsonc` `env.preview` with its own D1/R2 ids; CI uploads with `--env preview --preview-alias pr-<n>`; Access already covers all preview Workers (`~/cloudflare-infra/worker-previews-access.tf`, `all_preview_workers`) |
-
-## 5. Parked infrastructure (owner-applied; nothing here is applied)
-
-Files are in `specs/003-juanramirez-codes/infra/*.tf.pending` in this PR and
-copied, untracked, into `~/cloudflare-infra/` where the repo's convention
-keeps unapproved changes (`docs/plan-breakage-2026-10-16.md`). The three
-existing `jrcodex-*.tf.pending` files are **not edited** (D3).
-
-| File | What | Depends on |
-|---|---|---|
-| `juanramirez-codes-zone.tf.pending` | `cloudflare_zone.juanramirez_codes` re-declared (Free plan) with the 28-day rule in its header; outputs the zone id and nameservers | the state surgery in `plan-breakage-2026-10-16.md` **first** (the dead zone's id is still in state under the same address), then nameservers at Namecheap within 28 days |
-| `juanramirez-codes-admin-access.tf.pending` | Access application for `juanramirez.codes/admin*` and the three auth endpoints (`/api/users/login`, `/api/users/first-register`, `/api/users/forgot-password`); policy: his identity through the existing provider; `session_duration` long, as montanobtm's admin | the zone active; the Worker deployed on the custom domain |
-| `jrcodex-dev-redirect.tf.pending` | `cloudflare_ruleset` phase `http_request_dynamic_redirect` on jrcodex.dev: 301 apex and `www` → `https://juanramirez.codes${path}${query}` (the `proprietorsystems-com.tf.pending` shape) | the two Vercel records in `dns.tf` flipped to proxied placeholders (`A 192.0.2.1`, `proxied = true`) **after** the Vercel site is retired; described in the file, not edited here |
-| `juanramirez-codes-turnstile.tf.pending` | re-target of `jrcodex-turnstile.tf.pending`: one widget, domains `["juanramirez.codes", "jrcodex.dev"]` for the redirect window, same dashboard-first import path (the Terraform token has no Turnstile permission) | nothing; can be created in the dashboard today |
-| (none) | previews: already covered by `worker-previews-access.tf` (`all_preview_workers`) | — |
-| (none) | mail on the new domain: D3b says not now; a later file | — |
-
-## 6. Owner runbook (the steps only Tobias can do, in order)
-
-1. **Unseal Vault** (CLAUDE.md), then `./tf plan` state surgery for the dead
-   zone (`~/cloudflare-infra/docs/plan-breakage-2026-10-16.md`).
-2. **Zone**: `mv juanramirez-codes-zone.tf.pending juanramirez-codes-zone.tf && ./tf plan` (expect 1 to add), apply, then at Namecheap set the nameservers the output prints. 28 days.
-3. **Resources** (the deploy token, per invocation; the repo's `scripts/deploy` wraps this):
-   `cd ~/portfolio && scripts/deploy d1 create portfolio-d1 && scripts/deploy d1 create portfolio-preview-d1 && scripts/deploy r2 bucket create portfolio-media && scripts/deploy r2 bucket create portfolio-preview-media`; paste the ids into `wrangler.jsonc`.
-4. **Secrets** (stdin from Vault, never argv): `vault kv get -field=secret secret/portfolio/payload | scripts/deploy secret put PAYLOAD_SECRET`; the site key: mint for business `juanramirez`, origin `https://juanramirez.codes`, the same procedure as montanobtm's key (engine spec 005; the operator CLI in `~/seo-engine`), store at `secret/portfolio/seo-site-key`, then `vault kv get -field=key secret/portfolio/seo-site-key | scripts/deploy secret put SEO_SITE_KEY`. Preview secrets the same with `--env preview`.
-5. **Migrate** the production D1 (`tasks.md` S6 names the command the template uses; recorded in the spike README).
-6. **First user**: open `/admin` once; `first-register` closes itself. Password reset later: `scripts/reset-password.ts` through the same remote-binding mechanism as migrations (D9).
-7. **Custom domain**: `scripts/deploy deploy` from `main` only (CI does it); the `routes` block attaches `juanramirez.codes`.
-8. **Access** for `/admin`: rename and apply `juanramirez-codes-admin-access.tf.pending`.
-9. **Redirect**: retire the Vercel project, flip `dns.tf`'s two records to proxied placeholders, apply `jrcodex-dev-redirect.tf.pending`.
-10. **Teardown** the spike (`§3.2`).
-
-Inputs only he has: his LinkedIn URL (gap G10), the per-client anonymisation
-decisions (D7), the Namecheap login (never stored here; Vaultwarden).
-
-## 7. Verification plan for the budgets (spec §3)
-
-| Gate | Tool | Where it runs | Pass |
+| Request | Response | Cache-Control | Why |
 |---|---|---|---|
-| LCP < 2.0 s (4G), CLS < 0.05, TBT (INP proxy) | Lighthouse CI (`@lhci/cli`), mobile preset, 3 runs, median | CI job against the PR's preview alias; the report attached to the PR | `assertions` in `lighthouserc.json`; a failing budget fails the job |
-| WCAG 2.2 AA | Playwright + axe-core (PR #5's method, moved into `tests/a11y.spec.ts`) | CI, `next start` of the build | 0 violations on every public route, dark and light, 320 and 1280 px |
-| JS weight ≤ 100 KB gzip on content pages | `next build` manifest asserted in `tests/weight.node-test.ts` | CI | fails over budget |
-| Startup < 1 s with margin; cold TTFB | `wrangler versions upload` output + `spike/.../scripts/measure.sh` against the alias | CI, recorded in the job summary | the number is recorded per upload; regression > 20 % fails |
-| Cache rules, host constant, manifest keys, content rules | Vitest / node:test | CI | one test per rule (§4) |
+| not GET/HEAD, or `set-cookie` present | any | `private, no-store` | never store a write or a session |
+| `/api/*` | any | `private, no-store` | routes |
+| `/media/<slug>/video/*` | 200, 304 | **the engine's header, verbatim** (`public, max-age=300`); `private, no-store` if absent | spec 028: hiding reaches caches within 5 min; Workers Cache slices Range from the stored 200 |
+| `/media/<slug>/video/*` | anything else | `private, no-store` | a Worker's 206 is never stored anyway |
+| `/media/*` (images) | 200, 304; engine header says `private` | `private, max-age=86400` | a visitor's own picture (montano's rule) |
+| `/media/*` (images) | 200, 304 | `public, max-age=31536000, immutable` | content-addressed originals |
+| `/media/*` | other | `private, no-store` | |
+| RSC payload (`rsc: 1`, `.rsc`, `_rsc`) | any | `private, no-store` | never cached separately from the page |
+| page | 200 HTML, XML, text | `public, max-age=0, s-maxage=60, stale-while-revalidate=600` | edge keeps a minute, browsers revalidate |
+| anything else | | `private, no-store` | unknown ⇒ not stored |
 
-## 8. Verified numbers for the content plan
+Adapted from montano-btm's `lib/cache-policy.ts` (develop, spec 008 D13);
+the video rule is new here.
 
-> Filled from the read-only research pass when it reports; each row carries
-> the command or path it came from. Rows that could not be verified are
-> listed separately and are **not** used in copy.
+## 3.1 Images off the production host
 
-_pending research report_
+The engine writes post images as `/cdn-cgi/image/<opts>/media/<key>`. That
+path answers only on the proxied production zone, so `worker/index.ts` marks
+every request not on `SITE_HOST` with `x-jrc-images: originals` (any client
+value of that header is removed first), and the readers rewrite to
+`/media/<key>` (montano-btm's `lib/request-headers.ts` + PR #4's
+`plainPost`, which also rewrites `blocks` and the JSON-LD).
+
+## 4. Test strategy (all through `boxed`, in the foreground, with `timeout`)
+
+| Suite | Runs | What it proves |
+|---|---|---|
+| `tests/unit` (Vitest, Node) | `npm run test:unit` | manifest, cache policy, intake handler outcomes, Turnstile, shape checks, image rewrite, videos shim, ports, content claims, contrast pairs |
+| `tests/smoke` (Vitest → `wrangler dev` on `dist/server/wrangler.json` + stub engine) | `npm run test:smoke` after `npm run build` | every page renders (no RSC error rows), the blog through `compose()`, `/media` streaming and headers, the inquiry route end to end (stub records the call), redirects, robots/sitemap, Cache-Control on every response |
+| `tests/a11y` (Playwright + axe) | `npm run test:a11y` against the smoke server | WCAG 2.2 AA, 0 violations, both schemes, 320 and 1280 px |
+| `tests/perf` (Lighthouse, mobile, simulated 4G) | `npm run test:perf` | LCP, CLS, TBT budgets |
+
+`npm run build` is `vinext build` only; nothing in the tree calls
+`npm run build` (the 2026-10-20 freeze was a build that called itself).
+
+## 5. Design system: PR #5 judged
+
+To be filled from this branch's own checks (tokens test, axe, Lighthouse):
+see §9 when the build reports.
+
+## 6. Verified facts for the content (each with its source)
+
+| Claim on the site | Source (command or file, 2026-10-21/22) |
+|---|---|
+| Proprietor's engine: 28 specs, 35 SQL migrations, 188 test files on `main` | `git -C ~/seo-engine ls-tree origin/main` at `9ca1df4` (specs dirs, `migrations/*.sql`, `*.test.ts`) |
+| The engine and agents have no public address; doors are the dashboard (Access) and client sites | `~/seo-engine/docs/security-posture.md` (2026-10-04; workers.dev closed 2026-10-05) |
+| Five locks, honest limit: all trust the first | same file, "The locks, in order" |
+| Model output is JSON-Schema-constrained blocks; no model-written markup served | memory `portfolio-talking-points.md` (spec 019), stated as written |
+| montanobtm.com is live on the platform | `curl https://montanobtm.com/` → 200 (2026-10-22); live since 2026-09-26 (memory `client-sites-actual-status.md`) |
+| proprietor-mail: public, Apache-2.0, "built and tested, not deployed" | `gh api repos/Tobiscuit/proprietor-mail` (license apache-2.0), its README "Status" |
+| proprietor-mail: HPKE-sealed per mailbox, keys wrapped per passkey (WebAuthn PRF) and a recovery key | its README, "The promise, and its limits" |
+| Platform: one Hetzner node, k3s, Argo CD app-of-apps, 37 application manifests | `ls ~/platform-gitops/apps \| wc -l` = 37 at `be16e70` |
+| Vault for secrets via external-secrets; nightly restic backups to R2 | `~/CLAUDE.md`; memory `node-backups-restic.md` |
+| Cloudflare DNS across 7 zones in Terraform, state in R2 | `gh repo view Tobiscuit/cloudflare-infra` description; `~/CLAUDE.md` |
+| Fluency: Next.js 16, React 19, Better Auth, Postgres, ts-fsrs, Stripe; CI builds the image, Argo CD rolls it | `~/CLAUDE.md` Fluency section; `~/fluency/.github/workflows/build-image.yml` |
+| Fluency answers at fluency.study | `curl https://fluency.study/` → 200 (2026-10-22) |
+| Pulse Agent: one Rust binary; the tool server's list is the capability ceiling; every call needs a technician keypress | `~/Projects/pulse-agent/README.md` |
+| Pulse Diagnostics: Tauri 2 + Rust; the check-in starts on the stick | `~/Projects/pulse-diagnostics/README.md` |
+| AWS Certified Cloud Practitioner is his one earned credential; no degree | memory `user-background.md` (confirmed 2026-09-09) |
+| LinkedIn `https://www.linkedin.com/in/cloud-juan-manuel-ramirez/` | old site, `app/(app)/contact/page.tsx` on `main` |
+| `juan@proprietor.systems` reaches him | `~/cloudflare-infra/proprietor-systems.tf` (forwarded: hello, tobias, juan) |
+
+Not used (could not verify from a repo): any user or revenue numbers, the
+old copy's "production-grade" and "I ship production systems for real
+businesses", "CISSP Domain Mastery (20+ Hours)".
+
+## 7. Parked infrastructure and teardown
+
+Files in `specs/003-juanramirez-codes/infra/*.tf.pending`, re-targeted to the
+Worker (nothing applied):
+
+| File | What | Change from the first version |
+|---|---|---|
+| `juanramirez-codes-zone.tf.pending` | the zone, re-declared; 28-day rule | none in substance |
+| `juanramirez-codes-turnstile.tf.pending` | one widget for `juanramirez.codes` (+ `jrcodex.dev` during the redirect window) | the secret goes in with `wrangler secret put` through stdin; no deploy wrapper |
+| `jrcodex-dev-redirect.tf.pending` | 301 jrcodex.dev/www → juanramirez.codes | `/projects` → `/work` is answered by the Worker (R7) |
+| ~~`juanramirez-codes-admin-access.tf.pending`~~ | removed | there is no admin: content is edited in the Proprietor dashboard, already behind Access |
+
+**Teardown of the spike.** As far as known the spike created **no Cloudflare
+resources**: it ran only locally (Vault was sealed, so no token existed in
+the session). Verify after Vault is unsealed, read-only:
+
+```sh
+cd /home/link && export CLOUDFLARE_ACCOUNT_ID=93368368c927399b55ef1fb9e98df666
+CLOUDFLARE_API_TOKEN="$(vault kv get -field=token secret/cloudflare/workers)" npx wrangler d1 list | grep -i portfolio-spike
+CLOUDFLARE_API_TOKEN="$(vault kv get -field=token secret/cloudflare/workers)" npx wrangler r2 bucket list | grep -i portfolio-spike
+```
+
+Expect no output. If either prints, delete with `wrangler d1 delete
+portfolio-spike-d1` / `wrangler r2 bucket delete portfolio-spike-media`.
+
+## 8. Owner runbook (only Tobias, in order)
+
+1. **Tenant** (engine lane): create business `juanramirez` (D3), mint its
+   site key for origin `https://juanramirez.codes`, store it at
+   `secret/portfolio/seo-site-key` in Vault.
+2. **Turnstile**: create the widget in the dashboard (parked file's steps);
+   put the site key in `wrangler.jsonc` `vars.TURNSTILE_SITE_KEY`; the secret
+   at `secret/portfolio/turnstile`.
+3. **Secrets** (stdin, never argv):
+   `cd /home/link/portfolio && vault kv get -field=key secret/portfolio/seo-site-key | CLOUDFLARE_API_TOKEN="$(vault kv get -field=token secret/cloudflare/workers)" npx wrangler secret put SEO_SITE_KEY`
+   and the same for `TURNSTILE_SECRET_KEY`.
+4. **Zone**: state surgery and `juanramirez-codes-zone.tf.pending` (its
+   header), then the nameservers at Namecheap the same day.
+5. **Deploy** from `main` (Workers Builds, D11); the `routes` entry attaches
+   `juanramirez.codes`.
+6. **Redirect**: retire the Vercel project, flip jrcodex.dev's two records to
+   proxied placeholders, apply `jrcodex-dev-redirect.tf.pending`.
+7. **Spike teardown check** (§7).
+
+## 9. Results on this branch
+
+Filled as the build reports (test counts, axe, Lighthouse numbers, the
+design-system judgment).
