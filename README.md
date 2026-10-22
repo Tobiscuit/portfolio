@@ -1,8 +1,7 @@
 # juanramirez.codes
 
 Juan Ramirez's portfolio: one small Cloudflare Worker that is a tenant of
-[Proprietor](https://montanobtm.com/) (his multi-tenant platform for local
-businesses). The narrative pages are code in this repository; the blog, the
+Proprietor, his multi-tenant platform for local businesses. The narrative pages are code in this repository; the blog, the
 contact form's inbox, his profile and (behind a fallback) videos come from the
 Proprietor engine through a service binding, using `@jrcodex/seo-kit`. The
 engine has no public address; this Worker reaches it only over the binding.

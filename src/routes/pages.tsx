@@ -105,7 +105,7 @@ pages.get("/about", (c) =>
     <>
       <Section>
         <Shell size="narrow">
-          <SectionHeader as="h1" eyebrow="About" title="Self-taught software engineer" lede={ABOUT.lede} />
+          <SectionHeader as="h1" eyebrow="About" title="How I got here" lede={ABOUT.lede} />
           <div class="prose-body stack">
             {ABOUT.story.map((paragraph) => (
               <p>{paragraph}</p>

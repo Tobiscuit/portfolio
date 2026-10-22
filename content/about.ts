@@ -35,9 +35,9 @@ export const ABOUT = {
     studying: ["AWS Certified Solutions Architect – Professional", "CompTIA CySA+, PenTest+ and SecurityX", "Discrete mathematics"],
   },
   education: [
+    { where: "Zero To Mastery", what: "Software engineering courses", when: "2020–2021" },
     { where: "University of Houston", what: "Coursework in Computer Information Systems", when: "2016–2018" },
     { where: "Houston Community College", what: "Coursework in computer systems and network administration", when: "2013–2015" },
-    { where: "Zero To Mastery", what: "Software engineering courses", when: "2020–2021" },
   ],
   reading: [
     { title: "Fundamentals of Software Architecture", author: "Mark Richards and Neal Ford" },
