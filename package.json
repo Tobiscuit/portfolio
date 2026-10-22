@@ -12,11 +12,11 @@
     "build": "wrangler deploy --dry-run --outdir dist",
     "types": "wrangler types",
     "typecheck": "wrangler types && tsc --noEmit",
-    "test": "vitest run",
+    "test": "vitest run --project unit --project smoke",
     "test:unit": "vitest run --project unit",
     "test:smoke": "vitest run --project smoke",
-    "test:a11y": "node tests/a11y/run.mjs",
-    "test:perf": "node tests/perf/run.mjs"
+    "test:a11y": "vitest run --project a11y",
+    "test:perf": "vitest run --project perf"
   },
   "dependencies": {
     "@jrcodex/seo-kit": "0.6.2",
@@ -25,6 +25,7 @@
   "devDependencies": {
     "@axe-core/playwright": "^4.14.0",
     "@types/node": "^26.6.5",
+    "chrome-launcher": "^1.2.2",
     "htmx.org": "4.0.0",
     "lighthouse": "^13.5.0",
     "playwright-core": "^1.64.1",

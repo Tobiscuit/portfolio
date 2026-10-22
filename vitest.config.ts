@@ -43,6 +43,17 @@ export default defineConfig({
           server: { deps: { inline: ["@jrcodex/seo-kit"] } },
         },
       },
+      ...["a11y", "perf"].map((name) => ({
+        test: {
+          name,
+          include: [`tests/${name}/**/*.test.ts`],
+          // The same Worker and stub as the smoke tests.
+          globalSetup: ["./tests/smoke/global-setup.ts"],
+          fileParallelism: false,
+          testTimeout: 120_000,
+          hookTimeout: 180_000,
+        },
+      })),
       {
         test: {
           name: "smoke",
