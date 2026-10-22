@@ -1,0 +1,35 @@
+{
+  "name": "juanramirez-codes",
+  "version": "0.1.0",
+  "private": true,
+  "description": "juanramirez.codes: Juan Ramirez's portfolio, a Hono + htmx Worker that is a Proprietor tenant (spec 003).",
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "dev": "wrangler dev",
+    "build": "wrangler deploy --dry-run --outdir dist",
+    "types": "wrangler types",
+    "typecheck": "wrangler types && tsc --noEmit",
+    "test": "vitest run",
+    "test:unit": "vitest run --project unit",
+    "test:smoke": "vitest run --project smoke",
+    "test:a11y": "node tests/a11y/run.mjs",
+    "test:perf": "node tests/perf/run.mjs"
+  },
+  "dependencies": {
+    "@jrcodex/seo-kit": "0.6.2",
+    "hono": "^4.13.13"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.14.0",
+    "@types/node": "^26.6.5",
+    "htmx.org": "4.0.0",
+    "lighthouse": "^13.5.0",
+    "playwright-core": "^1.64.1",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.5",
+    "wrangler": "^4.151.3"
+  }
+}

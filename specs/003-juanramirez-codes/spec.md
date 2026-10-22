@@ -1,12 +1,16 @@
 # 003 — juanramirez.codes: the portfolio as a Proprietor tenant
 
-Status: **pivoted 2026-10-21, built on this branch** (`spec/juanramirez-codes`,
-draft PR #6). Nothing is merged, deployed, uploaded to Cloudflare or changed
-in DNS. The first version of this spec (2026-10-20) proposed Payload on
-Workers and a hosting spike; Tobias decided on 2026-10-21: **no Payload**. The
-site is a small vinext Worker, built like montano-btm, that reaches the
-Proprietor engine through a `SEO` service binding with `rpc()` (no public
-engine door) and gets every dynamic part from `@jrcodex/seo-kit`.
+Status: **pivoted 2026-10-21, re-stacked 2026-10-22, built on this branch**
+(`spec/juanramirez-codes`, draft PR #6). Nothing is merged, deployed,
+uploaded to Cloudflare or changed in DNS. The first version of this spec
+(2026-10-20) proposed Payload on Workers and a hosting spike; Tobias decided
+on 2026-10-21: **no Payload**, and on 2026-10-22: **Hono + hono/jsx + htmx**,
+the leanest stack (his BASTION site's), instead of vinext. The site is one
+small Worker that reaches the Proprietor engine through a `SEO` service
+binding with `rpc()` (no public engine door) and gets every dynamic part
+from `@jrcodex/seo-kit`. montano-btm stays the model for the engine wiring
+(manifest, write host, cache policy, stub-engine smoke tests), not for the
+framework.
 
 Companion documents: `domain-model.md` (contexts, the ports, the gaps),
 `plan.md` (architecture, contracts, the spike's evidence, parked
@@ -24,7 +28,8 @@ to `~/backups/juanramirez-portfolio-2026-10-19/content.json`.
 **After.**
 
 ```
-  juanramirez.codes  ONE Worker: vinext (Vite + RSC) + worker/index.ts, no database, no bucket
+  juanramirez.codes  ONE Worker: Hono 4 + hono/jsx (server-rendered HTML), htmx 4 on /contact only,
+                     bundled by wrangler; static files from Workers static assets; no database, no bucket
   ├── /                  home: who, what I build, selected work, writing, contact
   ├── /about             narrative, experience, credentials (static, in the repo)
   ├── /work              projects: a typed port, placeholder adapter until engine spec 030
@@ -75,11 +80,12 @@ created **no Cloudflare resources** — verify after Vault is unsealed
 
 ### Facts this rests on (checked 2026-10-21/22)
 
-- **Versions** (`npm view`): vinext 1.3.0 (2026-10-20, bug-fix minor; release
-  notes read), @vinext/cloudflare 1.2.0, @cloudflare/vite-plugin 1.64.0,
-  wrangler 4.151.3, vite 8.3.5, react 19.3.1, TypeScript 7.0.2, vitest 5.0.5,
-  Tailwind 4.3.3, `@jrcodex/seo-kit` **0.6.2** (`latest`; 0.7.0 with
+- **Versions** (`npm view`, 2026-10-22): hono 4.13.13, htmx.org 4.0.0 (`next`
+  tag; `latest` 2.0.11), wrangler 4.151.3 (workerd 1.20261019.1), TypeScript
+  7.0.2, vitest 5.0.5, `@jrcodex/seo-kit` **0.6.2** (`latest`; 0.7.0 with
   `videos()` is built in `~/seo-engine/packages/seo-kit` and unpublished).
+  Considered and not used (R0): honox 0.1.62, @hono/vite-build 1.11.1,
+  @hono/vite-dev-server 0.26.1; vinext 1.3.0 was the stack until 2026-10-22.
 - **Kit 0.6.2's modules** are `blog intake commerce email gallery projects
   chat catalog`. There is no `profile` module: `profile()` is always
   readable. There is no `videos` module in the kit's type; the engine's
@@ -94,10 +100,28 @@ created **no Cloudflare resources** — verify after Vault is unsealed
   the 206 itself; a 206 returned by the Worker is never stored. So the site
   needs no Range code for video: it returns the engine's whole file with the
   engine's header, and seeking works at the edge.
-- **vinext**: a custom `worker/index.ts` delegating to
-  `vinext/server/fetch-handler` is the documented shape (montano-btm's);
-  `next/font/google` loads from Google's CDN and `next/font/local` is injected
-  at runtime, so fonts here are plain `@font-face` on self-hosted files.
+- **Hono 4.13.13** (`npm view hono version`): `hono/jsx` renders HTML on the
+  server (async components awaited by `c.html()`); `jsxImportSource:
+  "hono/jsx"` in `tsconfig.json`; Workers static assets serve `public/`
+  before the Worker runs (hono.dev, Cloudflare Workers guide, via context7).
+  Hono's docs recommend Vite + `@cloudflare/vite-plugin` for full-stack apps
+  that bundle client scripts; this site has none to bundle (R0).
+- **htmx 4.0.0** was released 2026-08-28 and is on npm's `next` tag; `latest`
+  is still 2.0.11, so it is installed as `htmx.org@4.0.0` exactly. Read in the
+  v4 docs (context7 `/bigskysoftware/htmx/v4.0.0`): attribute inheritance is
+  opt-in (`hx-target:inherited`); **every response is swapped except 204 and
+  304** (errors included); events are `htmx:after:request` etc. with
+  `event.detail.ctx`; `hx-disable` disables elements during a request;
+  requests carry `HX-Request: true`.
+- **Workers static assets** (developers.cloudflare.com, via context7): a
+  `_headers` file in the assets directory sets headers on asset responses
+  only; the default is `public, max-age=0, must-revalidate` with an ETag.
+  Wrangler `rules` of type `Text` import other files (here: CSS) as strings.
+- **Image transformations** answer at `/cdn-cgi/image/<options>/<source>`
+  only on a zone where they are enabled (Images → Transformations), never on
+  `*.workers.dev`.
+- **Cross-document view transitions**: `@view-transition { navigation: auto; }`
+  in both documents, same origin only (MDN).
 - **The engine has no public address** (`~/seo-engine/docs/security-posture.md`,
   since 2026-10-05). A site reaches it only through the service binding.
 - **juanramirez.codes** is registered at Namecheap; its Cloudflare zone was
@@ -110,7 +134,8 @@ created **no Cloudflare resources** — verify after Vault is unsealed
 
 | # | Decision | Why |
 |---|---|---|
-| R1 | **Rebuild the repo on this branch as the vinext Worker**, superseding PRs #1–#5. Reusable code is copied with attribution in each file's header; their branches are never pushed to. | Four of the five PRs build on Payload/Mongo/Vercel, which this spec removes; merging them first means migrating twice. What survives is code, not history: the intake handler and Turnstile check (#1, #4), the platform reads and the videos shim (#4), the design system (#5). |
+| R0 | **Plain Hono, bundled by wrangler: no Vite, no HonoX.** Server-rendered `hono/jsx`; htmx 4 for the contact form only; no `hono/jsx/dom` islands (the theme toggle and the form's Turnstile reset are a few lines of plain JS). CSS is imported as text (wrangler `Text` rule) and served by the Worker at a content-hashed URL, `immutable`; fonts and htmx are static assets with an `immutable` `_headers` rule. | Tobias asked for the leanest stack. Nothing on the site needs a client bundle, so Vite would add a toolchain to build nothing; wrangler already bundles the Worker and is what the smoke tests run. HonoX is pre-1.0 (0.1.62): a meta-framework to justify, for eight routes, on a stack the platform may adopt. Add Vite + `@cloudflare/vite-plugin` the day a page needs a `hono/jsx/dom` island. |
+| R1 | **Rebuild the repo on this branch as the Hono Worker**, superseding PRs #1–#5. Reusable code is copied with attribution in each file's header; their branches are never pushed to. | Four of the five PRs build on Payload/Mongo/Vercel, which this spec removes; merging them first means migrating twice. What survives is code, not history: the intake handler and Turnstile check (#1, #4), the platform reads and the videos shim (#4), the design system (#5). |
 | R2 | **PR #5's design system is kept** (palette, tokens, type scale, primitives, feature gates, contrast pairs), re-branded to Juan Ramirez. | Judged in `plan.md` §5: it holds up. Its tests come along and pass here; axe runs against this build. |
 | R3 | **Projects wait behind a port** (`lib/projects/port.ts`); `/work` renders the placeholder adapter. The manifest does **not** declare `projects` yet. | Engine spec 030 (another session) defines content models as data; its contract shapes are not forwarded yet. Declaring `projects` now would put a Projects screen on his dashboard for pages that do not render it. |
 | R4 | **`videos` is declared only when the site can read videos**: `manifestFor({ videos })`, where `videos` is true when the kit client or the binding has a `videos` function. `/videos` shows an empty state otherwise. | Kit 0.6.2 has no `videos()`; PR #4's structural shim reads the binding directly. "Never declare what the site does not have." |
@@ -140,6 +165,20 @@ says so.
 | **D11** | **CI and previews.** | **Workers Builds** (parity with the client sites; no Cloudflare token in GitHub), with `preview_urls: true` behind the account-wide previews Access app. The GitHub Actions workflow in this PR only typechecks, builds and tests. |
 | **D12** | **"Write my own post" (spec 030's blog mode).** | **Use it** for the case studies' long forms once the engine ships it; until then `/blog` renders whatever the engine publishes. |
 
+### 2.3 What Next.js gave for free, now this site's own (kept small)
+
+| Concern | Here |
+|---|---|
+| Titles, meta description, canonical, Open Graph, Twitter card | `src/views/document.tsx` from a `PageMeta` per route; a post's from the engine's `Post` (title, excerpt, canonical, alternates, JSON-LD) since the kit's `./next` helpers only shape Next metadata objects |
+| `sitemap.xml`, `robots.txt` | routes in `src/routes/seo.ts`; own pages + `sitemap()` entries, absolute on `SITE_URL` |
+| 404 and 500 pages | `app.notFound` and `app.onError` render the site's own pages (no stack traces) |
+| Redirects | `/projects*` → `/work` (301) in the Worker; jrcodex.dev → juanramirez.codes is **proposed** as parked Terraform (D2), applied only if he says so |
+| Cache-Control per route | `lib/cache-policy.ts` on every Worker response; `_headers` on static assets; never `immutable` on `/media/<slug>/video/*` |
+| Image resizing | the engine's `/cdn-cgi/image/` URLs on the production zone once it is proxied and transformations are enabled; originals elsewhere |
+| Asset fingerprinting | the CSS's content hash in its URL (R0) |
+| HTML escaping | `hono/jsx` escapes every string; engine HTML (already filtered by the engine) is inserted with `dangerouslySetInnerHTML` only in the post body |
+| RSS | not now: the engine has no feed and the blog is empty; add `/feed.xml` from `posts()` when there are posts (W7) |
+
 ## 3. Budgets and gates
 
 | Budget | Target | How it is checked here |
@@ -162,6 +201,7 @@ says so.
 | `/contact` | form + `profile()` email | fallback profile (D4) |
 | footer | `profile()` name, email; `ProfileLinksPort` | the site's own facts |
 | `/sitemap.xml` | own pages + `sitemap()` | own pages only |
+| 404 / 500 | the site's own pages | — |
 | `/robots.txt` | static | — |
 
 ## 5. Proprietor integration
@@ -197,7 +237,7 @@ says so.
 | #2 `fix/lint-eslint-css-order` | superseded | nothing (the lint setup was for Next/Payload) |
 | #3 `chore/upgrade-2026-10` | superseded | nothing (Payload upgrade) |
 | #4 `feat/proprietor-adoption` | superseded | platform reads + shape checks, the videos shim, image rewrite, manifest shape (`lib/platform/*`) |
-| #5 `design/jrcodex-2026` | superseded | the design system (`app/styles/*`, `components/ui/*`, `design-system.json`, the contrast test) |
+| #5 `design/jrcodex-2026` | superseded | the design system (`styles/*.css` from `app/styles/*`, `design-system.json`, the contrast test); its React components are re-written as server-only `hono/jsx` components, its 12 client components as plain HTML (native `<dialog>`, CSS view transitions) or a few lines of plain JS |
 
 ## 7. The old content
 
@@ -230,11 +270,23 @@ toggle (D10), Source Serif 4 headings and Inter text (self-hosted, latin
 subset, preloaded), one fluid type scale, gold only for action, status
 badges `live` / `built` / `in progress` (never "production").
 
+## 9.1 What could not be verified
+
+- HTMX 4's behaviour beyond what its v4 docs state was not exercised in a
+  real browser against Turnstile's widget until the a11y/perf runs; those
+  runs use Cloudflare's test keys, never a real widget.
+- Workers Cache's Range slicing for video was read in the docs, not observed:
+  no remote preview could run (no token; Vault sealed).
+- Whether the deployed engine's `Sites` entrypoint already answers
+  `videos()` (engine spec 028's state on production) was not checked; the
+  shim handles both answers.
+
 ## 10. Acceptance (this branch)
 
 - [x] Spec pivoted; the spike's evidence recorded; spike removed in one commit.
-- [ ] `npm run typecheck`, `npm test` (unit + smoke against the built Worker
-      with a stub engine), `npm run build`: green, run through `boxed`.
+- [ ] `npm run typecheck`, `npm test` (unit + smoke against the Worker in
+      `wrangler dev` with a stub engine), `npm run build` (`wrangler deploy
+      --dry-run`, which uploads nothing): green, run through `boxed`.
 - [ ] axe 0 violations on every route, both schemes, two widths.
 - [ ] Lighthouse budgets met locally (§3), numbers in the PR.
 - [ ] PR #6's body: the pivot, what is built, what waits, decisions, teardown.

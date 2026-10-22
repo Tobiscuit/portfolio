@@ -1,0 +1,13 @@
+# Local development only. Copy to .dev.vars (gitignored). Never put a real key
+# here or in any committed file (spec 003, section 5).
+
+# A placeholder: local runs never write to the real engine anyway
+# (ENGINE_WRITE_HOST is juanramirez.codes), and there is no binding locally
+# unless you run a stub engine beside the site.
+SEO_SITE_KEY=sk_local_placeholder_not_a_real_key
+
+# Cloudflare's published Turnstile test keys: the widget always passes and the
+# secret accepts its dummy token
+# (developers.cloudflare.com/turnstile/troubleshooting/testing/).
+TURNSTILE_SITE_KEY=1x00000000000000000000AA
+TURNSTILE_SECRET_KEY=1x0000000000000000000000000000000AA # pragma: allowlist secret

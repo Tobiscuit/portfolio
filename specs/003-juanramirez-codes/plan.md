@@ -13,11 +13,13 @@ no DNS, no merge.
                  └──────────────────────────────────┬──────────────────────────────────────┘
                                                     ▼
                  ┌──────────────── Worker: juanramirez-codes (worker/index.ts) ───────────┐
+                 │ (static assets in public/ are answered before the Worker runs)         │
                  │ 1. announceInBackground(manifestFor(caps))  production host only       │
-                 │ 2. /projects* → 301 /work                                              │
-                 │ 3. engine doors: /media/* (kit mediaHandler)                           │
-                 │ 4. everything else → vinext/server/fetch-handler (RSC pages, routes)   │
-                 │ 5. withCachePolicy(request, response)                                  │
+                 │ 2. Hono app (src/app.tsx):                                             │
+                 │    /projects* → 301 /work · /media/* (kit mediaHandler)                │
+                 │    /assets/site.<hash>.css · pages (hono/jsx) · /api/inquiries         │
+                 │    sitemap.xml · robots.txt · notFound · onError                       │
+                 │ 3. withCachePolicy(request, response)                                  │
                  │                                                                        │
                  │ pages: lib/platform/* ── rpc(env.SEO, SEO_SITE_KEY) ──▶ SEO binding ───┼──▶ seo-engine
                  │ POST /api/inquiries ── Turnstile ── inquire()                          │    entrypoint Sites
@@ -27,8 +29,9 @@ no DNS, no merge.
 ```
 
 No D1, no R2, no KV: the site keeps no data of its own. `wrangler.jsonc`:
-`main: ./worker/index.ts`, `compatibility_date` = the newest the installed
-workerd supports (≥ 2026-04-21), `workers_dev: false`, `preview_urls: true`
+`main: ./worker/index.ts`, `assets.directory: ./public`, a `Text` rule for
+`**/*.css`, `compatibility_date` = the newest the installed workerd supports
+(≥ 2026-04-21), `workers_dev: false`, `preview_urls: true`
 (Access-gated), `cache.enabled: true`, `services: [{ binding: "SEO",
 service: "seo-engine", entrypoint: "Sites" }]`, `routes: [{ pattern:
 "juanramirez.codes", custom_domain: true }]` (attaches only once the zone is
@@ -41,7 +44,11 @@ touch are marked **contract**.
 
 | Path | What | Contract |
 |---|---|---|
-| `worker/index.ts` | entry: announce, redirects, `/media` door, delegate, cache policy | — |
+| `worker/index.ts` | entry: announce, then the Hono app, then the cache policy | — |
+| `src/app.tsx` | the Hono app: routes, `notFound`, `onError` | — |
+| `src/routes/*.tsx` | one module per page group (home, about, work, blog, videos, contact, seo) | — |
+| `src/views/*.tsx` | server-only `hono/jsx` components: document, header, footer, primitives | — |
+| `src/assets.ts` | the CSS bundle (four files as text, in order), its hash and route | — |
 | `lib/site.ts` | `SITE_HOST = "juanramirez.codes"`, `SITE_URL`, `absolute(path)`, `DEFAULT_LOCALE`, `GITHUB_URL`, `LINKEDIN_URL`, `FALLBACK_PROFILE` | one host constant (G4) |
 | `lib/seo.ts` | `manifestFor({ videos })`, `engineClient(env)`, `mayWriteToEngine`, `announceInBackground`, `describe` | **contract**: the manifest the engine stores |
 | `lib/cache-policy.ts` | `cachePolicy(req, res)`, `withCachePolicy` | rules in §3 |
@@ -53,11 +60,10 @@ touch are marked **contract**.
 | `lib/projects/placeholder.ts` | `placeholderProjects` | replaced by the engine adapter |
 | `lib/profile-links.ts` | `ProfileLinksPort`, `staticProfileLinks` | **contract** for spec 030's profile links |
 | `content/*.ts` | narrative data: home, about, work summaries | claims rules (G8) |
-| `app/**` | vinext App Router pages and routes | — |
-| `components/**` | the design system as React components | — |
-| `app/styles/*.css`, `design-system.json` | PR #5's tokens, base, primitives, enhancements | contrast pairs |
+| `styles/*.css`, `design-system.json` | PR #5's tokens, base, primitives, enhancements | contrast pairs |
+| `public/` | fonts, `vendor/htmx-4.0.0.min.js`, favicon, `_headers` | — |
 | `tests/unit/**` | Node-only unit tests (Vitest) | — |
-| `tests/smoke/**`, `tests/stubs/seo-engine/**` | the built Worker in workerd with a stub `seo-engine` | — |
+| `tests/smoke/**`, `tests/stubs/seo-engine/**` | the Worker in `wrangler dev` (workerd) with a stub `seo-engine` | — |
 | `tests/a11y/**`, `tests/perf/**` | Playwright + axe; Lighthouse | — |
 
 ### 2.1 The projects port (the seam for engine spec 030)
@@ -98,7 +104,8 @@ null (so `/work/<slug>` is a 404, not a fake page).
 | `/media/*` (images) | 200, 304; engine header says `private` | `private, max-age=86400` | a visitor's own picture (montano's rule) |
 | `/media/*` (images) | 200, 304 | `public, max-age=31536000, immutable` | content-addressed originals |
 | `/media/*` | other | `private, no-store` | |
-| RSC payload (`rsc: 1`, `.rsc`, `_rsc`) | any | `private, no-store` | never cached separately from the page |
+| an htmx request (`HX-Request: true`) | any | `private, no-store` | a fragment must never be stored under a page's URL |
+| `/assets/site.<hash>.css` | 200 | `public, max-age=31536000, immutable` | the URL changes with the content (R0) |
 | page | 200 HTML, XML, text | `public, max-age=0, s-maxage=60, stale-while-revalidate=600` | edge keeps a minute, browsers revalidate |
 | anything else | | `private, no-store` | unknown ⇒ not stored |
 
@@ -108,23 +115,25 @@ the video rule is new here.
 ## 3.1 Images off the production host
 
 The engine writes post images as `/cdn-cgi/image/<opts>/media/<key>`. That
-path answers only on the proxied production zone, so `worker/index.ts` marks
-every request not on `SITE_HOST` with `x-jrc-images: originals` (any client
-value of that header is removed first), and the readers rewrite to
-`/media/<key>` (montano-btm's `lib/request-headers.ts` + PR #4's
-`plainPost`, which also rewrites `blocks` and the JSON-LD).
+path answers only on the proxied production zone with transformations
+enabled, so a route whose request host is not `SITE_HOST` asks the readers
+for originals (`{ originals: true }`), and they rewrite to `/media/<key>`
+(PR #4's `plainPost`, which also rewrites `blocks` and the JSON-LD). Hono
+hands each route its request, so no marker header is needed (montano-btm
+needed one to reach its React Server Components).
 
 ## 4. Test strategy (all through `boxed`, in the foreground, with `timeout`)
 
 | Suite | Runs | What it proves |
 |---|---|---|
 | `tests/unit` (Vitest, Node) | `npm run test:unit` | manifest, cache policy, intake handler outcomes, Turnstile, shape checks, image rewrite, videos shim, ports, content claims, contrast pairs |
-| `tests/smoke` (Vitest → `wrangler dev` on `dist/server/wrangler.json` + stub engine) | `npm run test:smoke` after `npm run build` | every page renders (no RSC error rows), the blog through `compose()`, `/media` streaming and headers, the inquiry route end to end (stub records the call), redirects, robots/sitemap, Cache-Control on every response |
+| `tests/smoke` (Vitest → `wrangler dev -c wrangler.jsonc -c <stub>`) | `npm run test:smoke` | every page renders, the blog through `compose()`, `/media` streaming and headers, the inquiry route end to end (stub records the call, htmx fragment and no-JS fallback), redirects, robots/sitemap, Cache-Control on every response, 404/500 pages |
 | `tests/a11y` (Playwright + axe) | `npm run test:a11y` against the smoke server | WCAG 2.2 AA, 0 violations, both schemes, 320 and 1280 px |
 | `tests/perf` (Lighthouse, mobile, simulated 4G) | `npm run test:perf` | LCP, CLS, TBT budgets |
 
-`npm run build` is `vinext build` only; nothing in the tree calls
-`npm run build` (the 2026-10-20 freeze was a build that called itself).
+`npm run build` is `wrangler deploy --dry-run --outdir dist` (bundles,
+uploads nothing); nothing in the tree calls `npm run build` (the 2026-10-20
+freeze was a build that called itself).
 
 ## 5. Design system: PR #5 judged
 
@@ -194,7 +203,9 @@ portfolio-spike-d1` / `wrangler r2 bucket delete portfolio-spike-media`.
    `cd /home/link/portfolio && vault kv get -field=key secret/portfolio/seo-site-key | CLOUDFLARE_API_TOKEN="$(vault kv get -field=token secret/cloudflare/workers)" npx wrangler secret put SEO_SITE_KEY`
    and the same for `TURNSTILE_SECRET_KEY`.
 4. **Zone**: state surgery and `juanramirez-codes-zone.tf.pending` (its
-   header), then the nameservers at Namecheap the same day.
+   header), then the nameservers at Namecheap the same day. Then enable
+   Images → Transformations on the zone, so the engine's `/cdn-cgi/image/`
+   post images resize there.
 5. **Deploy** from `main` (Workers Builds, D11); the `routes` entry attaches
    `juanramirez.codes`.
 6. **Redirect**: retire the Vercel project, flip jrcodex.dev's two records to

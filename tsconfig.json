@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2023"],
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "verbatimModuleSyntax": false,
+    "jsx": "react-jsx",
+    "jsxImportSource": "hono/jsx",
+    "types": ["node"]
+  },
+  "include": ["worker/**/*", "src/**/*", "lib/**/*", "content/**/*", "tests/**/*.ts", "worker-configuration.d.ts", "env.d.ts", "assets.d.ts"],
+  "exclude": ["node_modules", "dist", ".wrangler"]
+}

@@ -13,15 +13,16 @@ Every build and test run goes through `boxed` with a `timeout`.
   admin Access file, re-target the other parked Terraform.
 
 ### T1 — Scaffold the Worker
-- **Inputs**: montano-btm (develop) `package.json`, `vite.config.ts`,
-  `vitest.config.ts`, `wrangler.jsonc`, `worker/index.ts`; context7 for
-  vinext and Workers Cache.
-- **Contract**: plan §1; `build` = `vinext build` only.
+- **Inputs**: montano-btm (develop) `vitest.config.ts`, `wrangler.jsonc`,
+  `worker/index.ts`; context7 for Hono, htmx 4, Workers static assets and
+  Workers Cache. (Re-stacked 2026-10-22 from vinext to Hono, R0.)
+- **Contract**: plan §1; `build` = `wrangler deploy --dry-run --outdir dist`.
 - **Acceptance**: `tests/unit/config.test.ts` — `wrangler.jsonc` has the
   `SEO` binding to `seo-engine`/`Sites`, `cache.enabled`, `workers_dev:
   false`, `preview_urls: true`, the custom-domain route for `SITE_HOST`,
   `ENGINE_WRITE_HOST === SITE_HOST`, a `compatibility_date` ≥ 2026-04-21, no
-  D1/R2/KV; `package.json`'s `build` never mentions `npm run`.
+  D1/R2/KV, `assets.directory` = `./public`, a `Text` rule for CSS;
+  `package.json`'s `build` is a dry run and never mentions `npm run`.
 - **Owns**: root config files, `.gitignore`, `.dev.vars.example`, `.nvmrc`.
 
 ### T2 — Engine side: manifest, client, cache policy
@@ -59,14 +60,15 @@ Every build and test run goes through `boxed` with a `timeout`.
   `design-system.json`, `tests/tokens.node-test.ts`, `tests/helpers.ts`.
 - **Acceptance**: `tests/unit/tokens.test.ts` (palette fixed, every
   documented pair meets its minimum, "avoid" pairs really fail).
-- **Owns**: `app/styles/*`, `components/*`, `design-system.json`, `public/fonts/*`.
+- **Owns**: `styles/*`, `src/views/*`, `src/assets.ts`, `design-system.json`, `public/*`.
 
 ### T7 — Pages
-- **Acceptance**: smoke tests per route (status, one `h1`, landmarks, no RSC
-  error rows, the right Cache-Control, the blog via `compose()` from the
-  stub, the inquiry posted through to the stub, `/projects` → 301 `/work`,
-  robots and sitemap), `tests/unit/claims.test.ts` over `content/`.
-- **Owns**: `app/**`, `content/*`.
+- **Acceptance**: smoke tests per route (status, one `h1`, landmarks, the
+  right Cache-Control, the blog via `compose()` from the stub, the inquiry
+  posted through to the stub as an htmx fragment and as a plain form post,
+  `/projects` → 301 `/work`, robots and sitemap, 404 page),
+  `tests/unit/claims.test.ts` over `content/`.
+- **Owns**: `src/routes/*`, `src/app.tsx`, `worker/index.ts`, `content/*`.
 
 ### T8 — Budgets
 - **Acceptance**: axe 0 violations (both schemes, 320 and 1280 px); Lighthouse
@@ -83,3 +85,4 @@ Every build and test run goes through `boxed` with a `timeout`.
 | W4 | Tenant row + site key | engine lane (D3) | none in code; secrets per plan §8 |
 | W5 | Turnstile widget, zone, redirect | Tobias (plan §8) | `wrangler.jsonc` `vars.TURNSTILE_SITE_KEY` |
 | W6 | "Write my own post" | spec 030 blog mode | none: `/blog` renders what the engine publishes |
+| W7 | RSS `/feed.xml` | posts exist | a route over `posts()` |
