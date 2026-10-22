@@ -22,8 +22,12 @@ import { profileFor, renderPage } from "./render";
  */
 export const contact = new Hono<AppEnv>();
 
-/** After each htmx answer: a fresh Turnstile token (tokens are single-use), and an empty form after a success. */
-const AFTER_REQUEST = `document.addEventListener('htmx:after:request',function(e){var f=document.getElementById('contact-form');if(!f||e.target!==f)return;try{if(window.turnstile)window.turnstile.reset()}catch(_){}var c=e.detail&&e.detail.ctx;if(c&&c.response&&c.response.status===200)f.reset();});`;
+/**
+ * After each htmx answer (the form is the page's only htmx element): a fresh
+ * Turnstile token, since tokens are single-use, and an empty form after a
+ * success. htmx 4 puts the response on event.detail.ctx (its v4 docs).
+ */
+const AFTER_REQUEST = `document.addEventListener('htmx:after:request',function(e){var f=document.getElementById('contact-form');if(!f)return;try{if(window.turnstile)window.turnstile.reset()}catch(_){}var c=e.detail&&e.detail.ctx;if(c&&c.response&&c.response.status===200)f.reset();});`;
 
 contact.get("/contact", (c) => contactPage(c));
 

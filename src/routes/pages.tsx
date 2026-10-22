@@ -32,7 +32,10 @@ pages.get("/", async (c) => {
   const flagship = work.filter((card) => card.kind !== "client").slice(0, 3);
   const engine = work.find((card) => card.slug === "proprietor-systems");
   const platform = work.find((card) => card.slug === "platform");
-  const proofs = [...(engine?.facts ?? []), ...(platform?.facts.slice(0, 1) ?? [])];
+  const proofs = [
+    ...(engine?.facts ?? []).map((fact) => ({ ...fact, of: engine!.title })),
+    ...(platform?.facts.slice(0, 1) ?? []).map((fact) => ({ ...fact, of: platform!.title })),
+  ];
   return renderPage(
     c,
     { title: PERSON_NAME, description: `${HOME.headline} ${HOME.lede}`, path: "/", ogType: "profile", jsonLd: [PERSON_JSON_LD] },
@@ -60,7 +63,9 @@ pages.get("/", async (c) => {
               {proofs.map((fact) => (
                 <li class="proof">
                   <span class="proof__value">{fact.value}</span>
-                  <span class="proof__label">{fact.label}</span>
+                  <span class="proof__label">
+                    {fact.label}, {fact.of}
+                  </span>
                 </li>
               ))}
             </ul>

@@ -51,6 +51,26 @@ describe("the check itself", () => {
 });
 
 describe("keyboard and interaction", () => {
+  it("sends the form through htmx 4: the answer appears in place, the form empties, and a second message gets a fresh Turnstile token", async () => {
+    const context = await browser.newContext({ viewport: { width: 1280, height: 900 } });
+    const page = await context.newPage();
+    await page.goto(`${BASE_URL}/contact`);
+    for (const round of [1, 2]) {
+      await page.fill("#name", "Dana Alvarez");
+      await page.fill("#email", "dana@example.com");
+      await page.fill("#message", `Hello, message ${round}`);
+      // Cloudflare's always-passing test key fills its token on its own.
+      await page.waitForFunction("(document.querySelector('[name=cf-turnstile-response]')?.value ?? '').length > 0", undefined, { timeout: 20_000 });
+      const answer = page.waitForResponse((response) => response.url().endsWith("/contact") && response.request().method() === "POST");
+      await page.click("button[type=submit]");
+      expect((await answer).status(), `round ${round}`).toBe(200);
+      await expect.poll(() => page.locator("#form-status").textContent()).toContain("Thanks, your message is on its way");
+      expect(page.url()).toBe(`${BASE_URL}/contact`);
+      await expect.poll(() => page.inputValue("#message")).toBe("");
+    }
+    await context.close();
+  });
+
   it("the theme toggle switches the scheme and remembers it; the skip link lands on main", async () => {
     const context = await browser.newContext({ viewport: { width: 1280, height: 900 } });
     const page = await context.newPage();
