@@ -1,0 +1,248 @@
+/* ---------------------------------------------------------------------------
+   SageScale v2 — design tokens (from PR #5, design/jrcodex-2026; re-branded
+   for juanramirez.codes in spec 003). Native CSS custom properties; this site
+   has no Tailwind (spec 003 R0), and nothing here ever depended on it.
+   --------------------------------------------------------------------------- */
+
+:root {
+  /* 1 · Palette — fixed (design-system.json). Never add a colour here;
+        derive tints in the semantic layer with color-mix(). */
+  --sage-blue-900: #0D1B2A;
+  --ink-900: #1B263B;
+  --ink-700: #415A77;
+  --ink-500: #778DA9;
+  --parchment-300: #E0E1DD;
+  --parchment-200: #F0F2F5;
+  --parchment-100: #FFFFFF;
+  --arcane-gold-500: #FFC300;
+  --success-500: #2ECC71;
+  --warning-500: #F39C12;
+  --error-500: #E74C3C;
+
+  /* 2 · Type — one fluid modular scale.
+        Base 16px → 18px, ratio 1.2 (minor third) at 320px → 1.25 (major third)
+        at 1280px. Each step is clamp(min, intercept + slope·vw, max). */
+  --step-minus-2: clamp(0.6944rem, 0.6859rem + 0.0426vw, 0.72rem);   /* 11.1 → 11.5px */
+  --step-minus-1: clamp(0.8333rem, 0.8111rem + 0.1111vw, 0.9rem);    /* 13.3 → 14.4px */
+  --step-0: clamp(1rem, 0.9583rem + 0.2083vw, 1.125rem);             /* 16.0 → 18.0px */
+  --step-1: clamp(1.2rem, 1.1312rem + 0.3438vw, 1.4063rem);          /* 19.2 → 22.5px */
+  --step-2: clamp(1.44rem, 1.3341rem + 0.5297vw, 1.7578rem);         /* 23.0 → 28.1px */
+  --step-3: clamp(1.728rem, 1.5716rem + 0.7821vw, 2.1973rem);        /* 27.6 → 35.2px */
+  --step-4: clamp(2.0736rem, 1.8493rem + 1.1216vw, 2.7466rem);       /* 33.2 → 43.9px */
+  --step-5: clamp(2.4883rem, 2.1734rem + 1.5748vw, 3.4332rem);       /* 39.8 → 54.9px */
+
+  /* Type roles — components reference roles, not steps. (--type-*, --lh-*,
+     --track-* kept from PR #5, where they avoided Tailwind's namespaces.) */
+  --type-display: var(--step-5);
+  --type-title: var(--step-4);
+  --type-heading: var(--step-3);
+  --type-subheading: var(--step-2);
+  --type-lead: var(--step-1);
+  --type-body: var(--step-0);
+  --type-small: var(--step-minus-1);
+  --type-micro: var(--step-minus-2);
+
+  --lh-tight: 1.08;
+  --lh-snug: 1.22;
+  --lh-body: 1.6;
+  --track-tight: -0.015em;
+  --track-caps: 0.08em;
+
+  --ff-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --ff-serif: var(--font-source-serif), "Source Serif 4", Georgia, "Times New Roman", serif;
+  --ff-mono: ui-monospace, "Fira Code", SFMono-Regular, Menlo, Consolas, monospace;
+
+  /* 3 · Space — the same fluid base (16 → 20px) times a ladder
+        0.25 · 0.5 · 0.75 · 1 · 1.5 · 2 · 3 · 4 · 6 · 8. */
+  --space-3xs: clamp(0.25rem, 0.2292rem + 0.1042vw, 0.3125rem);     /*   4 →   5px */
+  --space-2xs: clamp(0.5rem, 0.4583rem + 0.2083vw, 0.625rem);       /*   8 →  10px */
+  --space-xs: clamp(0.75rem, 0.6875rem + 0.3125vw, 0.9375rem);      /*  12 →  15px */
+  --space-s: clamp(1rem, 0.9167rem + 0.4167vw, 1.25rem);            /*  16 →  20px */
+  --space-m: clamp(1.5rem, 1.375rem + 0.625vw, 1.875rem);           /*  24 →  30px */
+  --space-l: clamp(2rem, 1.8333rem + 0.8333vw, 2.5rem);             /*  32 →  40px */
+  --space-xl: clamp(3rem, 2.75rem + 1.25vw, 3.75rem);               /*  48 →  60px */
+  --space-2xl: clamp(4rem, 3.6667rem + 1.6667vw, 5rem);             /*  64 →  80px */
+  --space-3xl: clamp(6rem, 5.5rem + 2.5vw, 7.5rem);                 /*  96 → 120px */
+  --space-4xl: clamp(8rem, 7.3333rem + 3.3333vw, 10rem);            /* 128 → 160px */
+
+  /* 4 · Layout */
+  --measure: 65ch;
+  --measure-narrow: 48ch;
+  --container: 72rem;
+  --container-narrow: 48rem;
+  --container-wide: 86rem;
+  --gutter: clamp(1rem, 0.5rem + 2.5vw, 2rem); /* never below 16px */
+  --header-h: 4.25rem;
+
+  /* 5 · Shape — 4px base, doubling. */
+  --corner-xs: 0.25rem;
+  --corner-s: 0.5rem;
+  --corner-m: 1rem;
+  --corner-l: 1.5rem;
+  --corner-full: 999px;
+
+  /* 6 · Motion — durations grow by ≈1.6; one easing family. */
+  --duration-1: 120ms;
+  --duration-2: 200ms;
+  --duration-3: 320ms;
+  --duration-4: 520ms;
+  --easing-standard: cubic-bezier(0.2, 0, 0, 1);
+  --easing-enter: cubic-bezier(0, 0, 0.2, 1);
+  --easing-exit: cubic-bezier(0.4, 0, 1, 1);
+
+  /* 7 · Elevation — tinted with sage-blue so it reads on both schemes. */
+  --elev-1: 0 1px 2px 0 rgb(13 27 42 / 0.08);
+  --elev-2: 0 4px 6px -1px rgb(13 27 42 / 0.16), 0 2px 4px -1px rgb(13 27 42 / 0.1);
+  --elev-3: 0 10px 15px -3px rgb(13 27 42 / 0.2), 0 4px 6px -2px rgb(13 27 42 / 0.1);
+  --elev-4: 0 20px 25px -5px rgb(13 27 42 / 0.28), 0 10px 10px -5px rgb(13 27 42 / 0.12);
+
+  /* 8 · Focus */
+  --focus-width: 3px;
+  --focus-offset: 2px;
+
+  /* 9 · Scheme — dark is the brand default; light is an explicit, persisted
+        choice set by ThemeToggle as data-theme on <html>. */
+  color-scheme: dark;
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+}
+
+/* ---------------------------------------------------------------------------
+   10 · Semantic colours
+   Every pair below meets WCAG 2.2 AA at body size on the surfaces it is
+   used on (see tests/tokens.test.ts). Gold is never used as text on light
+   surfaces; --accent-text swaps to ink-900 there.
+
+   Fallback path: static values per scheme for browsers without light-dark().
+   --------------------------------------------------------------------------- */
+@supports not (color: light-dark(#000, #fff)) {
+  :root {
+    --surface: var(--sage-blue-900);
+    --surface-raised: var(--ink-900);
+    --surface-muted: #152234;
+    --surface-overlay: var(--ink-900);
+    --header-bg: rgb(13 27 42 / 0.82);
+    --text: var(--parchment-100);
+    --text-muted: var(--parchment-300);
+    --text-subtle: var(--ink-500);
+    --line: rgb(119 141 169 / 0.3);
+    --line-strong: var(--ink-700);
+    --accent-text: var(--arcane-gold-500);
+    --accent-soft: rgb(255 195 0 / 0.14);
+    --link: var(--arcane-gold-500);
+    --link-hover: var(--parchment-100);
+    --link-underline: var(--arcane-gold-500);
+    --focus-ring: var(--arcane-gold-500);
+    --success-text: var(--success-500);
+    --warning-text: var(--warning-500);
+    --error-text: #F37F6E;
+    --chip-bg: rgb(65 90 119 / 0.4);
+    --chip-text: var(--parchment-300);
+    --control-bg: var(--ink-900);
+    --control-border: var(--ink-500);
+    --skeleton: var(--ink-700);
+  }
+  :root[data-theme="light"] {
+    --surface: var(--parchment-200);
+    --surface-raised: var(--parchment-100);
+    --surface-muted: #E6EAEA;
+    --surface-overlay: var(--parchment-100);
+    --header-bg: rgb(240 242 245 / 0.86);
+    --text: var(--ink-900);
+    --text-muted: var(--ink-700);
+    --text-subtle: var(--ink-700);
+    --line: rgb(119 141 169 / 0.5);
+    --line-strong: var(--ink-500);
+    --accent-text: var(--ink-900);
+    --accent-soft: rgb(255 195 0 / 0.22);
+    --link: var(--ink-900);
+    --link-hover: var(--ink-700);
+    --link-underline: var(--ink-500);
+    --focus-ring: var(--ink-900);
+    --success-text: #0E592E;
+    --warning-text: #6C4303;
+    --error-text: #8F2C21;
+    --chip-bg: rgb(119 141 169 / 0.22);
+    --chip-text: var(--ink-900);
+    --control-bg: var(--parchment-100);
+    --control-border: var(--ink-500);
+    --skeleton: var(--parchment-300);
+  }
+}
+
+/* Modern path: one declaration per token; `color-scheme` picks the side. */
+@supports (color: light-dark(#000, #fff)) {
+  :root {
+    --surface: light-dark(var(--parchment-200), var(--sage-blue-900));
+    --surface-raised: light-dark(var(--parchment-100), var(--ink-900));
+    --surface-muted: light-dark(#E6EAEA, #152234);
+    --surface-overlay: light-dark(var(--parchment-100), var(--ink-900));
+    --header-bg: light-dark(rgb(240 242 245 / 0.86), rgb(13 27 42 / 0.82));
+    --text: light-dark(var(--ink-900), var(--parchment-100));
+    --text-muted: light-dark(var(--ink-700), var(--parchment-300));
+    --text-subtle: light-dark(var(--ink-700), var(--ink-500));
+    --line: light-dark(rgb(119 141 169 / 0.5), rgb(119 141 169 / 0.3));
+    --line-strong: light-dark(var(--ink-500), var(--ink-700));
+    --accent-text: light-dark(var(--ink-900), var(--arcane-gold-500));
+    --accent-soft: light-dark(rgb(255 195 0 / 0.22), rgb(255 195 0 / 0.14));
+    --link: light-dark(var(--ink-900), var(--arcane-gold-500));
+    --link-hover: light-dark(var(--ink-700), var(--parchment-100));
+    --link-underline: light-dark(var(--ink-500), var(--arcane-gold-500));
+    --focus-ring: light-dark(var(--ink-900), var(--arcane-gold-500));
+    --success-text: light-dark(#0E592E, var(--success-500));
+    --warning-text: light-dark(#6C4303, var(--warning-500));
+    --error-text: light-dark(#8F2C21, #F37F6E);
+    --chip-bg: light-dark(rgb(119 141 169 / 0.22), rgb(65 90 119 / 0.4));
+    --chip-text: light-dark(var(--ink-900), var(--parchment-300));
+    --control-bg: light-dark(var(--parchment-100), var(--ink-900));
+    --control-border: var(--ink-500); /* 3.41:1 on white, 4.45:1 on ink-900 */
+    --skeleton: light-dark(var(--parchment-300), var(--ink-700));
+  }
+}
+
+/* Scheme-independent semantics. */
+:root {
+  --accent: var(--arcane-gold-500);
+  --accent-hover: #FFCB49;
+  --on-accent: var(--sage-blue-900);
+  --scrim: rgb(13 27 42 / 0.8);
+  --selection-bg: var(--arcane-gold-500);
+  --selection-text: var(--sage-blue-900);
+  --success-soft: rgb(46 204 113 / 0.16);
+  --warning-soft: rgb(243 156 18 / 0.16);
+  --error-soft: rgb(231 76 60 / 0.16);
+}
+
+/* Derived tints — computed from the fixed palette in oklch so hue is kept.
+   The static hexes above are the same mixes, pre-computed, for browsers
+   without color-mix(). */
+@supports (color: color-mix(in oklch, red 50%, blue)) {
+  :root {
+    --accent-hover: color-mix(in oklch, var(--arcane-gold-500) 88%, white);
+    --accent-soft: color-mix(in oklch, var(--arcane-gold-500) 14%, transparent);
+    --surface-muted: color-mix(in oklch, var(--ink-900) 60%, var(--sage-blue-900));
+    --error-text: color-mix(in oklch, var(--error-500) 75%, white);
+    --success-soft: color-mix(in oklch, var(--success-500) 16%, transparent);
+    --warning-soft: color-mix(in oklch, var(--warning-500) 16%, transparent);
+    --error-soft: color-mix(in oklch, var(--error-500) 16%, transparent);
+  }
+  :root[data-theme="light"] {
+    --accent-soft: color-mix(in oklch, var(--arcane-gold-500) 22%, transparent);
+    --surface-muted: color-mix(in oklch, var(--parchment-300) 50%, var(--parchment-200));
+    --success-text: color-mix(in oklch, var(--success-500) 55%, black);
+    --warning-text: color-mix(in oklch, var(--warning-500) 55%, black);
+    --error-text: color-mix(in oklch, var(--error-500) 70%, black);
+  }
+}
+
+/* Reduced motion: every duration collapses; see base.css for the blanket rule. */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-1: 0ms;
+    --duration-2: 0ms;
+    --duration-3: 0ms;
+    --duration-4: 0ms;
+  }
+}

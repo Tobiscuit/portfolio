@@ -1,0 +1,733 @@
+{
+  "system": "SageScale",
+  "version": "2.0",
+  "archetype": "The Sage",
+  "philosophy": "Build with clarity, truth, and foresight. Create systems that are not just scalable in performance, but also in human understanding.",
+  "principles": [
+    {
+      "name": "Clarity Above All",
+      "description": "The interface must be unambiguous, presenting information and actions with absolute clarity to eliminate cognitive load."
+    },
+    {
+      "name": "Structure as a Guide",
+      "description": "Visual hierarchy is a map that guides the user through complexity, making the powerful feel simple."
+    },
+    {
+      "name": "Truth in Data",
+      "description": "Visualizations, metrics, and all data displays must be honest, precise, and easy to interpret."
+    },
+    {
+      "name": "Intentional Interaction",
+      "description": "Every interactive element exists for a reason. Its behavior and the system's response must be predictable, reliable, and consistent."
+    },
+    {
+      "name": "Systematic & Scalable",
+      "description": "Components are designed as part of a larger system to be composed, reused, and adapted, ensuring design integrity at scale."
+    }
+  ],
+  "source": {
+    "tokens": "styles/tokens.css",
+    "reset": "styles/reset.css (replaces Tailwind preflight: no Tailwind on this site)",
+    "fonts": "styles/fonts.css (self-hosted variable fonts, public/fonts/)",
+    "base": "styles/base.css",
+    "primitives": "styles/primitives.css (classes) + src/views/*.tsx (server-only hono/jsx components)",
+    "enhancements": "styles/enhancements.css (feature-gated)",
+    "bundle": "src/assets.ts (concatenated in that order, served at /assets/site.<hash>.css)",
+    "guide": "docs/design/README.md",
+    "origin": "PR #5 (design/jrcodex-2026, SageScale v2), re-branded for juanramirez.codes in spec 003"
+  },
+  "colors": {
+    "note": "The palette is fixed. Derived tints are computed from it with color-mix(in oklch, …) and have pre-computed static fallbacks.",
+    "primary": {
+      "sage-blue-900": {
+        "hex": "#0D1B2A",
+        "usage": "Primary background, dark mode surfaces. Represents the deep unknown."
+      },
+      "arcane-gold-500": {
+        "hex": "#FFC300",
+        "usage": "Primary CTAs, active states, focus indicators, key highlights. The spark of power and insight."
+      }
+    },
+    "neutral": {
+      "ink-900": {
+        "hex": "#1B263B",
+        "usage": "Dark surfaces, text on light backgrounds."
+      },
+      "ink-700": {
+        "hex": "#415A77",
+        "usage": "Sub-headings, secondary text."
+      },
+      "ink-500": {
+        "hex": "#778DA9",
+        "usage": "Disabled text, borders, dividers."
+      },
+      "parchment-300": {
+        "hex": "#E0E1DD",
+        "usage": "Light background hover states."
+      },
+      "parchment-200": {
+        "hex": "#F0F2F5",
+        "usage": "Light mode surfaces, card backgrounds."
+      },
+      "parchment-100": {
+        "hex": "#FFFFFF",
+        "usage": "Pure white for maximum contrast on dark surfaces."
+      }
+    },
+    "functional": {
+      "success-500": {
+        "hex": "#2ECC71",
+        "usage": "Success states, confirmation messages, positive validation."
+      },
+      "warning-500": {
+        "hex": "#F39C12",
+        "usage": "Warnings, non-blocking issues, items needing attention."
+      },
+      "error-500": {
+        "hex": "#E74C3C",
+        "usage": "Errors, destructive actions, critical alerts, negative validation."
+      }
+    },
+    "semantic": {
+      "note": "Components use these, never palette names. Dark is the default scheme; light is an explicit choice stored as <html data-theme=\"light\">.",
+      "tokens": {
+        "--surface": {
+          "dark": "sage-blue-900",
+          "light": "parchment-200",
+          "usage": "Page background."
+        },
+        "--surface-raised": {
+          "dark": "ink-900",
+          "light": "parchment-100",
+          "usage": "Cards, panels, popovers."
+        },
+        "--surface-muted": {
+          "dark": "color-mix(in oklch, ink-900 60%, sage-blue-900) ≈ #152234",
+          "light": "color-mix(in oklch, parchment-300 50%, parchment-200) ≈ #E6EAEA",
+          "usage": "Footer, code blocks, hover fills."
+        },
+        "--text": {
+          "dark": "parchment-100",
+          "light": "ink-900",
+          "usage": "Body text and headings."
+        },
+        "--text-muted": {
+          "dark": "parchment-300",
+          "light": "ink-700",
+          "usage": "Secondary text, ledes."
+        },
+        "--text-subtle": {
+          "dark": "ink-500",
+          "light": "ink-700",
+          "usage": "Labels and captions on the page surface only. Raised components re-point it to --text-muted."
+        },
+        "--line / --line-strong": {
+          "dark": "ink-500 @30% / ink-700",
+          "light": "ink-500 @50% / ink-500",
+          "usage": "Decorative hairlines / emphasised dividers."
+        },
+        "--accent": {
+          "both": "arcane-gold-500",
+          "usage": "Primary button fill, active indicators."
+        },
+        "--accent-text": {
+          "dark": "arcane-gold-500",
+          "light": "ink-900",
+          "usage": "Gold-as-text in dark; gold is never text on light surfaces."
+        },
+        "--accent-hover": {
+          "both": "color-mix(in oklch, arcane-gold-500 88%, white) ≈ #FFCB49"
+        },
+        "--accent-soft": {
+          "dark": "arcane-gold-500 @14%",
+          "light": "arcane-gold-500 @22%",
+          "usage": "Accent chip and hover tint."
+        },
+        "--link / --link-underline": {
+          "dark": "arcane-gold-500 / arcane-gold-500",
+          "light": "ink-900 / ink-500"
+        },
+        "--focus-ring": {
+          "dark": "arcane-gold-500",
+          "light": "ink-900"
+        },
+        "--success-text": {
+          "dark": "success-500",
+          "light": "color-mix(in oklch, success-500 55%, black) ≈ #0E592E"
+        },
+        "--warning-text": {
+          "dark": "warning-500",
+          "light": "color-mix(in oklch, warning-500 55%, black) ≈ #6C4303"
+        },
+        "--error-text": {
+          "dark": "color-mix(in oklch, error-500 75%, white) ≈ #F37F6E",
+          "light": "color-mix(in oklch, error-500 70%, black) ≈ #8F2C21"
+        },
+        "--control-bg / --control-border": {
+          "dark": "ink-900 / ink-500",
+          "light": "parchment-100 / ink-500"
+        }
+      }
+    }
+  },
+  "typography": {
+    "fontStacks": {
+      "headings": "'Source Serif 4' (self-hosted, variable, latin), Georgia, serif",
+      "body": "'Inter' (self-hosted, variable, latin), ui-sans-serif, system-ui, sans-serif",
+      "code": "ui-monospace, 'Fira Code', Menlo, monospace"
+    },
+    "loading": "Both families are self-hosted woff2 (latin subset), preloaded. Inter swaps onto a metric-matched Arial fallback (size-adjust 107.12%, ascent 90.44%, descent 22.52%); Source Serif 4 uses font-display: optional, so a late font never moves a heading. No external stylesheet.",
+    "scale": {
+      "method": "Fluid modular scale: base 16px at 320px → 18px at 1280px; ratio 1.2 (minor third) → 1.25 (major third). Each step is clamp(min, intercept + slope·vw, max).",
+      "steps": {
+        "--step-minus-2": {
+          "range": "11.1 → 11.5px"
+        },
+        "--step-minus-1": {
+          "range": "13.3 → 14.4px",
+          "role": "--type-small"
+        },
+        "--step-0": {
+          "range": "16.0 → 18.0px",
+          "role": "--type-body"
+        },
+        "--step-1": {
+          "range": "19.2 → 22.5px",
+          "role": "--type-lead (h4)"
+        },
+        "--step-2": {
+          "range": "23.0 → 28.1px",
+          "role": "--type-subheading (h3)"
+        },
+        "--step-3": {
+          "range": "27.6 → 35.2px",
+          "role": "--type-heading (h2)"
+        },
+        "--step-4": {
+          "range": "33.2 → 43.9px",
+          "role": "--type-title"
+        },
+        "--step-5": {
+          "range": "39.8 → 54.9px",
+          "role": "--type-display (h1)"
+        }
+      },
+      "lineHeight": {
+        "--lh-tight": 1.08,
+        "--lh-snug": 1.22,
+        "--lh-body": 1.6
+      },
+      "tracking": {
+        "--track-tight": "-0.015em",
+        "--track-caps": "0.08em"
+      },
+      "measure": {
+        "--measure": "65ch",
+        "--measure-narrow": "48ch"
+      },
+      "wrapping": "Headings use text-wrap: balance; paragraphs, list items and captions use text-wrap: pretty."
+    }
+  },
+  "spacing": {
+    "method": "Same fluid base (16px → 20px between 320px and 1280px) times a ladder of 0.25 · 0.5 · 0.75 · 1 · 1.5 · 2 · 3 · 4 · 6 · 8.",
+    "tokens": {
+      "--space-3xs": "4 → 5px",
+      "--space-2xs": "8 → 10px",
+      "--space-xs": "12 → 15px",
+      "--space-s": "16 → 20px",
+      "--space-m": "24 → 30px",
+      "--space-l": "32 → 40px",
+      "--space-xl": "48 → 60px",
+      "--space-2xl": "64 → 80px",
+      "--space-3xl": "96 → 120px",
+      "--space-4xl": "128 → 160px"
+    },
+    "utilities": "none: compose the primitives; there is no Tailwind on this site"
+  },
+  "layout": {
+    "gutter": "--gutter: clamp(1rem, 0.5rem + 2.5vw, 2rem) — never below 16px; no horizontal scroll at 320px.",
+    "containers": {
+      "--container": "72rem",
+      "--container-narrow": "48rem",
+      "--container-wide": "86rem"
+    },
+    "breakpoints": {
+      "sm": "40rem",
+      "md": "48rem",
+      "lg": "64rem"
+    },
+    "articleGrid": "Prose: named tracks full / wide / content (measure). Block placements: content (default), wide, full, inset-right, inset-left.",
+    "cardGrid": "auto-fill columns from 18rem; container query switches to a horizontal card in a wide single column; subgrid aligns title/description/footer rows across a row."
+  },
+  "shape": {
+    "--corner-xs": "0.25rem",
+    "--corner-s": "0.5rem",
+    "--corner-m": "1rem",
+    "--corner-l": "1.5rem",
+    "--corner-full": "999px",
+    "note": "4px base, doubling."
+  },
+  "motion": {
+    "durations": {
+      "--duration-1": "120ms",
+      "--duration-2": "200ms",
+      "--duration-3": "320ms",
+      "--duration-4": "520ms",
+      "note": "Each step ≈ ×1.6."
+    },
+    "easing": {
+      "--easing-standard": "cubic-bezier(0.2, 0, 0, 1)",
+      "--easing-enter": "cubic-bezier(0, 0, 0.2, 1)",
+      "--easing-exit": "cubic-bezier(0.4, 0, 1, 1)"
+    },
+    "reducedMotion": "prefers-reduced-motion: reduce sets every duration to 0ms, stops all animation, turns off smooth scrolling, disables view-transition animation and skips JS-started transitions."
+  },
+  "elevation": {
+    "--elev-1": "Hover lift on buttons.",
+    "--elev-2": "Floating controls.",
+    "--elev-3": "Card hover.",
+    "--elev-4": "Dialogs, popovers, hero image.",
+    "note": "Shadows are tinted with sage-blue-900 so they read in both schemes."
+  },
+  "focus": {
+    "width": "3px",
+    "offset": "2px",
+    "color": "--focus-ring",
+    "note": "Every interactive element gets :focus-visible. Cards ring when their title link is focused."
+  },
+  "iconography": {
+    "style": "Minimalist, sharp, line-based icons that feel like precise technical drawings or arcane symbols.",
+    "library": "Lucide",
+    "defaultSize": "1.25rem",
+    "color": "Inherits the color of its parent text element by default."
+  },
+  "components": {
+    "PageShell": {
+      "file": "src/views/ui.tsx",
+      "classes": ".shell, .shell--narrow, .shell--wide",
+      "note": "Horizontal container with gutters."
+    },
+    "Section": {
+      "file": "src/views/ui.tsx",
+      "classes": ".section, --tight, --loose, --rule",
+      "note": "Vertical rhythm."
+    },
+    "SectionHeader": {
+      "file": "src/views/ui.tsx",
+      "classes": ".section-header",
+      "note": "Eyebrow, title (h1/h2/h3), lede, actions."
+    },
+    "Button": {
+      "file": "src/views/ui.tsx",
+      "classes": ".btn + --primary | --secondary | --tertiary | --icon, --sm | --lg, --block",
+      "note": "44px minimum target. ButtonLink uses view-transition navigation for internal hrefs."
+    },
+    "CardGrid": {
+      "file": "src/views/ui.tsx",
+      "classes": ".card-grid, .card, .card__media, .card__title, .card__link, .card__desc, .card__footer",
+      "note": "Stretched-link card; one link per card; secondary links in the footer."
+    },
+    "TagChip": {
+      "file": "src/views/ui.tsx",
+      "classes": ".chip + --accent | --success | --warning | --error | --outline, .chip-list",
+      "note": "TagList collapses overflow into a +N chip."
+    },
+    "MediaFrame": {
+      "file": "src/views/ui.tsx",
+      "classes": ".media-frame, --contain, --auto, --bare",
+      "note": "Fixed aspect ratio (no CLS), optional caption and zoom button."
+    },
+    "VideoEmbed": {
+      "file": "src/views/ui.tsx",
+      "note": "Lazy iframe in a MediaFrame; title is required."
+    },
+    "Prose": {
+      "file": "src/views/ui.tsx",
+      "classes": ".prose, .prose__flow, .prose-body, .placement-*",
+      "note": "Article layout for filtered HTML and block placements."
+    },
+    "Pagination": {
+      "file": "src/views/ui.tsx",
+      "classes": ".pagination",
+      "note": "nav landmark, aria-current, windowed page list."
+    },
+    "EmptyState": {
+      "file": "src/views/ui.tsx",
+      "classes": ".empty-state"
+    },
+    "LoadingState": {
+      "file": "src/views/ui.tsx",
+      "classes": ".skeleton",
+      "note": "Skeletons reserve the final size; aria-hidden; announce with aria-busy on the region."
+    },
+    "Dialog": {
+      "file": "src/views/ui.tsx",
+      "classes": ".dialog, --wide",
+      "note": "Native <dialog> with showModal(): top layer, focus trap, Esc. closedby=\"any\" plus a backdrop-click fallback."
+    },
+    "Tooltip": {
+      "file": "src/views/ui.tsx",
+      "classes": ".tooltip",
+      "note": "popover=\"manual\" + anchor positioning; a hint only, never the sole label."
+    },
+    "ThemeToggle": {
+      "file": "src/views/ui.tsx",
+      "note": "Dark default; light persisted in localStorage and applied before first paint."
+    },
+    "TransitionLink": {
+      "file": "(none)",
+      "note": "Retired: every navigation is a document navigation here, so CSS @view-transition { navigation: auto } covers it with no script."
+    },
+    "formInputs": {
+      "classes": ".field, .field__label, .field__input, .field__textarea, .form-status--success | --error",
+      "states": {
+        "default": "--control-bg, 1px --control-border",
+        "focus": "--focus-ring outline",
+        "invalid": ":user-invalid → --error-text border (gated on selector support)"
+      }
+    }
+  },
+  "cssFeatures": [
+    {
+      "feature": "light-dark() + color-scheme",
+      "gate": "@supports (color: light-dark(#000, #fff))",
+      "fallback": "Static per-scheme values under @supports not (…) and :root[data-theme=\"light\"]."
+    },
+    {
+      "feature": "color-mix(in oklch, …)",
+      "gate": "@supports (color: color-mix(in oklch, red 50%, blue))",
+      "fallback": "Pre-computed hex/rgba values declared first."
+    },
+    {
+      "feature": "Cross-document view transitions (@view-transition)",
+      "gate": "Unknown at-rule is dropped by the parser",
+      "fallback": "Normal navigation."
+    },
+    {
+      "feature": "Same-document view transitions (startViewTransition) + view-transition-name on project cards",
+      "gate": "typeof document.startViewTransition === 'function' and no reduced motion",
+      "fallback": "Plain navigation."
+    },
+    {
+      "feature": "Scroll-driven animations (view(), scroll())",
+      "gate": "@supports (animation-timeline: view()) / (animation-timeline: scroll())",
+      "fallback": "Content simply visible; reading-progress bar not rendered."
+    },
+    {
+      "feature": "@starting-style + transition-behavior: allow-discrete",
+      "gate": "@supports (transition-behavior: allow-discrete)",
+      "fallback": "Dialogs and the menu appear without animation."
+    },
+    {
+      "feature": "Anchor positioning",
+      "gate": "@supports (anchor-name: --a)",
+      "fallback": "Menu popover pinned under the header; tooltip hidden (trigger keeps its own label)."
+    },
+    {
+      "feature": "Popover API (menu, tooltip)",
+      "gate": "Native attribute",
+      "fallback": "Without popover support the menu stays hidden; desktop nav is unaffected and the footer lists every page."
+    },
+    {
+      "feature": "Container queries",
+      "gate": "Unknown @container is dropped",
+      "fallback": "Stacked card layout."
+    },
+    {
+      "feature": "Subgrid",
+      "gate": "@supports (grid-template-rows: subgrid)",
+      "fallback": "Cards stretch to row height; footers still align via 1fr."
+    },
+    {
+      "feature": ":has()",
+      "gate": "@supports selector(:has(*)) for card focus; selector-level degradation for body:has(dialog:modal)",
+      "fallback": ":focus-within ring; page keeps scrolling behind a dialog."
+    },
+    {
+      "feature": "field-sizing: content",
+      "gate": "@supports (field-sizing: content)",
+      "fallback": "rows=\"6\" and min-height."
+    },
+    {
+      "feature": "text-wrap: balance / pretty",
+      "gate": "Ignored where unsupported",
+      "fallback": "Normal wrapping."
+    },
+    {
+      "feature": "backdrop-filter (sticky header)",
+      "gate": "@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))",
+      "fallback": "Opaque header."
+    }
+  ],
+  "accessibility": {
+    "standard": "WCAG 2.2 AA",
+    "landmarks": "Layout renders skip link → header (banner) → main#main → footer (contentinfo). Pages render exactly one h1 and never their own <main>.",
+    "contrastPairs": [
+      {
+        "foreground": "parchment-100",
+        "background": "sage-blue-900",
+        "minimum": 4.5,
+        "use": "Body text on the page (dark)"
+      },
+      {
+        "foreground": "parchment-300",
+        "background": "sage-blue-900",
+        "minimum": 4.5,
+        "use": "Muted text on the page (dark)"
+      },
+      {
+        "foreground": "ink-500",
+        "background": "sage-blue-900",
+        "minimum": 4.5,
+        "use": "Subtle text on the page surface only (dark)"
+      },
+      {
+        "foreground": "arcane-gold-500",
+        "background": "sage-blue-900",
+        "minimum": 4.5,
+        "use": "Links, eyebrows, accent text at any size (dark)"
+      },
+      {
+        "foreground": "sage-blue-900",
+        "background": "arcane-gold-500",
+        "minimum": 4.5,
+        "use": "Primary button label"
+      },
+      {
+        "foreground": "parchment-100",
+        "background": "ink-900",
+        "minimum": 4.5,
+        "use": "Text on raised surfaces (dark)"
+      },
+      {
+        "foreground": "parchment-300",
+        "background": "ink-900",
+        "minimum": 4.5,
+        "use": "Muted text on raised surfaces (dark)"
+      },
+      {
+        "foreground": "arcane-gold-500",
+        "background": "ink-900",
+        "minimum": 4.5,
+        "use": "Accent text on raised surfaces (dark)"
+      },
+      {
+        "foreground": "ink-500",
+        "background": "#152234",
+        "minimum": 4.5,
+        "use": "Subtle text in the footer (dark surface-muted)"
+      },
+      {
+        "foreground": "ink-500",
+        "background": "ink-900",
+        "minimum": 3,
+        "use": "Form control border (dark), WCAG 1.4.11"
+      },
+      {
+        "foreground": "arcane-gold-500",
+        "background": "sage-blue-900",
+        "minimum": 3,
+        "use": "Focus ring (dark)"
+      },
+      {
+        "foreground": "success-500",
+        "background": "ink-900",
+        "minimum": 4.5,
+        "use": "Success text on raised (dark)"
+      },
+      {
+        "foreground": "warning-500",
+        "background": "ink-900",
+        "minimum": 4.5,
+        "use": "Warning text on raised (dark)"
+      },
+      {
+        "foreground": "#F37F6E",
+        "background": "ink-900",
+        "minimum": 4.5,
+        "use": "Error text (dark), error-500 lightened in oklch"
+      },
+      {
+        "foreground": "#F37F6E",
+        "background": "#3C2C3B",
+        "minimum": 4.5,
+        "use": "Error status: --error-soft composited over ink-900"
+      },
+      {
+        "foreground": "#2ECC71",
+        "background": "#1E4144",
+        "minimum": 4.5,
+        "use": "Success chip: --success-soft over ink-900"
+      },
+      {
+        "foreground": "#F39C12",
+        "background": "#3E3934",
+        "minimum": 4.5,
+        "use": "Warning chip: --warning-soft over ink-900"
+      },
+      {
+        "foreground": "#FFC300",
+        "background": "#3B3C33",
+        "minimum": 4.5,
+        "use": "Accent chip: --accent-soft over ink-900"
+      },
+      {
+        "foreground": "parchment-300",
+        "background": "#2A3B53",
+        "minimum": 4.5,
+        "use": "Neutral chip: --chip-bg over ink-900"
+      },
+      {
+        "foreground": "ink-900",
+        "background": "parchment-200",
+        "minimum": 4.5,
+        "use": "Body text on the page (light)"
+      },
+      {
+        "foreground": "ink-700",
+        "background": "parchment-200",
+        "minimum": 4.5,
+        "use": "Muted and subtle text on the page (light)"
+      },
+      {
+        "foreground": "ink-900",
+        "background": "parchment-100",
+        "minimum": 4.5,
+        "use": "Text on raised surfaces (light)"
+      },
+      {
+        "foreground": "ink-700",
+        "background": "parchment-100",
+        "minimum": 4.5,
+        "use": "Muted text on raised surfaces (light)"
+      },
+      {
+        "foreground": "ink-700",
+        "background": "#E6EAEA",
+        "minimum": 4.5,
+        "use": "Footer text (light surface-muted)"
+      },
+      {
+        "foreground": "ink-500",
+        "background": "parchment-100",
+        "minimum": 3,
+        "use": "Form control border (light), WCAG 1.4.11"
+      },
+      {
+        "foreground": "ink-500",
+        "background": "parchment-200",
+        "minimum": 3,
+        "use": "Link underline (light)"
+      },
+      {
+        "foreground": "ink-900",
+        "background": "parchment-200",
+        "minimum": 3,
+        "use": "Focus ring (light)"
+      },
+      {
+        "foreground": "#0E592E",
+        "background": "parchment-200",
+        "minimum": 4.5,
+        "use": "Success text (light), success-500 darkened in oklch"
+      },
+      {
+        "foreground": "#0E592E",
+        "background": "#DEF7E8",
+        "minimum": 4.5,
+        "use": "Success status: --success-soft over white"
+      },
+      {
+        "foreground": "#6C4303",
+        "background": "#F0E4D1",
+        "minimum": 4.5,
+        "use": "Warning chip (light) over the page"
+      },
+      {
+        "foreground": "#8F2C21",
+        "background": "#FBE2E0",
+        "minimum": 4.5,
+        "use": "Error status (light): --error-soft over white"
+      },
+      {
+        "foreground": "ink-900",
+        "background": "#FFF2C7",
+        "minimum": 4.5,
+        "use": "Accent chip (light): --accent-soft over white"
+      },
+      {
+        "foreground": "ink-900",
+        "background": "#E1E6EC",
+        "minimum": 4.5,
+        "use": "Neutral chip (light): --chip-bg over white"
+      }
+    ],
+    "avoid": [
+      {
+        "foreground": "arcane-gold-500",
+        "background": "parchment-200",
+        "minimum": 4.5,
+        "use": "Gold as text or underline on light surfaces (1.43:1). Light mode uses ink-900 text and an ink-500 underline."
+      },
+      {
+        "foreground": "arcane-gold-500",
+        "background": "ink-700",
+        "minimum": 4.5,
+        "use": "Gold text on ink-700 (4.42:1). Use gold only on sage-blue-900 or ink-900."
+      },
+      {
+        "foreground": "ink-500",
+        "background": "ink-900",
+        "minimum": 4.5,
+        "use": "Subtle text on raised surfaces (4.45:1). Raised components re-point --text-subtle to --text-muted."
+      },
+      {
+        "foreground": "ink-700",
+        "background": "ink-900",
+        "minimum": 3,
+        "use": "v1 dark input border (2.13:1). v2 uses ink-500."
+      },
+      {
+        "foreground": "error-500",
+        "background": "ink-900",
+        "minimum": 4.5,
+        "use": "Raw error-500 as text on raised dark surfaces (3.96:1). v2 lightens it to #F37F6E."
+      },
+      {
+        "foreground": "success-500",
+        "background": "parchment-200",
+        "minimum": 4.5,
+        "use": "Raw success-500 as text on light (1.87:1). v2 darkens it to #0E592E."
+      },
+      {
+        "foreground": "parchment-100",
+        "background": "error-500",
+        "minimum": 4.5,
+        "use": "White text on error-500 (3.82:1), the v1 destructive button. Not shipped in v2."
+      }
+    ]
+  },
+  "performance": {
+    "budgets": "No layout shift from fonts (size-adjusted fallbacks), hero/LCP image has priority, every image and embed reserves its aspect ratio, no render-blocking third-party CSS or script.",
+    "javascript": "Native platform over libraries: <dialog>, popover, CSS for motion. The only inline script is the ~140-byte theme bootstrap."
+  },
+  "toneOfVoice": [
+    {
+      "trait": "Authoritative",
+      "description": "Speak with confidence. Use clear, declarative statements."
+    },
+    {
+      "trait": "Concise",
+      "description": "Respect the user's time. Be direct and to the point."
+    },
+    {
+      "trait": "Guiding",
+      "description": "When explaining complex topics, be instructive. Use tooltips and helper text to provide context where needed."
+    },
+    {
+      "trait": "Precise",
+      "description": "Use correct technical terminology. Avoid ambiguity."
+    }
+  ],
+  "voice": "First person, plain and specific. State what was built and its status as it is: client builds that were not launched are \"built\", never \"live\" or \"production\"."
+}

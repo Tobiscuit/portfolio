@@ -1,0 +1,41 @@
+/* ---------------------------------------------------------------------------
+   Reset — the parts of Tailwind's preflight that base.css and primitives.css
+   (PR #5) were written on top of. This site has no Tailwind (spec 003 R0).
+   The layer order is declared once, here, first in the bundle.
+   --------------------------------------------------------------------------- */
+@layer reset, base, components;
+
+@layer reset {
+  *, ::before, ::after { box-sizing: border-box; margin: 0; padding: 0; border: 0 solid; }
+  html { line-height: 1.5; tab-size: 4; }
+  body { line-height: inherit; }
+  h1, h2, h3, h4, h5, h6 { font-size: inherit; font-weight: inherit; }
+  a { color: inherit; text-decoration: inherit; }
+  b, strong { font-weight: bolder; }
+  ol, ul, menu { list-style: none; }
+  img, svg, video, canvas, audio, iframe, embed, object { display: block; vertical-align: middle; }
+  img, video { max-inline-size: 100%; block-size: auto; }
+  button, input, select, optgroup, textarea { font: inherit; color: inherit; letter-spacing: inherit; background: transparent; border-radius: 0; }
+  button, [role="button"] { cursor: pointer; }
+  textarea { resize: vertical; }
+  table { border-collapse: collapse; text-indent: 0; border-color: inherit; }
+  [hidden]:where(:not([hidden="until-found"])) { display: none !important; }
+  dialog { padding: 0; }
+  summary { display: list-item; }
+}
+
+@layer base {
+  /* Visually hidden, still announced: Tailwind's `sr-only`, which PR #5's
+     markup used. */
+  .sr-only {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border-width: 0;
+  }
+}

@@ -1,0 +1,60 @@
+/* ---------------------------------------------------------------------------
+   Site — the few patterns juanramirez.codes adds to PR #5's vocabulary, all
+   built from its tokens: the post's compose() items, work groups, the
+   honeypot, video players. Add here only what repeats.
+   --------------------------------------------------------------------------- */
+@layer components {
+  /* compose() items on a post (the engine's layout plan; spec 003 section 5). */
+  .pull-quote {
+    margin-block: var(--space-l);
+    padding-inline-start: var(--space-s);
+    border-inline-start: 3px solid var(--accent);
+    font-family: var(--ff-serif);
+    font-size: var(--type-subheading);
+    line-height: var(--lh-snug);
+    color: var(--text);
+  }
+  .key-points {
+    margin-block: var(--space-m);
+    padding: var(--space-s) var(--space-m);
+    border: 1px solid var(--line);
+    border-radius: var(--corner-m);
+    background: var(--surface-raised);
+    --text-subtle: var(--text-muted);
+  }
+  .key-points__title { margin-block-end: var(--space-2xs); font-size: var(--type-small); font-weight: 600; letter-spacing: var(--track-caps); text-transform: uppercase; color: var(--text-muted); }
+  .key-points ul { display: grid; gap: var(--space-3xs); padding-inline-start: 1.25em; list-style: disc; color: var(--text); }
+  .note {
+    margin-block: var(--space-m);
+    padding: var(--space-s) var(--space-m);
+    border-inline-start: 3px solid var(--line-strong);
+    border-radius: var(--corner-s);
+    background: var(--surface-muted);
+    color: var(--text);
+  }
+  .note__label { font-weight: 600; }
+  .note--warning { border-inline-start-color: var(--warning-text); }
+  .note--tip { border-inline-start-color: var(--success-text); }
+  .note--cost { border-inline-start-color: var(--accent); }
+  .post-figure figcaption { margin-block-start: var(--space-2xs); font-size: var(--type-small); color: var(--text-muted); }
+  .post-meta { font-size: var(--type-small); color: var(--text-muted); }
+
+  /* /work: one group per kind. */
+  .work-group + .work-group { margin-block-start: var(--space-2xl); }
+  .work-card__highlights { display: grid; gap: var(--space-2xs); padding-inline-start: 1.1em; list-style: disc; color: var(--text-muted); font-size: var(--type-small); }
+  .work-card__facts { display: flex; flex-wrap: wrap; gap: var(--space-s); }
+  .work-card__fact { display: grid; }
+  .work-card__fact-value { font-family: var(--ff-serif); font-size: var(--type-lead); font-weight: 700; color: var(--text); line-height: 1.1; }
+  .work-card__fact-label { font-size: var(--type-small); color: var(--text-muted); }
+
+  /* The honeypot: off screen, out of the tab order, hidden from assistive tech. */
+  .hp { position: absolute; inset-inline-start: -10000px; inline-size: 1px; block-size: 1px; overflow: hidden; }
+
+  /* /videos */
+  .video-player { inline-size: 100%; border-radius: var(--corner-m); background: var(--surface-muted); }
+  .video-player.landscape { aspect-ratio: 16 / 9; }
+  .video-player.portrait { aspect-ratio: 9 / 16; max-block-size: 80vh; margin-inline: auto; }
+
+  /* The Turnstile widget keeps its own space, so the form never jumps when it loads. */
+  .turnstile-slot { min-block-size: 65px; }
+}

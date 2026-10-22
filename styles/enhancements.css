@@ -1,0 +1,151 @@
+/* ---------------------------------------------------------------------------
+   Progressive enhancements.
+   Every rule here is gated on feature support and has a stated fallback in
+   base.css / primitives.css. Nothing in this file is load-bearing.
+   --------------------------------------------------------------------------- */
+
+/* Cross-document view transitions: every navigation on this site is a
+   document navigation, so this one rule is the whole of it (no script). */
+@view-transition {
+  navigation: auto;
+}
+
+@layer components {
+  /* ----- View transitions: timing + the shared project image ---------------- */
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation-duration: var(--duration-3);
+    animation-timing-function: var(--easing-standard);
+  }
+  ::view-transition-group(*) {
+    animation-duration: var(--duration-4);
+    animation-timing-function: var(--easing-standard);
+  }
+  /* The old image fades under the new one instead of cross-blending at scale. */
+  ::view-transition-old(*):only-child { animation-name: none; }
+  @media (prefers-reduced-motion: reduce) {
+    ::view-transition-group(*),
+    ::view-transition-old(*),
+    ::view-transition-new(*) { animation: none !important; }
+  }
+
+  /* ----- Scroll-driven entrance (fallback: content is simply visible) ------ */
+  @supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+      .reveal {
+        animation: reveal-up linear both;
+        animation-timeline: view();
+        animation-range: entry 0% entry 40%;
+      }
+    }
+  }
+
+  /* ----- Reading progress (fallback: not rendered) --------------------------- */
+  .reading-progress { display: none; }
+  @supports (animation-timeline: scroll()) {
+    .reading-progress {
+      display: block;
+      position: fixed;
+      inset-block-start: 0;
+      inset-inline: 0;
+      block-size: 3px;
+      z-index: 60;
+      background: var(--accent);
+      transform-origin: 0 50%;
+      scale: 0 1;
+      animation: progress-grow linear both;
+      animation-timeline: scroll(root);
+    }
+  }
+
+  /* ----- Entry/exit transitions for the top layer ---------------------------
+     Fallback: dialogs and popovers appear and disappear instantly. */
+  @supports (transition-behavior: allow-discrete) {
+    .dialog {
+      opacity: 0;
+      translate: 0 0.75rem;
+      transition:
+        opacity var(--duration-3) var(--easing-exit),
+        translate var(--duration-3) var(--easing-exit),
+        overlay var(--duration-3) allow-discrete,
+        display var(--duration-3) allow-discrete;
+    }
+    .dialog[open] {
+      opacity: 1;
+      translate: 0 0;
+      transition-timing-function: var(--easing-enter);
+    }
+    @starting-style {
+      .dialog[open] { opacity: 0; translate: 0 0.75rem; }
+    }
+    .dialog::backdrop {
+      transition:
+        background-color var(--duration-3) var(--easing-standard),
+        overlay var(--duration-3) allow-discrete,
+        display var(--duration-3) allow-discrete;
+    }
+    @starting-style {
+      .dialog[open]::backdrop { background-color: transparent; }
+    }
+
+    .nav-popover {
+      opacity: 0;
+      translate: 0 -0.5rem;
+      transition:
+        opacity var(--duration-2) var(--easing-exit),
+        translate var(--duration-2) var(--easing-exit),
+        overlay var(--duration-2) allow-discrete,
+        display var(--duration-2) allow-discrete;
+    }
+    .nav-popover:popover-open { opacity: 1; translate: 0 0; transition-timing-function: var(--easing-enter); }
+    @starting-style {
+      .nav-popover:popover-open { opacity: 0; translate: 0 -0.5rem; }
+    }
+  }
+
+  /* ----- Anchor positioning --------------------------------------------------
+     Fallback: the menu is pinned under the header (primitives.css); the
+     tooltip stays hidden because its trigger already carries an accessible
+     name. */
+  @supports (anchor-name: --a) {
+    .menu-button { anchor-name: --site-menu; }
+    .nav-popover {
+      position: fixed;
+      position-anchor: --site-menu;
+      inset: auto;
+      position-area: block-end span-inline-start;
+      margin-block-start: var(--space-2xs);
+      position-try-fallbacks: flip-block;
+    }
+    .tooltip-host { anchor-name: var(--anchor); }
+    .tooltip {
+      position: fixed;
+      position-anchor: var(--anchor);
+      inset: auto;
+      position-area: block-start center;
+      margin-block-end: var(--space-3xs);
+      position-try-fallbacks: flip-block;
+    }
+    .tooltip:popover-open { display: block; }
+  }
+
+  /* ----- Textarea grows with its content (fallback: rows + min-height) ----- */
+  @supports (field-sizing: content) {
+    .field__textarea {
+      field-sizing: content;
+      min-block-size: 9rem;
+      max-block-size: 60dvh;
+    }
+  }
+}
+
+/* Movement only, never opacity: content must be readable without scrolling
+   (full-page captures, print, link previews never advance the timeline). */
+@keyframes reveal-up {
+  from { translate: 0 1.5rem; }
+  to { translate: 0 0; }
+}
+@keyframes progress-grow {
+  from { scale: 0 1; }
+  to { scale: 1 1; }
+}
