@@ -69,14 +69,19 @@ touch are marked **contract**.
 ### 2.1 The projects port (the seam for engine spec 030)
 
 ```ts
-export type ProjectStatus = "live" | "built" | "in-progress";
+export type ProjectStatus = "live" | "built" | "in-progress";   // never "production"
+export type ProjectKind = "product" | "open-source" | "platform" | "tooling" | "client";
+export const LIVE_URLS = ["https://montanobtm.com/"];           // the only live links allowed
 export interface ProjectCard {
   slug: string;            // kebab-case, unique
   title: string;
   summary: string;         // one or two sentences
-  status: ProjectStatus;   // "live" only with an allow-listed liveUrl
+  status: ProjectStatus;   // "live" only with an allow-listed live link
+  kind: ProjectKind;       // grouping on /work
   role: string | null;     // "Designed and built it"
   stack: string[];         // chips
+  highlights: string[];    // what was hard, what I did
+  facts: Array<{ value: string; label: string; source: string }>;  // every number with its source
   links: Array<{ label: string; href: string; kind: "repo" | "live" | "write-up" }>;
   path: string | null;     // "/work/<slug>" when a page exists; null for a summary-only card
 }
