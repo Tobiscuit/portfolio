@@ -66,37 +66,52 @@ touch are marked **contract**.
 | `tests/smoke/**`, `tests/stubs/seo-engine/**` | the Worker in `wrangler dev` (workerd) with a stub `seo-engine` | — |
 | `tests/a11y/**`, `tests/perf/**` | Playwright + axe; Lighthouse | — |
 
-### 2.1 The projects port (the seam for engine spec 030)
+### 2.1 The ports and their adapters (engine spec 030, at seo-engine 9060ece)
 
 ```ts
-export type ProjectStatus = "live" | "built" | "in-progress";   // never "production"
-export type ProjectKind = "product" | "open-source" | "platform" | "tooling" | "client";
-export const LIVE_URLS = ["https://montanobtm.com/"];           // the only live links allowed
+export type ProjectStatus = "live" | "built" | "in-progress" | "archived";   // never "production"
+export type ProjectKind = "product" | "open-source" | "platform" | "tooling" | "client" | "earlier";
+export const LIVE_HOSTS = ["montanobtm.com", "www.montanobtm.com"];         // the only live links allowed
 export interface ProjectCard {
-  slug: string;            // kebab-case, unique
-  title: string;
-  summary: string;         // one or two sentences
-  status: ProjectStatus;   // "live" only with an allow-listed live link
-  kind: ProjectKind;       // grouping on /work
-  role: string | null;     // "Designed and built it"
-  stack: string[];         // chips
-  highlights: string[];    // what was hard, what I did
-  facts: Array<{ value: string; label: string; source: string }>;  // every number with its source
-  links: Array<{ label: string; href: string; kind: "repo" | "live" | "write-up" }>;
-  path: string | null;     // "/work/<slug>" when a page exists; null for a summary-only card
+  slug: string; title: string; summary: string;
+  status: ProjectStatus; statusLabel?: string;   // "live" only with an allow-listed live link; the owner's word
+  kind: ProjectKind; kindLabel?: string;         // grouping on /work; the owner's word
+  role: string | null; stack: string[]; highlights: string[];
+  facts: Array<{ value: string; label: string; source: string }>;   // every number with its source
+  links: Array<{ label: string; href: string; kind: "repo" | "live" | "write-up" }>;   // https only
+  featured: boolean;                             // the home page's selection
+  path: string | null;                           // "/work/<slug>" when a page exists
 }
-export interface ProjectPage extends ProjectCard { bodyHtml: string; updatedAt: string }
-export interface ProjectsPort {
-  list(): Promise<ProjectCard[]>;
-  get(slug: string): Promise<ProjectPage | null>;
-}
+export interface ProjectPage extends ProjectCard { bodyHtml: string; updatedAt: string; details: Array<{ label: string; text: string }> }
+export interface ProjectsPort { list(): Promise<ProjectCard[]>; get(slug: string): Promise<ProjectPage | null> }
+export interface ProfileLinksPort { links(): Promise<ProfileLink[]> }
 ```
 
-The engine adapter (later) maps spec 030's fixed core (title, summary,
-cover, path) and this site's extension fields (role, stack, links, status)
-onto `ProjectCard`. Until then `placeholderProjects.list()` returns the
-static summaries in `content/work.ts` with `path: null`, and `get()` returns
-null (so `/work/<slug>` is a 404, not a fake page).
+| Port | Data-module adapter (fallback) | Engine adapter (spec 030) |
+|---|---|---|
+| `ProjectsPort` | `placeholderProjects`: `content/work.ts`, no pages (`get` → null, a 404) | `engineProjects` (`lib/projects/engine.ts`): `projects("en", { include: ["fields", "roles"] })` + `contentModel("en")`; the case-study preset's fields (name, kind, status, role, since, stack, repo, live, outcomes, featured) onto cards; `/work/<slug>` pages from `project()` with the engine's sanitised body and the other fields through `displayFields()` as words |
+| `ProfileLinksPort` | `staticProfileLinks`: GitHub, LinkedIn from `lib/site.ts` | `engineProfileLinks` (`lib/profile-links.ts`): `profile({ include: ["links"] })` through `linksOf()`, https only |
+
+**Which adapter answers** is decided in one place, the composition root
+`src/ports.ts`, called by the app's first middleware: the engine adapters
+only for a kit client that can ask for spec 030's data (`contentModel`, kit
+0.8.0); the data module otherwise, which is kit 0.6.2 today, because its
+client cannot send `include`. At runtime each engine adapter falls back to
+the data module when the engine cannot serve: no content model (`null`), an
+older engine, a failed call, or (links) no saved link.
+
+**The content rule on engine data:** only montanobtm.com may be called
+live. An engine project whose status is `live` without a montanobtm.com live
+link is shown as built and its live link dropped; links are https only.
+**Field values are words:** the site renders `FieldDisplay.text`, escaped by
+hono/jsx, and never inserts `html` as markup; only the engine-sanitised
+`bodyHtml` of a project page is inserted as HTML, as a post's body is.
+
+**Types:** `lib/kit-030/types.ts` types kit 0.8.0's additions by hand from
+spec 030 at 9060ece, and `lib/kit-030/helpers.ts` holds local
+`displayFields()` and `linksOf()` to the spec's contract. Both are marked
+to be replaced by the kit's own when 0.8.0 is published (W1, W2); 0.8.0 is
+not a dependency.
 
 ## 3. Cache policy (`lib/cache-policy.ts`)
 

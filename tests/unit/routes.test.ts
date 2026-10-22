@@ -3,9 +3,10 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { FORBIDDEN, degreeClaimsOk } from "../../lib/claims";
 import { RENDERS, manifestFor } from "../../lib/seo";
 import { SITE_HOST } from "../../lib/site";
-import { app } from "../../src/app";
+import { app, createApp } from "../../src/app";
 import { STYLESHEET } from "../../src/assets";
 import worker from "../../worker/index";
+import { CASE_STUDY_VIEW, ENGINE_PROJECT, ENGINE_PROJECTS } from "../fixtures/engine-030";
 import { FIGURE_KEY, FIXTURE_POSTS, FIXTURE_PROFILE, FIXTURE_SITEMAP, FIXTURE_SUMMARIES, FIXTURE_VIDEOS, HERO_KEY, VIDEO_KEY } from "../fixtures/engine";
 
 /**
@@ -331,5 +332,69 @@ describe("the Worker (worker/index.ts)", () => {
     await fresh.fetch(new Request(`${PROD}/`), env({}, seo), prod.ctx);
     await Promise.all(prod.waits);
     expect(seo.announce).toHaveBeenCalledWith(KEY, expect.objectContaining({ has: { blog: true, intake: true, videos: true } }));
+  });
+});
+
+describe("with spec 030's data (a kit 0.8.0 client, through the composition root)", () => {
+  const profile = { ...FIXTURE_PROFILE, links: [{ kind: "github", url: "https://github.com/Tobiscuit" }, { kind: "x", url: "https://x.com/example" }] };
+  const client030 = (overrides: Record<string, unknown> = {}) => ({
+    contentModel: vi.fn(async () => CASE_STUDY_VIEW),
+    projects: vi.fn(async () => ENGINE_PROJECTS),
+    project: vi.fn(async (_locale: string, slug: string) => (slug === ENGINE_PROJECT.slug ? ENGINE_PROJECT : null)),
+    profile: vi.fn(async () => profile),
+    ...overrides,
+  });
+  const app030 = (client = client030()) => createApp({ clientFor: () => client });
+  const page = async (path: string, client = client030()) => (await app030(client).request(`${PROD}${path}`, {}, env())).text();
+
+  it("renders the engine's case studies on /work, grouped and labelled in the model's words", async () => {
+    const html = await page("/work");
+    for (const heading of ["Open source", "Client work", "Earlier work"]) expect(html).toContain(`>${heading}</h2>`);
+    expect(html).toContain('<a href="/work/proprietor-mail">proprietor-mail</a>');
+    expect(html).toContain('href="https://github.com/Tobiscuit/proprietor-mail"');
+    expect(html).toContain('<span class="work-card__fact-value">Apache-2.0</span>');
+  });
+
+  it("calls only montanobtm.com live; the engine's other 'live' renders as built", async () => {
+    const html = await page("/work");
+    expect(count(html, ">Live</span>")).toBe(1);
+    const montano = html.indexOf("montanobtm.com");
+    expect(html.indexOf(">Live</span>", montano)).toBeGreaterThan(montano);
+    const granite = html.slice(html.indexOf("A granite shop&#39;s site"), html.indexOf("A granite shop&#39;s site") + 200);
+    expect(granite).toContain(">Built</span>");
+    expect(html).not.toContain("granite.example.com");
+  });
+
+  it("renders a field's markup as text, never as markup", async () => {
+    const html = await page("/work");
+    expect(html).not.toContain("<script>alert(1)</script>");
+    expect(html).toContain("&lt;script&gt;alert(1)&lt;/script&gt; &amp; co");
+  });
+
+  it("renders a project page: the engine's write-up, its status, and its other fields as words", async () => {
+    const response = await app030().request(`${PROD}/work/proprietor-mail`, {}, env());
+    expect(response.status).toBe(200);
+    const html = await response.text();
+    expect(count(html, /<h1[\s>]/g)).toBe(1);
+    expect(html).toContain('<h1 id="project-title">proprietor-mail</h1>');
+    expect(html).toContain("<h2>What it is</h2><p>An inbox.</p>");
+    expect(html).toContain("<dt>Started</dt><dd>2026-10</dd>");
+    expect(html).toContain('<link rel="canonical" href="https://juanramirez.codes/work/proprietor-mail"');
+    expect((await app030().request(`${PROD}/work/nope`, {}, env())).status).toBe(404);
+  });
+
+  it("renders the owner's profile links, read through linksOf", async () => {
+    const html = await page("/about");
+    expect(html).toContain('<a href="https://x.com/example" rel="me noopener">X</a>');
+    expect(html).toContain('<a href="https://github.com/Tobiscuit" rel="me noopener">GitHub</a>');
+  });
+
+  it("uses the data module when the includes cannot be served: kit 0.6.2 (the default app) or a business without a model", async () => {
+    const kit062 = await (await get("/work")).text();
+    expect(kit062).toContain("Proprietor Systems");
+    expect(kit062).toContain('href="https://www.linkedin.com/in/cloud-juan-manuel-ramirez/"');
+    const noModel = await page("/work", client030({ contentModel: vi.fn(async () => null) }));
+    expect(noModel).toContain("Proprietor Systems");
+    expect(noModel).not.toContain("Old thing");
   });
 });

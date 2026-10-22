@@ -60,9 +60,13 @@ page.
 
 | Port | Shape (site-owned) | Adapter today | Adapter later | Waits on |
 |---|---|---|---|---|
-| `ProjectsPort` (`lib/projects/port.ts`) | `list(): Promise<ProjectCard[]>`, `get(slug): Promise<ProjectPage \| null>` | `placeholderProjects` (static cards from `content/work.ts`; `get` → null) | an engine adapter over `projects()`/`project()` mapping spec 030's extension fields | engine spec 030 contract shapes; kit release carrying them |
-| `ProfileLinksPort` (`lib/profile-links.ts`) | `links(): Promise<ProfileLink[]>` (`kind`: github · linkedin · email · other) | `staticProfileLinks` (GitHub, LinkedIn from `lib/site.ts`) | the engine's profile links | engine spec 030 |
+| `ProjectsPort` (`lib/projects/port.ts`) | `list(): Promise<ProjectCard[]>`, `get(slug): Promise<ProjectPage \| null>` | `placeholderProjects` (static cards from `content/work.ts`; `get` → null): the fallback | `engineProjects` (`lib/projects/engine.ts`), built against spec 030 at 9060ece: the case-study preset's fields | kit 0.8.0 published, to switch from `lib/kit-030/` to the kit's types |
+| `ProfileLinksPort` (`lib/profile-links.ts`) | `links(): Promise<ProfileLink[]>` (spec 030's link kinds, plus email) | `staticProfileLinks` (GitHub, LinkedIn from `lib/site.ts`): the fallback | `engineProfileLinks`, built: `profile({ include: ["links"] })` through `linksOf()` | kit 0.8.0 published |
 | `readVideos` (`lib/platform/videos.ts`) | `VideoSummary[]` | the shim: kit `videos()` if present → `SEO.videos(siteKey)` if present → `[]` | kit 0.7.0's `videos()` only (delete the lookup) | kit 0.7.0 published |
+
+The adapters are chosen in one place, the **composition root** `src/ports.ts`
+(engine adapters only for a kit 0.8.0 client; the data module otherwise),
+and each engine adapter falls back to the data module at runtime.
 
 Pattern: **Adapter** also in `lib/seo.ts` (`engineClient(env)` builds the
 kit's `rpc()` client from the env) and **Strategy** in the videos shim (three

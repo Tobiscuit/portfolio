@@ -2,7 +2,6 @@ import { describe, expect, it } from "vitest";
 
 import { LIVE_URLS, PROJECT_STATUSES, type ProjectCard } from "../../lib/projects/port";
 import { placeholderProjects } from "../../lib/projects/placeholder";
-import { projectsPort } from "../../lib/projects";
 
 /**
  * The projects port (spec 003, plan section 2.1; T5). Until engine spec 030
@@ -49,8 +48,8 @@ describe("the placeholder adapter", () => {
     await expect(placeholderProjects.get("proprietor-systems")).resolves.toBeNull();
   });
 
-  it("is the adapter the site uses until spec 030 (W1)", () => {
-    expect(projectsPort).toBe(placeholderProjects);
+  it("features the first three: Proprietor Systems, proprietor-mail, the platform", () => {
+    expect(cards.filter((card) => card.featured).map((card) => card.slug)).toEqual(["proprietor-systems", "proprietor-mail", "platform"]);
   });
 
   it("names only montanobtm.com among client work; the rest is anonymised", () => {

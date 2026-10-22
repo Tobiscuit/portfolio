@@ -56,11 +56,13 @@ const STATUS: Record<ProjectStatus, { text: string; tone: string }> = {
   live: { text: "Live", tone: "chip--success" },
   built: { text: "Built", tone: "chip--outline" },
   "in-progress": { text: "In progress", tone: "chip--warning" },
+  archived: { text: "Archived", tone: "chip--outline" },
 };
 
-export function StatusChip({ status }: { status: ProjectStatus }) {
+/** The tone always follows the status; the words may be the owner's (spec 030's model labels). */
+export function StatusChip({ status, label }: { status: ProjectStatus; label?: string }) {
   const { text, tone } = STATUS[status];
-  return <span class={`chip ${tone}`}>{text}</span>;
+  return <span class={`chip ${tone}`}>{label ?? text}</span>;
 }
 
 export function EmptyState({ title, as = "h2", children }: PropsWithChildren<{ title: string; as?: "h1" | "h2" }>) {

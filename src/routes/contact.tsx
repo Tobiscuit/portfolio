@@ -3,7 +3,6 @@ import { Hono, type Context } from "hono";
 import { HONEYPOT_FIELD, LIMITS, TURNSTILE_ACTION } from "../../lib/inquiry/form";
 import { handleInquiry, type Fields, type InquiryOutcome } from "../../lib/inquiry/handle";
 import { platformClient } from "../../lib/platform/reads";
-import { profileLinks } from "../../lib/profile-links";
 import { HTMX_SRC, TURNSTILE_SRC } from "../assets";
 import type { AppEnv } from "../env";
 import { Section, SectionHeader, Shell } from "../views/ui";
@@ -45,7 +44,7 @@ contact.post("/contact", async (c) => {
 });
 
 async function contactPage(c: Context<AppEnv>, outcome?: InquiryOutcome): Promise<Response> {
-  const [profile, links] = await Promise.all([profileFor(c), profileLinks.links()]);
+  const [profile, links] = await Promise.all([profileFor(c), c.var.profileLinks.links()]);
   const siteKey = c.env.TURNSTILE_SITE_KEY;
   const ready = Boolean(siteKey && c.env.TURNSTILE_SECRET_KEY && platformClient(c.env));
   const kept: Fields | undefined = outcome && !outcome.ok ? outcome.fields : undefined;

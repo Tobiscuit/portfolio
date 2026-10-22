@@ -5,7 +5,7 @@ import { ABOUT } from "../../content/about";
 import { HOME } from "../../content/home";
 import { readPosts, platformClient } from "../../lib/platform/reads";
 import { readVideos } from "../../lib/platform/videos";
-import { projectsPort, type ProjectCard, type ProjectKind } from "../../lib/projects";
+import type { ProjectCard, ProjectKind } from "../../lib/projects/port";
 import { PERSON_NAME, absolute } from "../../lib/site";
 import type { AppEnv } from "../env";
 import { PostMeta } from "../views/post";
@@ -28,8 +28,9 @@ const PERSON_JSON_LD = {
 };
 
 pages.get("/", async (c) => {
-  const [work, posts] = await Promise.all([projectsPort.list(), latestPosts(c.env, wantsOriginals(c))]);
-  const flagship = work.filter((card) => card.kind !== "client").slice(0, 3);
+  const [work, posts] = await Promise.all([c.var.projects.list(), latestPosts(c.env, wantsOriginals(c))]);
+  const featured = work.filter((card) => card.featured);
+  const flagship = (featured.length > 0 ? featured : work.filter((card) => card.kind !== "client")).slice(0, 3);
   const engine = work.find((card) => card.slug === "proprietor-systems");
   const platform = work.find((card) => card.slug === "platform");
   const proofs = [
@@ -63,9 +64,7 @@ pages.get("/", async (c) => {
               {proofs.map((fact) => (
                 <li class="proof">
                   <span class="proof__value">{fact.value}</span>
-                  <span class="proof__label">
-                    {fact.label}, {fact.of}
-                  </span>
+                  <span class="proof__label">{fact.label ? `${fact.label}, ${fact.of}` : fact.of}</span>
                 </li>
               ))}
             </ul>
@@ -174,11 +173,14 @@ const KIND_TITLES: Record<ProjectKind, string> = {
   platform: "Platform",
   tooling: "Tools at work",
   client: "Client work",
+  earlier: "Earlier work",
 };
 
 pages.get("/work", async (c) => {
-  const cards = await projectsPort.list();
+  const cards = await c.var.projects.list();
   const kinds = (Object.keys(KIND_TITLES) as ProjectKind[]).filter((kind) => cards.some((card) => card.kind === kind));
+  // A group's heading: the owner's word for the kind when the engine gives one (spec 030), else the site's.
+  const title = (kind: ProjectKind) => cards.find((card) => card.kind === kind && card.kindLabel)?.kindLabel ?? KIND_TITLES[kind];
   return renderPage(
     c,
     { title: "Work", description: "What I've built: Proprietor Systems, an encrypted inbox, my own Kubernetes platform, Fluency, shop tools, and client sites.", path: "/work" },
@@ -187,7 +189,7 @@ pages.get("/work", async (c) => {
         <SectionHeader as="h1" eyebrow="Work" title="What I've built" lede="Summaries for now. Each will get its own page, written on the same platform that runs this site." />
         {kinds.map((kind) => (
           <section class="work-group" aria-labelledby={`kind-${kind}`}>
-            <h2 id={`kind-${kind}`}>{KIND_TITLES[kind]}</h2>
+            <h2 id={`kind-${kind}`}>{title(kind)}</h2>
             <WorkTiles cards={cards.filter((card) => card.kind === kind)} headingLevel="h3" />
           </section>
         ))}
@@ -227,6 +229,62 @@ pages.get("/videos", async (c) => {
   );
 });
 
+pages.get("/work/:slug", async (c) => {
+  const page = await c.var.projects.get(c.req.param("slug"));
+  if (page === null) return c.notFound();
+  return renderPage(
+    c,
+    { title: page.title, description: page.summary, path: page.path ?? `/work/${page.slug}`, ogType: "article" },
+    <Section>
+      <Shell size="narrow">
+        <article class="stack" aria-labelledby="project-title">
+          <header class="stack">
+            <p class="eyebrow">{page.kindLabel ?? KIND_TITLES[page.kind]}</p>
+            <h1 id="project-title">{page.title}</h1>
+            <p>
+              <StatusChip status={page.status} label={page.statusLabel} />
+              {page.role ? <span class="post-meta"> · {page.role}</span> : null}
+            </p>
+            <p class="lede">{page.summary}</p>
+          </header>
+          {page.details.length > 0 ? (
+            <dl class="fact-list">
+              {page.details.map((detail) => (
+                <>
+                  <dt>{detail.label}</dt>
+                  <dd>{detail.text}</dd>
+                </>
+              ))}
+            </dl>
+          ) : null}
+          {page.facts.length > 0 ? <Facts facts={page.facts} /> : null}
+          <ChipList items={page.stack} label={`${page.title}: technologies`} />
+          {page.links.map((link) => (
+            <a class="tile__link" href={link.href} rel="noopener">
+              {link.label}
+            </a>
+          ))}
+          {/* The engine sanitised the write-up (kit README); field values above are words, escaped by hono/jsx. */}
+          <div class="prose-body" dangerouslySetInnerHTML={{ __html: page.bodyHtml }} />
+        </article>
+      </Shell>
+    </Section>,
+  );
+});
+
+function Facts({ facts }: { facts: ProjectCard["facts"] }) {
+  return (
+    <ul class="work-card__facts">
+      {facts.map((fact) => (
+        <li class="work-card__fact">
+          <span class="work-card__fact-value">{fact.value}</span>
+          {fact.label ? <span class="work-card__fact-label">{fact.label}</span> : null}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 export function WorkTiles({ cards, headingLevel }: { cards: ProjectCard[]; headingLevel: "h2" | "h3" }) {
   const Heading = headingLevel;
   return (
@@ -234,7 +292,7 @@ export function WorkTiles({ cards, headingLevel }: { cards: ProjectCard[]; headi
       {cards.map((card) => (
         <li class="tile">
           <Heading class="tile__title">
-            {card.path ? <a href={card.path}>{card.title}</a> : card.title} <StatusChip status={card.status} />
+            {card.path ? <a href={card.path}>{card.title}</a> : card.title} <StatusChip status={card.status} label={card.statusLabel} />
           </Heading>
           {card.role ? <p class="tile__note">{card.role}</p> : null}
           <p class="tile__body">{card.summary}</p>
@@ -245,16 +303,7 @@ export function WorkTiles({ cards, headingLevel }: { cards: ProjectCard[]; headi
               ))}
             </ul>
           ) : null}
-          {card.facts.length > 0 ? (
-            <dl class="work-card__facts">
-              {card.facts.map((fact) => (
-                <div class="work-card__fact">
-                  <dt class="work-card__fact-label">{fact.label}</dt>
-                  <dd class="work-card__fact-value">{fact.value}</dd>
-                </div>
-              ))}
-            </dl>
-          ) : null}
+          {card.facts.length > 0 ? <Facts facts={card.facts} /> : null}
           <ChipList items={card.stack} label={`${card.title}: technologies`} />
           {card.links.map((link) => (
             <a class="tile__link" href={link.href} rel="noopener">

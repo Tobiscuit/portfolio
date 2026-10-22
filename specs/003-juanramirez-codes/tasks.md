@@ -79,8 +79,8 @@ Every build and test run goes through `boxed` with a `timeout`.
 
 | # | Task | Waits on | What changes here |
 |---|---|---|---|
-| W1 | Engine adapter for `ProjectsPort`; `/work/<slug>` pages; declare `projects` | engine spec 030 contract shapes + a kit release | `lib/projects/engine.ts` (new), `app/work/[slug]/page.tsx` (new), `lib/seo.ts` (one key) |
-| W2 | Engine adapter for `ProfileLinksPort` | spec 030 profile links | `lib/profile-links.ts` |
+| W1 | ~~Engine adapter for `ProjectsPort`; `/work/<slug>` pages~~ **built** against spec 030 at 9060ece (`lib/projects/engine.ts`, `src/routes/pages.tsx`, chosen in `src/ports.ts`). Left: switch to kit 0.8.0's types and helpers (delete `lib/kit-030/`), then declare `projects` in the manifest | kit 0.8.0 published; the tenant's case-study model installed | `package.json`, `lib/kit-030/` (deleted), `lib/seo.ts` (one key) |
+| W2 | ~~Engine adapter for `ProfileLinksPort`~~ **built** (`engineProfileLinks`, through `linksOf`). Left: the kit's own `linksOf` | kit 0.8.0 published | `lib/profile-links.ts` (one import) |
 | W3 | Kit 0.7.0: replace the videos shim with `videos()` | kit 0.7.0 published | `lib/platform/videos.ts` lookup deleted; `package.json` |
 | W4 | Tenant row + site key | engine lane (D3) | none in code; secrets per plan §8 |
 | W5 | Turnstile widget, zone (jrcodex.dev: left as it is) | Tobias (plan §8) | `wrangler.jsonc` `vars.TURNSTILE_SITE_KEY` |

@@ -4,7 +4,7 @@ import type { Child } from "hono/jsx";
 import type { BusinessProfile } from "@jrcodex/seo-kit";
 
 import { readProfile } from "../../lib/platform/reads";
-import { profileLinks } from "../../lib/profile-links";
+import { staticProfileLinks } from "../../lib/profile-links";
 import { SITE_HOST } from "../../lib/site";
 import type { AppEnv } from "../env";
 import { Document, type Chrome, type PageMeta } from "../views/document";
@@ -20,7 +20,7 @@ export async function renderPage(
   body: Child,
   opts: { status?: 200 | 400 | 404 | 429 | 500 | 503; scripts?: Chrome["scripts"]; inlineScript?: string } = {},
 ): Promise<Response> {
-  const [profile, links] = await Promise.all([profileFor(c), profileLinks.links()]);
+  const [profile, links] = await Promise.all([profileFor(c), (c.var.profileLinks ?? staticProfileLinks).links()]);
   const path = new URL(c.req.url).pathname;
   const doc = <Document meta={meta} chrome={{ path, profile, links, scripts: opts.scripts, inlineScript: opts.inlineScript }}>{body}</Document>;
   return c.html(`<!doctype html>${await doc.toString()}`, opts.status ?? 200);
