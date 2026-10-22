@@ -58,3 +58,8 @@
   /* The Turnstile widget keeps its own space, so the form never jumps when it loads. */
   .turnstile-slot { min-block-size: 65px; }
 }
+
+@layer components {
+  .about-subheading { margin-block: var(--space-xl) var(--space-s); font-size: var(--type-subheading); }
+  .post-statement { font-size: var(--type-subheading); color: var(--text); }
+}

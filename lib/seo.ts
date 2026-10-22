@@ -11,6 +11,9 @@ import { INTAKE_FIELDS } from "./inquiry/form";
  * tests run this module in plain Node.
  */
 
+/** What the post page renders (src/views/post.tsx): every compose() item, every placement. */
+export const RENDERS = { pullQuote: true, keyPoints: true, aside: true, placements: ["wide", "inset-left", "inset-right"] } as const;
+
 /** What the site can show beyond the fixed modules, decided per isolate. */
 export interface Capabilities {
   /** True when the kit client or the binding can list videos (lib/platform/videos.ts). */
@@ -29,7 +32,7 @@ export function manifestFor(caps: Capabilities): Manifest {
     version: 1,
     kind: "service",
     has: caps.videos ? { blog: true, intake: true, videos: true } : { blog: true, intake: true },
-    renders: { pullQuote: true, keyPoints: true, aside: true, placements: ["wide", "inset-left", "inset-right"] },
+    renders: { ...RENDERS, placements: [...RENDERS.placements] },
     locales: ["en"],
     intake: { fields: [...INTAKE_FIELDS] },
   };
