@@ -18,6 +18,9 @@ export default defineConfig({
           name: "unit",
           include: ["tests/unit/**/*.test.ts"],
           environment: "node",
+          // Run the kit through Vite's module graph, so vi.resetModules() gives
+          // a test a fresh isolate's state (announceOnce remembers per module).
+          server: { deps: { inline: ["@jrcodex/seo-kit"] } },
         },
       },
       {
