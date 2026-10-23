@@ -5,6 +5,7 @@ import { ABOUT } from "../../content/about";
 import { HOME } from "../../content/home";
 import { readPosts, platformClient } from "../../lib/platform/reads";
 import { readVideos } from "../../lib/platform/videos";
+import type { ProfileLink } from "../../lib/profile-links";
 import type { ProjectCard, ProjectKind } from "../../lib/projects/port";
 import { PERSON_NAME, absolute } from "../../lib/site";
 import type { AppEnv } from "../env";
@@ -19,16 +20,28 @@ import { renderPage, wantsOriginals } from "./render";
  */
 export const pages = new Hono<AppEnv>();
 
-const PERSON_JSON_LD = {
-  "@context": "https://schema.org",
-  "@type": "Person",
-  name: PERSON_NAME,
-  url: absolute("/"),
-  jobTitle: "Software engineer",
-};
+/**
+ * The site's own identity as structured data: a Person, never a LocalBusiness
+ * (there is no street address). sameAs lists the same profile links the footer
+ * marks rel="me", read through the same port, so the two never disagree.
+ */
+function personJsonLd(links: ProfileLink[]) {
+  const sameAs = links.filter((link) => link.kind !== "email" && link.href.startsWith("https://")).map((link) => link.href);
+  return {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    name: PERSON_NAME,
+    url: absolute("/"),
+    jobTitle: "Software engineer",
+    ...(sameAs.length > 0 ? { sameAs } : {}),
+  };
+}
+
+const profileLinksOf = (c: { var: { profileLinks: { links(): Promise<ProfileLink[]> } } }) =>
+  c.var.profileLinks.links().catch(() => [] as ProfileLink[]);
 
 pages.get("/", async (c) => {
-  const [work, posts] = await Promise.all([c.var.projects.list(), latestPosts(c.env, wantsOriginals(c))]);
+  const [work, posts, links] = await Promise.all([c.var.projects.list(), latestPosts(c.env, wantsOriginals(c)), profileLinksOf(c)]);
   const featured = work.filter((card) => card.featured);
   const flagship = (featured.length > 0 ? featured : work.filter((card) => card.kind !== "client")).slice(0, 3);
   const engine = work.find((card) => card.slug === "proprietor-systems");
@@ -39,7 +52,7 @@ pages.get("/", async (c) => {
   ];
   return renderPage(
     c,
-    { title: PERSON_NAME, description: `${HOME.headline} ${HOME.lede}`, path: "/", ogType: "profile", jsonLd: [PERSON_JSON_LD] },
+    { title: PERSON_NAME, description: `${HOME.headline} ${HOME.lede}`, path: "/", ogType: "profile", jsonLd: [personJsonLd(links)] },
     <>
       <Section labelledBy="hero-title">
         <Shell>
@@ -102,10 +115,10 @@ pages.get("/", async (c) => {
   );
 });
 
-pages.get("/about", (c) =>
+pages.get("/about", async (c) =>
   renderPage(
     c,
-    { title: "About", description: ABOUT.lede, path: "/about", ogType: "profile", jsonLd: [PERSON_JSON_LD] },
+    { title: "About", description: ABOUT.lede, path: "/about", ogType: "profile", jsonLd: [personJsonLd(await profileLinksOf(c))] },
     <>
       <Section>
         <Shell size="narrow">

@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { FORBIDDEN, degreeClaimsOk } from "../../lib/claims";
 import { RENDERS, manifestFor } from "../../lib/seo";
-import { SITE_HOST } from "../../lib/site";
+import { GITHUB_URL, LINKEDIN_URL, SITE_HOST } from "../../lib/site";
 import { app, createApp } from "../../src/app";
 import { STYLESHEET } from "../../src/assets";
 import worker from "../../worker/index";
@@ -88,6 +88,25 @@ describe("every page", () => {
     expect(html).toMatch(/<a href="\/work" class="site-nav__link" aria-current="page">/);
     const external = [...html.matchAll(/href="(https?:\/\/[^"]+)"/g)].map((m) => m[1]).filter((href) => !href.startsWith(PROD));
     for (const href of external) expect(href).toMatch(/^https:\/\/(github\.com\/Tobiscuit|www\.linkedin\.com\/in\/cloud-juan-manuel-ramirez\/|montanobtm\.com\/)/);
+  });
+});
+
+describe("the site's identity as structured data", () => {
+  const personOf = (html: string) =>
+    [...html.matchAll(/<script type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/g)]
+      .flatMap((m) => [JSON.parse(m[1]!)].flat())
+      .find((item: { "@type"?: string }) => item["@type"] === "Person");
+
+  it("describes him as a Person whose sameAs lists exactly the rel=me profile links, never an email", async () => {
+    for (const path of ["/", "/about"]) {
+      const html = await (await get(path)).text();
+      const person = personOf(html);
+      expect(person, path).toBeDefined();
+      expect(person.sameAs, path).toEqual([GITHUB_URL, LINKEDIN_URL]);
+      expect(JSON.stringify(person.sameAs), path).not.toContain("mailto:");
+      expect(html, path).not.toContain('"LocalBusiness"');
+      for (const href of person.sameAs) expect(html, path).toContain(`<a href="${href}" rel="me noopener">`);
+    }
   });
 });
 
