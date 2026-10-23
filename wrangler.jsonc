@@ -1,0 +1,52 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "juanramirez-codes",
+	// The newest date the installed workerd supports (1.20261019.1, from
+	// wrangler 4.151.3), so the smoke tests run the runtime that is deployed.
+	// On or after 2026-04-21: errors the engine throws over RPC keep their name
+	// and own fields (InquiryRefused.retryAfterSeconds); nodejs_compat is on by
+	// date from 2026-08-04. tests/unit/config.test.ts keeps both true.
+	"compatibility_date": "2026-10-19",
+	"compatibility_flags": [],
+	// The Hono app (src/app.tsx), wrapped by worker/index.ts: announce first,
+	// the cache policy last. Bundled by wrangler (esbuild); no Vite (spec R0).
+	"main": "./worker/index.ts",
+	// The four stylesheets are imported as strings and served by the Worker at
+	// a content-hashed URL (src/assets.ts).
+	"rules": [{ "type": "Text", "globs": ["**/*.css"], "fallthrough": true }],
+	// The canonical host (lib/site.ts SITE_HOST). A custom domain is part of the
+	// Worker's deploy, not of Terraform; it attaches only once the zone is
+	// active (specs/003-juanramirez-codes/plan.md, sections 7 and 8).
+	"routes": [{ "pattern": "juanramirez.codes", "custom_domain": true }],
+	// No permanent copy at *.workers.dev. Preview URLs exist so each version
+	// can be reviewed; the account-wide Access application covers every
+	// preview Worker (~/cloudflare-infra/worker-previews-access.tf).
+	"workers_dev": false,
+	"preview_urls": true,
+	// Fonts, the vendored htmx, the favicon: answered before the Worker runs,
+	// with the headers in public/_headers (they never pass lib/cache-policy.ts).
+	"assets": {
+		"directory": "./public",
+		"not_found_handling": "none"
+	},
+	"observability": {
+		"enabled": true
+	},
+	// Workers Cache follows the Cache-Control the Worker sets on every response
+	// (lib/cache-policy.ts). It also answers Range requests itself from the full
+	// 200 it stored, which is how a shown video seeks without Range code here.
+	"cache": {
+		"enabled": true
+	},
+	"vars": {
+		// Only requests to this host may write to the engine (announce, inquire):
+		// previews never create a real inquiry. Equals lib/site.ts SITE_HOST.
+		// TURNSTILE_SITE_KEY joins these once the widget exists (plan.md section 8).
+		"ENGINE_WRITE_HOST": "juanramirez.codes"
+	},
+	// The Proprietor engine's site-facing entrypoint (@jrcodex/seo-kit). The
+	// engine has no public address; this binding is the only way in.
+	// Secrets (wrangler secret put, from Vault through stdin): SEO_SITE_KEY,
+	// TURNSTILE_SECRET_KEY.
+	"services": [{ "binding": "SEO", "service": "seo-engine", "entrypoint": "Sites" }]
+}

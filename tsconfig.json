@@ -1,54 +1,19 @@
 {
   "compilerOptions": {
-    "baseUrl": ".",
-    "target": "es5",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "es6"
-    ],
-    "allowJs": true,
+    "target": "ES2022",
+    "lib": ["ES2023"],
     "skipLibCheck": true,
     "strict": true,
     "noEmit": true,
-    "esModuleInterop": true,
-    "module": "esnext",
+    "module": "ESNext",
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
+    "verbatimModuleSyntax": false,
     "jsx": "react-jsx",
-    "incremental": true,
-    "plugins": [
-      {
-        "name": "next"
-      }
-    ],
-    "paths": {
-      "@/components/*": [
-        "app/components/*"
-      ],
-      "@/lib/*": [
-        "app/lib/*"
-      ],
-      "@/app/*": [
-        "app/*"
-      ],
-      "@payload-config": [
-        "./payload.config.ts"
-      ],
-      "@payload-types": [
-        "./payload-types.ts"
-      ]
-    }
+    "jsxImportSource": "hono/jsx",
+    "types": ["node"]
   },
-  "include": [
-    "next-env.d.ts",
-    "**/*.ts",
-    "**/*.tsx",
-    ".next/types/**/*.ts",
-    ".next/dev/types/**/*.ts"
-  ],
-  "exclude": [
-    "node_modules"
-  ]
+  "include": ["worker/**/*", "src/**/*", "lib/**/*", "content/**/*", "tests/**/*.ts", "worker-configuration.d.ts", "env.d.ts", "assets.d.ts"],
+  "exclude": ["node_modules", "dist", ".wrangler"]
 }

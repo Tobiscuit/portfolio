@@ -1,41 +1,36 @@
 {
-  "name": "sagescale-portfolio",
+  "name": "juanramirez-codes",
   "version": "0.1.0",
   "private": true,
+  "description": "juanramirez.codes: Juan Ramirez's portfolio, a Hono + htmx Worker that is a Proprietor tenant (spec 003).",
   "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
   "scripts": {
-    "dev": "next dev",
-    "build": "tsx scripts/mirror-assets.ts && payload generate:types && payload generate:importmap && next build",
-    "start": "next start",
-    "lint": "next lint"
+    "dev": "wrangler dev",
+    "build": "wrangler deploy --dry-run --outdir dist",
+    "types": "wrangler types",
+    "typecheck": "wrangler types && tsc --noEmit",
+    "test": "vitest run --project unit --project smoke",
+    "test:unit": "vitest run --project unit",
+    "test:smoke": "vitest run --project smoke",
+    "test:a11y": "vitest run --project a11y",
+    "test:perf": "vitest run --project perf"
   },
   "dependencies": {
-    "@aws-sdk/client-sqs": "^3.965.0",
-    "@payloadcms/db-mongodb": "^3.75.0",
-    "@payloadcms/next": "^3.75.0",
-    "@payloadcms/richtext-lexical": "^3.75.0",
-    "@payloadcms/storage-s3": "^3.75.0",
-    "@tailwindcss/postcss": "^4.1.18",
-    "@types/mime-types": "^3.0.1",
-    "@types/react": "19.2.7",
-    "@types/react-dom": "19.2.3",
-    "dotenv": "^17.2.4",
-    "graphql": "^16.12.0",
-    "lucide-react": "^0.562.0",
-    "mime-types": "^3.0.2",
-    "next": "^16.1.1",
-    "payload": "^3.75.0",
-    "postcss": "^8.5.6",
-    "react": "19.2.3",
-    "react-dom": "19.2.3",
-    "react-zoom-pan-pinch": "^3.7.0",
-    "sharp": "^0.34.5",
-    "tailwindcss": "^4.1.18",
-    "typescript": "5.9.3"
+    "@jrcodex/seo-kit": "0.6.2",
+    "hono": "^4.13.13"
   },
   "devDependencies": {
-    "@types/node": "^25.2.3",
-    "eslint": "9.39.2",
-    "eslint-config-next": "16.1.1"
+    "@axe-core/playwright": "^4.14.0",
+    "@types/node": "^26.6.5",
+    "chrome-launcher": "^1.2.2",
+    "htmx.org": "4.0.0",
+    "lighthouse": "^13.5.0",
+    "playwright-core": "^1.64.1",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.5",
+    "wrangler": "^4.151.3"
   }
 }

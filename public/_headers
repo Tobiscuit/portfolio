@@ -1,0 +1,7 @@
+# Static assets only (Workers static assets apply this file to asset
+# responses, never to the Worker's own). Every path here is versioned by name:
+# a new font or htmx release is a new file name, so a year is safe.
+/fonts/*
+  Cache-Control: public, max-age=31536000, immutable
+/vendor/*
+  Cache-Control: public, max-age=31536000, immutable

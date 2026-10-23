@@ -1,0 +1,291 @@
+# 003 — Plan: juanramirez.codes as a Proprietor tenant
+
+Read with `spec.md` (what and why), `domain-model.md` (contexts, ports,
+gaps) and `tasks.md` (slices). Nothing here is applied: no deploy, no upload,
+no DNS, no merge.
+
+## 1. Architecture
+
+```
+                 ┌─────────────────────────── Cloudflare edge ────────────────────────────┐
+  browser ─────▶ │ Workers Cache (RFC 9111; slices Range itself)   /cdn-cgi/image/*        │
+                 │ Access on preview URLs (account-wide app)        Turnstile (siteverify) │
+                 └──────────────────────────────────┬──────────────────────────────────────┘
+                                                    ▼
+                 ┌──────────────── Worker: juanramirez-codes (worker/index.ts) ───────────┐
+                 │ (static assets in public/ are answered before the Worker runs)         │
+                 │ 1. announceInBackground(manifestFor(caps))  production host only       │
+                 │ 2. Hono app (src/app.tsx):                                             │
+                 │    /projects* → 301 /work · /media/* (kit mediaHandler)                │
+                 │    /assets/site.<hash>.css · pages (hono/jsx) · POST /contact          │
+                 │    sitemap.xml · robots.txt · notFound · onError                       │
+                 │ 3. withCachePolicy(request, response)                                  │
+                 │                                                                        │
+                 │ pages: lib/platform/* ── rpc(env.SEO, SEO_SITE_KEY) ──▶ SEO binding ───┼──▶ seo-engine
+                 │ POST /contact ── Turnstile ── inquire()  (htmx fragment or full page)  │    entrypoint Sites
+                 │ vars: ENGINE_WRITE_HOST, TURNSTILE_SITE_KEY                            │    (no public URL)
+                 │ secrets: SEO_SITE_KEY, TURNSTILE_SECRET_KEY                            │
+                 └────────────────────────────────────────────────────────────────────────┘
+```
+
+No D1, no R2, no KV: the site keeps no data of its own. `wrangler.jsonc`:
+`main: ./worker/index.ts`, `assets.directory: ./public`, a `Text` rule for
+`**/*.css`, `compatibility_date` = the newest the installed workerd supports
+(≥ 2026-04-21), `workers_dev: false`, `preview_urls: true`
+(Access-gated), `cache.enabled: true`, `services: [{ binding: "SEO",
+service: "seo-engine", entrypoint: "Sites" }]`, `routes: [{ pattern:
+"juanramirez.codes", custom_domain: true }]` (attaches only once the zone is
+active; the deploy is the owner's).
+
+## 2. Files and contracts
+
+Exclusive owner of each file: this branch. The interfaces other lanes will
+touch are marked **contract**.
+
+| Path | What | Contract |
+|---|---|---|
+| `worker/index.ts` | entry: announce, then the Hono app, then the cache policy | — |
+| `src/app.tsx` | the Hono app: routes, `notFound`, `onError` | — |
+| `src/routes/*.tsx` | one module per page group (home, about, work, blog, videos, contact, seo) | — |
+| `src/views/*.tsx` | server-only `hono/jsx` components: document, header, footer, primitives | — |
+| `src/assets.ts` | the CSS bundle (four files as text, in order), its hash and route | — |
+| `lib/site.ts` | `SITE_HOST = "juanramirez.codes"`, `SITE_URL`, `absolute(path)`, `DEFAULT_LOCALE`, `GITHUB_URL`, `LINKEDIN_URL`, `FALLBACK_PROFILE` | one host constant (G4) |
+| `lib/seo.ts` | `manifestFor({ videos })`, `engineClient(env)`, `mayWriteToEngine`, `announceInBackground`, `describe` | **contract**: the manifest the engine stores |
+| `lib/cache-policy.ts` | `cachePolicy(req, res)`, `withCachePolicy` | rules in §3 |
+| `lib/platform/reads.ts` | `readPosts`, `readPost`, `readSitemap`, `readProfile` with shape checks | ACL |
+| `lib/platform/images.ts` | `plainPost`, `plainPostSummary`: transform URLs → originals off production | — |
+| `lib/platform/videos.ts` | `readVideos(env)`, `canReadVideos(env)` | the shim (R4) |
+| `lib/inquiry/{form,turnstile,handle}.ts`, `src/routes/contact.tsx` | the intake flow | **contract**: `POST /contact` answers 200, 400, 429 (with `Retry-After`) or 503; with `HX-Request: true` the body is the `#form-status` fragment, otherwise the whole page with the fields kept |
+| `lib/projects/port.ts` | `ProjectsPort`, `ProjectCard`, `ProjectPage`, `ProjectStatus` | **contract** for the spec 030 adapter |
+| `lib/projects/placeholder.ts` | `placeholderProjects` | replaced by the engine adapter |
+| `lib/profile-links.ts` | `ProfileLinksPort`, `staticProfileLinks` | **contract** for spec 030's profile links |
+| `content/*.ts` | narrative data: home, about, work summaries | claims rules (G8) |
+| `styles/*.css`, `design-system.json` | PR #5's tokens, base, primitives, enhancements | contrast pairs |
+| `public/` | fonts, `vendor/htmx-4.0.0.min.js`, favicon, `_headers` | — |
+| `tests/unit/**` | Node-only unit tests (Vitest) | — |
+| `tests/smoke/**`, `tests/stubs/seo-engine/**` | the Worker in `wrangler dev` (workerd) with a stub `seo-engine` | — |
+| `tests/a11y/**`, `tests/perf/**` | Playwright + axe; Lighthouse | — |
+
+### 2.1 The ports and their adapters (engine spec 030, at seo-engine 9060ece)
+
+```ts
+export type ProjectStatus = "live" | "built" | "in-progress" | "archived";   // never "production"
+export type ProjectKind = "product" | "open-source" | "platform" | "tooling" | "client" | "earlier";
+export const LIVE_HOSTS = ["montanobtm.com", "www.montanobtm.com"];         // the only live links allowed
+export interface ProjectCard {
+  slug: string; title: string; summary: string;
+  status: ProjectStatus; statusLabel?: string;   // "live" only with an allow-listed live link; the owner's word
+  kind: ProjectKind; kindLabel?: string;         // grouping on /work; the owner's word
+  role: string | null; stack: string[]; highlights: string[];
+  facts: Array<{ value: string; label: string; source: string }>;   // every number with its source
+  links: Array<{ label: string; href: string; kind: "repo" | "live" | "write-up" }>;   // https only
+  featured: boolean;                             // the home page's selection
+  path: string | null;                           // "/work/<slug>" when a page exists
+}
+export interface ProjectPage extends ProjectCard { bodyHtml: string; updatedAt: string; details: Array<{ label: string; text: string }> }
+export interface ProjectsPort { list(): Promise<ProjectCard[]>; get(slug: string): Promise<ProjectPage | null> }
+export interface ProfileLinksPort { links(): Promise<ProfileLink[]> }
+```
+
+| Port | Data-module adapter (fallback) | Engine adapter (spec 030) |
+|---|---|---|
+| `ProjectsPort` | `placeholderProjects`: `content/work.ts`, no pages (`get` → null, a 404) | `engineProjects` (`lib/projects/engine.ts`): `projects("en", { include: ["fields", "roles"] })` + `contentModel("en")`; the case-study preset's fields (name, kind, status, role, since, stack, repo, live, outcomes, featured) onto cards; `/work/<slug>` pages from `project()` with the engine's sanitised body and the other fields through `displayFields()` as words |
+| `ProfileLinksPort` | `staticProfileLinks`: GitHub, LinkedIn from `lib/site.ts` | `engineProfileLinks` (`lib/profile-links.ts`): `profile({ include: ["links"] })` through `linksOf()`, https only |
+
+**Which adapter answers** is decided in one place, the composition root
+`src/ports.ts`, called by the app's first middleware: the engine adapters
+only for a kit client that can ask for spec 030's data (`contentModel`, kit
+0.8.0); the data module otherwise, which is kit 0.6.2 today, because its
+client cannot send `include`. At runtime each engine adapter falls back to
+the data module when the engine cannot serve: no content model (`null`), an
+older engine, a failed call, or (links) no saved link.
+
+**The content rule on engine data:** only montanobtm.com may be called
+live. An engine project whose status is `live` without a montanobtm.com live
+link is shown as built and its live link dropped; links are https only.
+**Field values are words:** the site renders `FieldDisplay.text`, escaped by
+hono/jsx, and never inserts `html` as markup; only the engine-sanitised
+`bodyHtml` of a project page is inserted as HTML, as a post's body is.
+
+**Types:** `lib/kit-030/types.ts` types kit 0.8.0's additions by hand from
+spec 030 at 9060ece, and `lib/kit-030/helpers.ts` holds local
+`displayFields()` and `linksOf()` to the spec's contract. Both are marked
+to be replaced by the kit's own when 0.8.0 is published (W1, W2); 0.8.0 is
+not a dependency.
+
+## 3. Cache policy (`lib/cache-policy.ts`)
+
+| Request | Response | Cache-Control | Why |
+|---|---|---|---|
+| not GET/HEAD, or `set-cookie` present | any | `private, no-store` | never store a write or a session |
+| `/api/*` | any | `private, no-store` | routes |
+| `/media/<slug>/video/*` | 200, 304 | **the engine's header, verbatim** (`public, max-age=300`); `private, no-store` if absent | spec 028: hiding reaches caches within 5 min; Workers Cache slices Range from the stored 200 |
+| `/media/<slug>/video/*` | anything else | `private, no-store` | a Worker's 206 is never stored anyway |
+| `/media/*` (images) | 200, 304; engine header says `private` | `private, max-age=86400` | a visitor's own picture (montano's rule) |
+| `/media/*` (images) | 200, 304 | `public, max-age=31536000, immutable` | content-addressed originals |
+| `/media/*` | other | `private, no-store` | |
+| an htmx request (`HX-Request: true`) | any | `private, no-store` | a fragment must never be stored under a page's URL |
+| `/assets/site.<hash>.css` | 200 | `public, max-age=31536000, immutable` | the URL changes with the content (R0) |
+| page | 200 HTML, XML, text | `public, max-age=0, s-maxage=60, stale-while-revalidate=600` | edge keeps a minute, browsers revalidate |
+| anything else | | `private, no-store` | unknown ⇒ not stored |
+
+Adapted from montano-btm's `lib/cache-policy.ts` (develop, spec 008 D13);
+the video rule is new here.
+
+## 3.1 Images off the production host
+
+The engine writes post images as `/cdn-cgi/image/<opts>/media/<key>`. That
+path answers only on the proxied production zone with transformations
+enabled, so a route whose request host is not `SITE_HOST` asks the readers
+for originals (`{ originals: true }`), and they rewrite to `/media/<key>`
+(PR #4's `plainPost`, which also rewrites `blocks` and the JSON-LD). Hono
+hands each route its request, so no marker header is needed (montano-btm
+needed one to reach its React Server Components).
+
+## 4. Test strategy (all through `boxed`, in the foreground, with `timeout`)
+
+| Suite | Runs | What it proves |
+|---|---|---|
+| `tests/unit` (Vitest, Node) | `npm run test:unit` | manifest, cache policy, intake handler outcomes, Turnstile, shape checks, image rewrite, videos shim, ports, content claims, contrast pairs |
+| `tests/smoke` (Vitest → `wrangler dev -c wrangler.jsonc -c <stub>`) | `npm run test:smoke` | every page renders, the blog through `compose()`, `/media` streaming and headers, the inquiry route end to end (stub records the call, htmx fragment and no-JS fallback), redirects, robots/sitemap, Cache-Control on every response, 404/500 pages |
+| `tests/a11y` (Playwright + axe) | `npm run test:a11y` against the smoke server | WCAG 2.2 AA, 0 violations, both schemes, 320 and 1280 px |
+| `tests/perf` (Lighthouse, mobile, simulated 4G) | `npm run test:perf` | LCP, CLS, TBT budgets |
+
+`npm run build` is `wrangler deploy --dry-run --outdir dist` (bundles,
+uploads nothing); nothing in the tree calls `npm run build` (the 2026-10-20
+freeze was a build that called itself).
+
+## 5. Design system: PR #5 judged
+
+**It holds up, and is kept (R2).** Re-checked on this branch, not taken on
+PR #5's word:
+
+| PR #5's evidence | Re-run here | Result |
+|---|---|---|
+| 33 contrast pairs | `tests/unit/design.test.ts` (33 pairs, 7 "avoid" pairs that must fail) | all pass |
+| modern CSS gated, fallbacks outside the gate | the same file (PR #5's css-features test, moved) | pass |
+| axe 0 violations | `tests/a11y`: 7 pages × dark/light × 320/1280 px = 28 runs, WCAG 2.2 AA tags, plus a negative control | 0 violations |
+| CLS 0 | `tests/perf`: Lighthouse on 7 pages | CLS 0 on all |
+
+What changed to fit this stack:
+
+- **No Tailwind.** `styles/reset.css` keeps the part of the preflight the
+  primitives were written on, plus `.sr-only`; nothing used Tailwind
+  utilities once the components were re-written.
+- **No next/font.** Self-hosted variable woff2 (latin): Inter swaps onto a
+  metric-matched Arial face; Source Serif 4 is `optional`, so a late heading
+  font never moves a line.
+- **No client components.** The menu is a native popover (works without
+  JavaScript); the theme toggle is ~300 bytes of inline JS and is hidden
+  when JavaScript is off; TransitionLink is replaced by
+  `@view-transition { navigation: auto }`; the résumé dialog and image zoom
+  are dropped with the pages that used them (D8).
+- **One stylesheet**: 49 KB after comment stripping, 9.8 KB gzip, 8.5 KB
+  brotli, served at its content hash.
+
+Weaknesses noted, not fixed: dark by default ignores the OS preference (D10);
+`primitives.css` carries patterns this site does not use yet (dialogs,
+pagination, tooltips), about 3 KB compressed, kept so the system stays one
+system.
+
+## 6. Verified facts for the content (each with its source)
+
+| Claim on the site | Source (command or file, 2026-10-21/22) |
+|---|---|
+| Proprietor's engine: 28 specs, 35 SQL migrations, 188 test files on `main` | `git -C ~/seo-engine ls-tree origin/main` at `9ca1df4` (specs dirs, `migrations/*.sql`, `*.test.ts`) |
+| The engine and agents have no public address; doors are the dashboard (Access) and client sites | `~/seo-engine/docs/security-posture.md` (2026-10-04; workers.dev closed 2026-10-05) |
+| Five locks, honest limit: all trust the first | same file, "The locks, in order" |
+| Model output is JSON-Schema-constrained blocks; no model-written markup served | memory `portfolio-talking-points.md` (spec 019), stated as written |
+| montanobtm.com is live on the platform | `curl https://montanobtm.com/` → 200 (2026-10-22); live since 2026-09-26 (memory `client-sites-actual-status.md`) |
+| proprietor-mail: public, Apache-2.0, "built and tested, not deployed" | `gh api repos/Tobiscuit/proprietor-mail` (license apache-2.0), its README "Status" |
+| proprietor-mail: HPKE-sealed per mailbox, keys wrapped per passkey (WebAuthn PRF) and a recovery key | its README, "The promise, and its limits" |
+| Platform: one Hetzner node, k3s, Argo CD app-of-apps, 37 application manifests | `ls ~/platform-gitops/apps \| wc -l` = 37 at `be16e70` |
+| Vault for secrets via external-secrets; nightly restic backups to R2 | `~/CLAUDE.md`; memory `node-backups-restic.md` |
+| Cloudflare DNS across 7 zones in Terraform, state in R2 | `gh repo view Tobiscuit/cloudflare-infra` description; `~/CLAUDE.md` |
+| Fluency: Next.js 16, React 19, Better Auth, Postgres, ts-fsrs, Stripe; CI builds the image, Argo CD rolls it | `~/CLAUDE.md` Fluency section; `~/fluency/.github/workflows/build-image.yml` |
+| Fluency answers at fluency.study | `curl https://fluency.study/` → 200 (2026-10-22) |
+| Pulse Agent: one Rust binary; the tool server's list is the capability ceiling; every call needs a technician keypress | `~/Projects/pulse-agent/README.md` |
+| Pulse Diagnostics: Tauri 2 + Rust; the check-in starts on the stick | `~/Projects/pulse-diagnostics/README.md` |
+| AWS Certified Cloud Practitioner is his one earned credential; no degree | memory `user-background.md` (confirmed 2026-09-09) |
+| LinkedIn `https://www.linkedin.com/in/cloud-juan-manuel-ramirez/` | old site, `app/(app)/contact/page.tsx` on `main` |
+| `juan@proprietor.systems` reaches him | `~/cloudflare-infra/proprietor-systems.tf` (forwarded: hello, tobias, juan) |
+
+Not used (could not verify from a repo): any user or revenue numbers, the
+old copy's "production-grade" and "I ship production systems for real
+businesses", "CISSP Domain Mastery (20+ Hours)".
+
+## 7. Parked infrastructure and teardown
+
+Files in `specs/003-juanramirez-codes/infra/*.tf.pending`, re-targeted to the
+Worker (nothing applied):
+
+| File | What | Change from the first version |
+|---|---|---|
+| `juanramirez-codes-zone.tf.pending` | the zone, re-declared; 28-day rule | none in substance |
+| `juanramirez-codes-turnstile.tf.pending` | one widget for `juanramirez.codes` | the secret goes in with `wrangler secret put` through stdin; no deploy wrapper; no jrcodex.dev hostname |
+| ~~`jrcodex-dev-redirect.tf.pending`~~ | removed | jrcodex.dev: left as it is (Tobias, 2026-10-22) |
+| ~~`juanramirez-codes-admin-access.tf.pending`~~ | removed | there is no admin: content is edited in the Proprietor dashboard, already behind Access |
+
+**Teardown of the spike.** As far as known the spike created **no Cloudflare
+resources**: it ran only locally (Vault was sealed, so no token existed in
+the session). Verify after Vault is unsealed, read-only:
+
+```sh
+cd /home/link && export CLOUDFLARE_ACCOUNT_ID=93368368c927399b55ef1fb9e98df666
+CLOUDFLARE_API_TOKEN="$(vault kv get -field=token secret/cloudflare/workers)" npx wrangler d1 list | grep -i portfolio-spike
+CLOUDFLARE_API_TOKEN="$(vault kv get -field=token secret/cloudflare/workers)" npx wrangler r2 bucket list | grep -i portfolio-spike
+```
+
+Expect no output. If either prints, delete with `wrangler d1 delete
+portfolio-spike-d1` / `wrangler r2 bucket delete portfolio-spike-media`.
+
+## 8. Owner runbook (only Tobias, in order)
+
+1. **Tenant** (engine lane): create business `juanramirez` (D3), mint its
+   site key for origin `https://juanramirez.codes`, store it at
+   `secret/portfolio/seo-site-key` in Vault.
+2. **Turnstile**: create the widget in the dashboard (parked file's steps);
+   put the site key in `wrangler.jsonc` `vars.TURNSTILE_SITE_KEY`; the secret
+   at `secret/portfolio/turnstile`.
+3. **Secrets** (stdin, never argv):
+   `cd /home/link/portfolio && vault kv get -field=key secret/portfolio/seo-site-key | CLOUDFLARE_API_TOKEN="$(vault kv get -field=token secret/cloudflare/workers)" npx wrangler secret put SEO_SITE_KEY`
+   and the same for `TURNSTILE_SECRET_KEY`.
+4. **Zone**: state surgery and `juanramirez-codes-zone.tf.pending` (its
+   header), then the nameservers at Namecheap the same day. Then enable
+   Images → Transformations on the zone, so the engine's `/cdn-cgi/image/`
+   post images resize there.
+5. **Deploy** from `main` (Workers Builds, D11); the `routes` entry attaches
+   `juanramirez.codes`.
+6. **jrcodex.dev**: nothing. Left as it is (Tobias, 2026-10-22).
+7. **Spike teardown check** (§7).
+
+## 9. Results on this branch (2026-10-22, all run through `boxed`)
+
+| Gate | Command | Result |
+|---|---|---|
+| Typecheck | `npm run typecheck` | 0 errors |
+| Unit (the whole Hono app in Node, fake binding) | `npm run test:unit` | 158 passed, 10 files |
+| Smoke (workerd + stub engine over a real binding) | `npm run test:smoke` | 24 passed |
+| Accessibility + browser behaviour | `npm run test:a11y` | 32 passed; axe 0 violations in 28 runs; the htmx form sent twice in a real browser |
+| Performance | `npm run test:perf` | 7 passed (below) |
+| Build | `npm run build` (`wrangler deploy --dry-run`) | 229 KiB, 57.7 KiB gzip; nothing uploaded |
+
+Lighthouse 13, mobile, simulated 4G, local Worker:
+
+| Page | LCP | CLS | TBT | Bytes | Score |
+|---|---|---|---|---|---|
+| `/` | 1.54 s | 0 | 0 ms | 115 KB | 100 |
+| `/about` | 1.54 s | 0 | 0 ms | 114 KB | 100 |
+| `/work` | 1.52 s | 0 | 0 ms | 115 KB | 100 |
+| `/blog` | 1.52 s | 0 | 0 ms | 118 KB | 100 |
+| `/blog/<post>` | 1.69 s | 0 | 0 ms | 124 KB | 100 |
+| `/contact` | 1.52 s | 0 | 0 ms | 267 KB (Turnstile) | 100 |
+| `/videos` | 1.52 s | 0 | 0 ms | 112 KB | 100 |
+
+Caveats: measured against `wrangler dev` on this node, not Cloudflare's
+network; the fixture post's images are the engine's transform URLs, which
+answer nothing locally, so the post's LCP element is text. The remote
+numbers come from a preview URL once one can be uploaded (owner step).
+
+Compared with the Payload spike (§1.1 of the spec): 229 KiB against 60 MB,
+and a build that is a bundle step rather than 52 s at 4.2 GB.

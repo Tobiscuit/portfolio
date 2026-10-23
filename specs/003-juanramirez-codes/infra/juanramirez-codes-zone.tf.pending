@@ -1,0 +1,52 @@
+# PARKED 2026-10-20 (re-read 2026-10-21 for the tenant pivot: unchanged) - the
+# zone for juanramirez.codes, declared again (portfolio spec 003, D2). Not approved yet. Copy of
+# ~/portfolio/specs/003-juanramirez-codes/infra/juanramirez-codes-zone.tf.pending.
+#
+# WHY AGAIN. mail.tf declared cloudflare_zone.juanramirez_codes on 2026-09-06.
+# The nameservers were never switched at Namecheap, the zone sat in Pending,
+# and Cloudflare deleted it after 28 days (around 2026-10-04); the state still
+# holds the dead id (docs/plan-breakage-2026-10-16.md). This file reuses the
+# SAME resource address on purpose, so that every later file can keep writing
+# cloudflare_zone.juanramirez_codes.id - which means the state surgery in that
+# document (`./tf state rm` of the dead zone and its five records) MUST happen
+# in the same sitting as this apply, or the plan fails on the dead id before
+# it ever reads this file. And mail.tf (the LIVE file) still declares this
+# same address: mail.tf.pending must have replaced mail.tf first (it removes
+# the zone from there), or Terraform refuses the duplicate declaration.
+#
+# THE 28-DAY RULE, so it does not repeat: a Free-plan zone that is still
+# Pending after 28 days is deleted. Apply this, then set the two nameservers
+# this file outputs at Namecheap (the registrar; RDAP: registered 2026-07-09,
+# expires 2027-07-09), the same day. Until the zone is Active the site lives
+# on its preview URL.
+#
+# What this file does NOT declare, and why:
+#   - the Worker's custom domain: part of the Worker's deploy (wrangler.jsonc
+#     `routes: [{ pattern: "juanramirez.codes", custom_domain: true }]`), not
+#     the DNS estate - seo-engine-access.tf, "THE HOSTNAME IS NOT DECLARED
+#     HERE". The Terraform token cannot write Workers domains either.
+#   - mail: none on this domain for now (spec 003 D4: the site shows
+#     juan@proprietor.systems). A null MX, SPF "-all" and DMARC reject belong
+#     here the moment the zone is active, so the name cannot be spoofed; they
+#     are the next file.
+#   - DNSSEC: after activation, once the registrar side is confirmed.
+#
+# Approve with:
+#   cd /home/link/cloudflare-infra && mv juanramirez-codes-zone.tf.pending juanramirez-codes-zone.tf && ./tf plan
+#   expect: 1 to add (the zone), 0 to change, 0 to destroy - after the state rm.
+
+resource "cloudflare_zone" "juanramirez_codes" {
+  account = { id = var.cloudflare_account_id }
+  name    = "juanramirez.codes"
+  type    = "full"
+}
+
+output "juanramirez_codes_zone_id" {
+  description = "The zone id every juanramirez.codes file reads."
+  value       = cloudflare_zone.juanramirez_codes.id
+}
+
+output "juanramirez_codes_nameservers" {
+  description = "Set these two at Namecheap within 28 days of the apply, or the zone is deleted again."
+  value       = cloudflare_zone.juanramirez_codes.name_servers
+}

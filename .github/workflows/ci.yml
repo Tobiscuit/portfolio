@@ -1,0 +1,61 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+# Least privilege: this workflow only reads the repository. It deploys and
+# uploads nothing and uses no secrets; deploys are the owner's (spec 003,
+# plan section 8; decision D11 recommends Workers Builds for them).
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      # Strictly from the lockfile, so a drifted lockfile fails here.
+      - name: Install
+        run: npm ci
+
+      # Generates worker-configuration.d.ts (wrangler types), then tsc.
+      - name: Typecheck
+        run: npm run typecheck
+
+      # wrangler deploy --dry-run: bundles the Worker, uploads nothing.
+      - name: Build
+        run: npm run build
+
+      # Unit (the whole app in Node) and smoke (the Worker in workerd behind a
+      # stub engine, all --local, Cloudflare's published Turnstile test keys).
+      - name: Test
+        run: npm test
+        env:
+          WRANGLER_SEND_METRICS: false
+
+      - name: Browser for the budgets
+        run: npx playwright-core install --with-deps chromium
+
+      # WCAG 2.2 AA with axe, both schemes, 320 and 1280 px.
+      - name: Accessibility
+        run: npm run test:a11y
+        env:
+          WRANGLER_SEND_METRICS: false
+
+      # Lighthouse mobile, simulated 4G: LCP < 2.0 s, CLS < 0.05, TBT < 200 ms.
+      - name: Performance budgets
+        run: npm run test:perf
+        env:
+          WRANGLER_SEND_METRICS: false
